@@ -3,82 +3,70 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import DynamicForm from '@/resources/form/DynamicForm';
 import { generateAvisoSalidaPDF } from '@/resources/lib/pdfUtils';
-
-const avisoSalida = {
-  contactoCAU: "Martina Molina",
-  telefonoContacto: "+56912345678",
-  emailContacto: "mmolina@club.cl",
-  fechaHoraReporteRegreso: "25/07/2025 20:00",
-  actividad: "Ascenso técnico",
-  cerroOSector: "Cerro Tenerife",
-  ruta: "Cara norte",
-  linkPronostico: "https://weather.com",
-  linkRuta: "https://link-a-la-ruta.cl",
-  participantes: [
-    {
-      nombre: "Lucas Fernandez",
-      rut: "12.345.678-9",
-      telefono: "+56987654321",
-      contactoEmergencia: "Ana Ruiz",
-      telefonoEmergencia: "+56911223344"
-    }
-  ],
-  itinerario: [
-    {
-      fecha: "25/07",
-      actividad: "Ascenso hasta campamento base",
-      horario: "08:00 - 14:00",
-      altitud: "1500 msnm"
-    },
-    {
-      fecha: "26/07",
-      actividad: "Cumbre y descenso",
-      horario: "05:00 - 17:00",
-      altitud: "2500 msnm"
-    }
-  ],
-  gestionRiesgos: [
-    {
-      supuesto: "Tormenta eléctrica",
-      riesgo: "Descargas eléctricas",
-      lugar: "Cumbre",
-      acciones: "Revisar pronóstico y reprogramar si es necesario"
-    }
-  ],
-  imagenPronosticoUrl: "https://url-a-imagen.png",
-  equipo: "Crampones, piolet, arnés, cuerda, casco",
-  transporte: "Vehículo particular",
-  datosMedicos: [
-    {
-      nombre: "Lucas Fernandez",
-      enfermedades: "Asma leve",
-      medicamentos: "Inhalador Salbutamol",
-      grupoSangre: "O+",
-      sistemaSalud: "Fonasa",
-      seguros: "Seguro de montaña privado",
-      comentarios: "No antecedentes graves"
-    }
-  ]
-};
-
+import docFields from '@/resources/constants/docFields';
 
 export default function Home() {
   const router = useRouter();
 
   const handleSubmit = async (values) => {
-    generateAvisoSalidaPDF(avisoSalida);
+    try {
+      // Format the datetime for the PDF
+      const formattedValues = {
+        ...values,
+        fechaHoraReporteRegreso: values.fechaHoraReporteRegreso 
+          ? new Date(values.fechaHoraReporteRegreso).toLocaleString('es-CL', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          : ''
+      };
+      
+      await generateAvisoSalidaPDF(formattedValues);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF. Por favor, intente nuevamente.');
+    }
   };
 
   return (
-    <div className="p-6 space-y-6">
-      
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Aviso de Actividad de Montaña
+          </h1>
+          <p className="text-gray-600">
+            Complete el formulario para generar el aviso de salida oficial del CAU
+          </p>
+        </div>
 
-      <div className="w-full md:w-3/4 mb-20">
-        <DynamicForm
-          fields={{}}
-          onSubmit={handleSubmit}
-          submitLabel="Crear Agente"
-        />
+        {/* Form */}
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <DynamicForm
+            fields={docFields}
+            onSubmit={handleSubmit}
+            submitLabel="Generar PDF"
+          />
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-8 bg-blue-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            Instrucciones
+          </h3>
+          <ul className="text-blue-800 space-y-2 text-sm">
+            <li>• Complete todos los campos requeridos marcados con *</li>
+            <li>• Para agregar participantes, haga clic en "Agregar participantes"</li>
+            <li>• Para agregar días al itinerario, haga clic en "Agregar itinerario"</li>
+            <li>• Para agregar riesgos, haga clic en "Agregar gestión de riesgos"</li>
+            <li>• Para agregar datos médicos, haga clic en "Agregar datos médicos"</li>
+            <li>• El PDF se descargará automáticamente al completar el formulario</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

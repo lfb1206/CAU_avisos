@@ -1,4 +1,4 @@
-const avisoSalida = [
+const docFields = [
     { name: 'contactoCAU', label: 'Contacto CAU', placeholder: 'Nombre del contacto CAU', type: 'text' },
     { name: 'telefonoContacto', label: 'Teléfono de contacto', placeholder: '+569xxxxxxxx', type: 'text' },
     { name: 'emailContacto', label: 'Email de contacto', placeholder: 'correo@gmail.com', type: 'text' },
@@ -28,8 +28,22 @@ const avisoSalida = [
       { name: 'acciones', label: 'Acciones a Tomar', placeholder: 'Acciones a tomar ante el riesgo', type: 'text' }
     ]},
     { name: 'imagenPronosticoUrl', label: 'Imagen del Pronóstico del Tiempo (URL)', placeholder: 'https://url-a-imagen.png', type: 'text' },
-    { name: 'equipo', label: 'Equipo Portado', placeholder: 'Equipo que se porta en la actividad', type: 'text' },
-    { name: 'transporte', label: 'Transporte Utilizado', placeholder: 'Transporte utilizado para llegar al lugar', type: 'text' },
+    { name: 'equipo', label: 'Equipo Portado', placeholder: 'Equipo que se porta en la actividad', type: 'dynamic-list', fields: [
+      { name: 'categoria', label: 'Categoría', placeholder: 'Comunicaciones, Seguridad, etc.', type: 'text' },
+      { name: 'item', label: 'Item', placeholder: 'Radio, GPS, Casco, etc.', type: 'text' },
+      { name: 'cantidad', label: 'Cantidad', placeholder: '1, 2, etc.', type: 'text' },
+      { name: 'descripcion', label: 'Descripción', placeholder: 'Descripción adicional', type: 'text' }
+    ]},
+    { name: 'transporte', label: 'Transporte Utilizado', placeholder: 'Transporte utilizado para llegar al lugar', type: 'dynamic-list', fields: [
+      { name: 'tipo', label: 'Tipo de Transporte', placeholder: 'Privado, Público, etc.', type: 'text' },
+      { name: 'conductor', label: 'Conductor', placeholder: 'Nombre del conductor', type: 'text' },
+      { name: 'marca', label: 'Marca', placeholder: 'Marca del vehículo', type: 'text' },
+      { name: 'modelo', label: 'Modelo', placeholder: 'Modelo del vehículo', type: 'text' },
+      { name: 'color', label: 'Color', placeholder: 'Color del vehículo', type: 'text' },
+      { name: 'patente', label: 'Patente', placeholder: 'Patente del vehículo', type: 'text' },
+      { name: 'distancia', label: 'Distancia (km)', placeholder: 'Distancia total ida y vuelta', type: 'text' },
+      { name: 'huellaCO2', label: 'Huella CO2 (kg)', placeholder: 'Huella de carbono', type: 'text' }
+    ]},
     { name: 'datosMedicos', label: 'Datos Médicos', placeholder: 'Datos médicos relevantes', type: 'dynamic-list', fields: [
       { name: 'nombre', label: 'Nombre del Participante', placeholder: 'Nombre del participante', type: 'text' },
       { name: 'enfermedades', label: 'Enfermedades Relevantes', placeholder: 'Enfermedades relevantes del participante', type: 'text' },
@@ -42,5 +56,5 @@ const avisoSalida = [
   ]
 
   
-export default avisoSalida;
+export default docFields;
     

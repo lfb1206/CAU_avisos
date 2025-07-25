@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "PuntoTravel",
-  description: "Cotizador de viajes",
+  title: "CAU - Socios",
+  description: "Plataforma web Club Andino Universitario",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
