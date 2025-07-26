@@ -7,16 +7,27 @@ import AutocompleteInput from '../components/AutocompleteInput';
 
 export default function Step5EquipmentTransport() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+  const [expandedEquipo, setExpandedEquipo] = React.useState(formData.equipo.length - 1);
 
   const addEquipment = () => {
     const newEquipment = {
       categoria: '',
       item: '',
-      cantidad: '',
-      descripcion: '',
-      checked: true // Default to checked when added
+      cantidad: '1',
+      observaciones: '',
+      checked: true
     };
     addItem('equipo', newEquipment);
+    
+    // Scroll to the new equipment item
+    setTimeout(() => {
+      setExpandedEquipo(formData.equipo.length); // expandir el nuevo
+      const equipmentElements = document.querySelectorAll('[data-equipment-item]');
+      const lastElement = equipmentElements[equipmentElements.length - 1];
+      if (lastElement) {
+        lastElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
 
   const addTransport = () => {
@@ -64,19 +75,36 @@ export default function Step5EquipmentTransport() {
         removeItem('equipo', 0); // Remove first item until all are gone
       });
       
-      // Add recommended equipment
-      Object.entries(recommendations.equipment).forEach(([category, items]) => {
-        items.forEach(item => {
+      // Handle both array format and object format
+      if (Array.isArray(recommendations)) {
+        // Direct array format (new format)
+        recommendations.forEach(item => {
           const newEquipment = {
-            categoria: category,
-            item: item,
-            cantidad: '1',
-            descripcion: `Recomendado para ${activity}`,
-            checked: false // User must manually check what they're actually carrying
+            categoria: item.categoria,
+            item: item.item,
+            cantidad: item.cantidad || '1',
+            observaciones: item.observaciones || `Recomendado para ${activity}`,
+            checked: false
           };
           addItem('equipo', newEquipment);
         });
-      });
+      } else if (recommendations.equipment && typeof recommendations.equipment === 'object') {
+        // Object format with equipment property (old format)
+        Object.entries(recommendations.equipment).forEach(([category, items]) => {
+          if (Array.isArray(items)) {
+            items.forEach(item => {
+              const newEquipment = {
+                categoria: category,
+                item: item,
+                cantidad: '1',
+                observaciones: `Recomendado para ${activity}`,
+                checked: false
+              };
+              addItem('equipo', newEquipment);
+            });
+          }
+        });
+      }
     }
   };
 
@@ -99,24 +127,14 @@ export default function Step5EquipmentTransport() {
           <h3 className="text-xl font-semibold text-gray-900">
             Equipo Portado
           </h3>
-          <div className="flex space-x-2">
-            {formData.basicInfo.actividad && savedData.activityRecommendations[formData.basicInfo.actividad] && (
-              <button
-                type="button"
-                onClick={addRecommendedEquipment}
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
-              >
-                🎯 Cargar Recomendaciones
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={addEquipment}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              + Agregar Equipo
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={addRecommendedEquipment}
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-yellow-900 rounded-lg font-semibold shadow hover:bg-yellow-500 transition-colors text-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
+            Cargar recomendaciones
+          </button>
         </div>
 
         {/* Equipment Disclaimer */}
@@ -145,113 +163,110 @@ export default function Step5EquipmentTransport() {
 
         <div className="space-y-4">
           {formData.equipo.map((equipment, index) => (
-            <div key={index} className={`border border-gray-200 rounded-lg p-6 transition-colors ${
-              equipment.checked ? 'bg-green-50 border-green-200' : 'bg-gray-50'
-            }`}>
-              <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={equipment.checked || false}
-                      onChange={(e) => updateEquipment(index, 'checked', e.target.checked)}
-                      className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
-                    />
-                                         <span className="ml-2 text-sm text-gray-700">
-                       {equipment.checked ? 'Se está portando' : 'No se porta'}
-                     </span>
-                  </label>
-                  <h4 className="text-lg font-semibold text-gray-900">
-                    Equipo {index + 1}
-                  </h4>
-                </div>
+            <details
+              key={index}
+              data-equipment-item
+              open={expandedEquipo === index}
+              onToggle={e => setExpandedEquipo(e.target.open ? index : null)}
+              className={`border border-gray-200 rounded-lg p-0 transition-colors ${equipment.checked ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}
+            >
+              <summary className="flex items-center gap-2 cursor-pointer px-6 py-3 text-gray-900 font-semibold">
+                <span>{equipment.categoria || 'Sin categoría'}</span>
+                <span className="mx-2">/</span>
+                <span>{equipment.item || 'Sin item'}</span>
                 <button
                   type="button"
-                  onClick={() => removeItem('equipo', index)}
-                  className="text-red-500 hover:text-red-700 text-sm font-medium"
+                  onClick={() => updateEquipment(index, 'checked', !equipment.checked)}
+                  className={`ml-2 flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${equipment.checked ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+                  aria-pressed={equipment.checked}
                 >
-                  Eliminar
+                  {equipment.checked ? 'Se está portando' : 'No se porta'}
                 </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Categoría *
-                  </label>
-                  <select
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem('equipo', index);
+                  }}
+                  className="ml-auto text-red-600 text-xs font-semibold hover:underline hover:font-bold"
+                >
+                  Eliminar equipo
+                </button>
+              </summary>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AutocompleteInput
+                    label="Categoría *"
                     value={equipment.categoria}
-                    onChange={(e) => updateEquipment(index, 'categoria', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Seleccionar categoría</option>
-                    {formOptions.equipmentCategories.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <AutocompleteInput
-                  label="Item"
-                  value={equipment.item}
-                  onChange={(value) => updateEquipment(index, 'item', value)}
-                  options={equipment.categoria && formOptions.equipmentItems[equipment.categoria] 
-                    ? formOptions.equipmentItems[equipment.categoria] 
-                    : []
-                  }
-                  placeholder="Seleccione o escriba el item"
-                  required
-                />
-
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Cantidad *
-                  </label>
-                  <input
-                    type="number"
-                    value={equipment.cantidad}
-                    onChange={(e) => updateEquipment(index, 'cantidad', e.target.value)}
-                    placeholder="1"
-                    min="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={(value) => updateEquipment(index, 'categoria', value)}
+                    options={formOptions.equipmentCategories.map(option => option.label)}
+                    placeholder="Seleccione o escriba la categoría"
                     required
                   />
-                </div>
 
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Descripción
-                  </label>
-                  <input
-                    type="text"
-                    value={equipment.descripcion}
-                    onChange={(e) => updateEquipment(index, 'descripcion', e.target.value)}
-                    placeholder="Descripción adicional"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  <AutocompleteInput
+                    label="Item *"
+                    value={equipment.item}
+                    onChange={(value) => updateEquipment(index, 'item', value)}
+                    options={equipment.categoria ? (formOptions.equipmentItems[equipment.categoria] || []) : []}
+                    placeholder="Seleccione o escriba el item"
+                    required
                   />
+
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Cantidad *
+                    </label>
+                    <input
+                      type="number"
+                      value={equipment.cantidad}
+                      onChange={(e) => updateEquipment(index, 'cantidad', e.target.value)}
+                      placeholder="1"
+                      min="1"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    {equipment.cantidad && (isNaN(equipment.cantidad) || parseInt(equipment.cantidad) < 1) && (
+                      <p className="text-red-500 text-xs mt-1">
+                        La cantidad debe ser un número mayor a 0
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Observaciones
+                    </label>
+                    <input
+                      type="text"
+                      value={equipment.observaciones || ''}
+                      onChange={(e) => updateEquipment(index, 'observaciones', e.target.value)}
+                      placeholder="Observaciones adicionales"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </details>
           ))}
+          <div className="flex justify-center mt-6">
+            <button
+              type="button"
+              onClick={addEquipment}
+              className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
+            >
+              + Agregar equipo
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Transport Section */}
-      <div className="space-y-6">
+      <div className="space-y-6 mt-8">
         <div className="flex justify-between items-center">
           <h3 className="text-xl font-semibold text-gray-900">
-            Transporte Utilizado
+            Transporte
           </h3>
-          <button
-            type="button"
-            onClick={addTransport}
-            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-          >
-            + Agregar Transporte
-          </button>
         </div>
 
         <div className="space-y-4">
@@ -272,7 +287,7 @@ export default function Step5EquipmentTransport() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <AutocompleteInput
-                  label="Tipo de Transporte"
+                  label="Tipo *"
                   value={transport.tipo}
                   onChange={(value) => updateTransport(index, 'tipo', value)}
                   options={formOptions.transportTypes.map(t => t.label)}
@@ -281,7 +296,7 @@ export default function Step5EquipmentTransport() {
                 />
 
                 <AutocompleteInput
-                  label="Conductor"
+                  label="Conductor *"
                   value={transport.conductor}
                   onChange={(value) => updateTransport(index, 'conductor', value)}
                   options={getConductorOptions()}
@@ -351,6 +366,15 @@ export default function Step5EquipmentTransport() {
               </div>
             </div>
           ))}
+          <div className="flex justify-center mt-6">
+            <button
+              type="button"
+              onClick={addTransport}
+              className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
+            >
+              + Agregar transporte
+            </button>
+          </div>
         </div>
       </div>
 
@@ -359,42 +383,13 @@ export default function Step5EquipmentTransport() {
         <h4 className="text-sm font-semibold text-purple-900 mb-3">
           🎒 Consejos para registrar equipo y transporte:
         </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-purple-800">
-          <div>
-            <p className="font-medium mb-1">Equipo portado:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Use "Cargar Recomendaciones" para su actividad</li>
-              <li>• Marque solo el equipo que realmente porta</li>
-              <li>• Complete categoría, item y cantidad para cada equipo</li>
-              <li>• Solo el equipo marcado aparece en el aviso final</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Información de transporte:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Registre todos los vehículos utilizados</li>
-              <li>• Indique tipo de vehículo y conductor</li>
-              <li>• El conductor puede ser un participante registrado</li>
-              <li>• Complete patente y distancia si está disponible</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Consejos para el equipo:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Las recomendaciones NO se marcan automáticamente</li>
-              <li>• Revise cada item antes de marcarlo como portado</li>
-              <li>• Agregue equipo adicional si es necesario</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Recordatorio importante:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Debe tener al menos un equipo o transporte válido</li>
-              <li>• Verifique que los campos requeridos estén completos</li>
-              <li>• El sistema validará antes de continuar</li>
-            </ul>
-          </div>
-        </div>
+        <ul className="list-disc pl-5 text-purple-900 text-sm space-y-1">
+          <li>Agrega cada ítem de equipo con su categoría, nombre y cantidad.</li>
+          <li>Utiliza el campo <b>Observaciones</b> para anotar detalles relevantes (por ejemplo: "Recomendado para la actividad", "Equipo compartido", etc.).</li>
+          <li>Puedes cargar recomendaciones de equipo para la actividad seleccionada usando el botón amarillo <b>Cargar recomendaciones</b>. Revisa y edita antes de marcar como portado.</li>
+          <li>Solo los ítems marcados como <b>Se está portando</b> aparecerán en el aviso de salida.</li>
+          <li>En transporte, registra cada vehículo y conductor relevante.</li>
+        </ul>
       </div>
     </div>
   );

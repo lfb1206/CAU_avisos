@@ -14,8 +14,8 @@ export default function MultiStepForm() {
   const steps = [
     { id: 1, name: 'Información Básica', component: Step1BasicInfo },
     { id: 2, name: 'Participantes', component: Step2Participants },
-    { id: 3, name: 'Itinerario y Supuestos', component: Step3ItineraryAssumptions, optional: true },
-    { id: 4, name: 'Gestión de Riesgos', component: Step4RiskManagement, optional: true },
+    { id: 3, name: 'Itinerario y Supuestos', component: Step3ItineraryAssumptions },
+    { id: 4, name: 'Gestión de Riesgos', component: Step4RiskManagement },
     { id: 5, name: 'Equipo y Transporte', component: Step5EquipmentTransport },
     { id: 6, name: 'Revisión Final', component: Step6FinalReview }
   ];

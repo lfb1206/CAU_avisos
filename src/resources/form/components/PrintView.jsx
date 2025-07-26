@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export default function PrintView({ formData, onClose }) {
   const printRef = useRef();
@@ -9,6 +9,163 @@ export default function PrintView({ formData, onClose }) {
   const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
   const weatherImages = formData.basicInfo.weatherImages || [];
+
+  // Función para formatear valores (quitar guiones bajos, capitalizar)
+  const formatValue = (value) => {
+    if (!value) return '';
+    return value
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  // Función para agrupar equipo por categoría con rowspan
+  const getGroupedEquipmentWithRowspan = () => {
+    const grouped = {};
+    const checkedEquipment = equipo.filter(item => item.checked);
+    
+    checkedEquipment.forEach(item => {
+      if (item.categoria && item.item) {
+        if (!grouped[item.categoria]) {
+          grouped[item.categoria] = [];
+        }
+        grouped[item.categoria].push({
+          item: item.item,
+          cantidad: item.cantidad || 1,
+          observaciones: item.observaciones || ''
+        });
+      }
+    });
+    
+    // Convertir a array plano con información de rowspan
+    const result = [];
+    Object.entries(grouped).forEach(([categoria, items]) => {
+      items.forEach((item, index) => {
+        result.push({
+          categoria: index === 0 ? categoria : null,
+          categoriaRowspan: index === 0 ? items.length : 0,
+          ...item
+        });
+      });
+    });
+    
+    return result;
+  };
+
+  // Función para agrupar itinerario por tramo con rowspan
+  const getGroupedItineraryWithRowspan = () => {
+    const grouped = {};
+    
+    itinerario.forEach(day => {
+      if (day.tramo) {
+        if (!grouped[day.tramo]) {
+          grouped[day.tramo] = [];
+        }
+        grouped[day.tramo].push({
+          fecha: day.fecha,
+          actividad: day.actividad,
+          dificultades: (day.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', '),
+          horaInicio: day.horaInicio,
+          horaFin: day.horaFin
+        });
+      }
+    });
+    
+    // Convertir a array plano con información de rowspan
+    const result = [];
+    Object.entries(grouped).forEach(([tramo, items]) => {
+      items.forEach((item, index) => {
+        result.push({
+          tramo: index === 0 ? tramo : null,
+          tramoRowspan: index === 0 ? items.length : 0,
+          ...item
+        });
+      });
+    });
+    
+    return result;
+  };
+
+  // Función para agrupar supuestos por tramo con rowspan
+  const getGroupedAssumptionsWithRowspan = () => {
+    const grouped = {};
+    
+    itinerario.forEach(day => {
+      if (day.supuestos) {
+        day.supuestos.forEach(assumption => {
+          if (assumption.incluir) {
+            const key = day.tramo;
+            if (!grouped[key]) {
+              grouped[key] = [];
+            }
+            grouped[key].push({
+              supuesto: assumption.supuesto,
+              tipo: assumption.tipoSupuesto,
+              probabilidad: assumption.probabilidad,
+              impacto: assumption.impacto,
+              accion: assumption.accion
+            });
+          }
+        });
+      }
+    });
+    
+    // Convertir a array plano con información de rowspan
+    const result = [];
+    Object.entries(grouped).forEach(([tramo, items]) => {
+      items.forEach((item, index) => {
+        result.push({
+          tramo: index === 0 ? tramo : null,
+          tramoRowspan: index === 0 ? items.length : 0,
+          ...item
+        });
+      });
+    });
+    
+    return result;
+  };
+
+  // Función para agrupar riesgos por supuesto con rowspan
+  const getGroupedRisksWithRowspan = () => {
+    const grouped = {};
+    
+    riesgos.forEach(risk => {
+      const key = risk.supuesto;
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push({
+        riesgo: risk.riesgo,
+        peligro: risk.peligro,
+        lugar: risk.lugar,
+        accionProbabilidad: risk.accionProbabilidad,
+        accionExposicion: risk.accionExposicion,
+        accionConsecuencias: risk.accionConsecuencias
+      });
+    });
+    
+    // Convertir a array plano con información de rowspan
+    const result = [];
+    Object.entries(grouped).forEach(([supuesto, items]) => {
+      items.forEach((item, index) => {
+        result.push({
+          supuesto: index === 0 ? supuesto : null,
+          supuestoRowspan: index === 0 ? items.length : 0,
+          ...item
+        });
+      });
+    });
+    
+    return result;
+  };
+
+  // En el componente PrintView, agrega un useEffect para cerrar con ESC
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose]);
 
   const handlePrint = () => {
     // Create a new window/iframe for printing
@@ -199,10 +356,6 @@ export default function PrintView({ formData, onClose }) {
             .protocol-list li {
               margin-bottom: 3px;
               text-align: justify;
-            }
-            
-            .break-before {
-              page-break-before: always;
             }
             
             .footer {
@@ -460,19 +613,21 @@ export default function PrintView({ formData, onClose }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Tipo</th>
+                  <th>Categoría</th>
+                  <th>Item</th>
                   <th>Cantidad</th>
-                  <th>Descripción</th>
                   <th>Observaciones</th>
                 </tr>
               </thead>
               <tbody>
-                {equipmentToShow.map((e, index) => (
+                {getGroupedEquipmentWithRowspan().map((item, index) => (
                   <tr key={index}>
-                    <td>{e.item || ''}</td>
-                    <td>{e.cantidad || ''}</td>
-                    <td>{e.descripcion || ''}</td>
-                    <td></td>
+                    {item.categoria && (
+                      <td rowSpan={item.categoriaRowspan}>{item.categoria}</td>
+                    )}
+                    <td>{item.item}</td>
+                    <td>{item.cantidad}</td>
+                    <td>{item.observaciones}</td>
                   </tr>
                 ))}
               </tbody>
@@ -555,14 +710,16 @@ export default function PrintView({ formData, onClose }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {itinerario.map((item, index) => (
+                  {getGroupedItineraryWithRowspan().map((item, index) => (
                     <tr key={index}>
-                      <td>{item.tramo || ''}</td>
-                      <td>{item.fecha || ''}</td>
-                      <td>{item.actividad || ''}</td>
-                      <td>{(item.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', ')}</td>
-                      <td>{item.horaInicio || ''}</td>
-                      <td>{item.horaFin || ''}</td>
+                      {item.tramo && (
+                        <td rowSpan={item.tramoRowspan}>{item.tramo}</td>
+                      )}
+                      <td>{item.fecha}</td>
+                      <td>{item.actividad}</td>
+                      <td>{item.dificultades}</td>
+                      <td>{item.horaInicio}</td>
+                      <td>{item.horaFin}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -574,61 +731,95 @@ export default function PrintView({ formData, onClose }) {
             )}
           </div>
 
-          {/* Risk Management - Show only included assumptions */}
+          {/* Risk Management - Show both assumptions and detailed risks */}
           <div className="section">
             <h2>GESTIÓN DE RIESGOS</h2>
+            
+            {/* Supuestos del Itinerario */}
             {(() => {
-              // Get all included assumptions from all itinerary days
-              const includedAssumptions = [];
-              itinerario.forEach(day => {
-                if (day.supuestos) {
-                  day.supuestos.forEach(assumption => {
-                    if (assumption.incluir) {
-                      includedAssumptions.push({
-                        tramo: day.tramo,
-                        supuesto: assumption.supuesto,
-                        tipo: assumption.tipoSupuesto,
-                        probabilidad: assumption.probabilidad,
-                        impacto: assumption.impacto,
-                        accion: assumption.accion
-                      });
-                    }
-                  });
-                }
-              });
+              const includedAssumptions = getGroupedAssumptionsWithRowspan();
               
               return includedAssumptions.length > 0 ? (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Tramo</th>
-                      <th>Supuesto</th>
-                      <th>Tipo</th>
-                      <th>Probabilidad</th>
-                      <th>Impacto</th>
-                      <th>Acción</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {includedAssumptions.map((assumption, index) => (
-                      <tr key={index}>
-                        <td>{assumption.tramo || ''}</td>
-                        <td>{assumption.supuesto || ''}</td>
-                        <td>{assumption.tipo || ''}</td>
-                        <td>{assumption.probabilidad || ''}</td>
-                        <td>{assumption.impacto || ''}</td>
-                        <td>{assumption.accion || ''}</td>
+                <div>
+                  <h3 style={{margin: '10px 0', fontSize: '14px', fontWeight: 'bold'}}>Supuestos del Itinerario:</h3>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Tramo</th>
+                        <th>Supuesto</th>
+                        <th>Tipo</th>
+                        <th>Probabilidad</th>
+                        <th>Impacto</th>
+                        <th>Acción</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="empty-section">
-                  <p className="text-gray-500 italic">No se han seleccionado supuestos para incluir en el aviso</p>
+                    </thead>
+                    <tbody>
+                      {includedAssumptions.map((assumption, index) => (
+                        <tr key={index}>
+                          {assumption.tramo && (
+                            <td rowSpan={assumption.tramoRowspan}>{assumption.tramo}</td>
+                          )}
+                          <td>{assumption.supuesto || ''}</td>
+                          <td>{formatValue(assumption.tipo) || ''}</td>
+                          <td>{formatValue(assumption.probabilidad) || ''}</td>
+                          <td>{formatValue(assumption.impacto) || ''}</td>
+                          <td>{formatValue(assumption.accion) || ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              );
+              ) : null;
+            })()}
+
+            {/* Riesgos Detallados */}
+            {riesgos.length > 0 && (
+              <div style={{marginTop: '20px'}}>
+                <h3 style={{margin: '10px 0', fontSize: '14px', fontWeight: 'bold'}}>Gestión Detallada de Riesgos:</h3>
+                                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Supuesto</th>
+                        <th>Riesgo</th>
+                        <th>Peligro</th>
+                        <th>Lugar</th>
+                        <th>Acción Probabilidad</th>
+                        <th>Acción Exposición</th>
+                        <th>Acción Consecuencias</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {getGroupedRisksWithRowspan().map((risk, index) => (
+                        <tr key={index}>
+                          {risk.supuesto && (
+                            <td rowSpan={risk.supuestoRowspan}>{risk.supuesto}</td>
+                          )}
+                          <td>{risk.riesgo || ''}</td>
+                          <td>{risk.peligro || ''}</td>
+                          <td>{risk.lugar || ''}</td>
+                          <td>{risk.accionProbabilidad || ''}</td>
+                          <td>{risk.accionExposicion || ''}</td>
+                          <td>{risk.accionConsecuencias || ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+              </div>
+            )}
+
+            {(() => {
+              const includedAssumptions = getGroupedAssumptionsWithRowspan();
+              
+              return includedAssumptions.length === 0 && riesgos.length === 0 ? (
+                <div className="empty-section">
+                  <p className="text-gray-500 italic">No se han especificado riesgos para incluir en el aviso</p>
+                </div>
+              ) : null;
             })()}
           </div>
+
+          {/* Page Break */}
+          <div className="page-break-before" style={{ height: '0', pageBreakBefore: 'always', breakBefore: 'page' }}></div>
 
           {/* Emergency Contacts */}
           <div className="section">
@@ -652,7 +843,7 @@ export default function PrintView({ formData, onClose }) {
           </div>
 
           {/* Responsibilities */}
-          <div className="section break-before">
+          <div className="section">
             <h2 className="centered">RESPONSABILIDAD DE LA CORDADA</h2>
             <ul className="responsibility-list">
               <li>Hacer su aviso de salida de forma completa y responsable y enviarlo al egroup Montañismo UC</li>
@@ -679,7 +870,7 @@ export default function PrintView({ formData, onClose }) {
             <h2 className="centered">EN CASO DE NO RETORNO O ACCIDENTE CONFIRMADO ACTIVAR EL PROTOCOLO DE EMERGENCIA</h2>
           </div>
 
-          <div className="section break-before">
+          <div className="section">
             <h2>PROTOCOLO DE EMERGENCIA PARA CONTACTO CAU:</h2>
             
             <div className="protocol-section">
@@ -880,12 +1071,12 @@ export default function PrintView({ formData, onClose }) {
           font-size: 8px;
         }
 
-        .break-before {
-          page-break-before: always;
-        }
-
         .page-break-before {
-          page-break-before: always;
+          break-before: page !important;
+          page-break-before: always !important;
+          height: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
 
         .emergency-contacts-box {
@@ -933,10 +1124,6 @@ export default function PrintView({ formData, onClose }) {
             min-height: auto !important;
           }
 
-          .break-before {
-            page-break-before: always !important;
-          }
-
           .empty-weather,
           .empty-section {
             background-color: transparent !important;
@@ -964,6 +1151,11 @@ export default function PrintView({ formData, onClose }) {
           .section {
             page-break-inside: auto !important;
             margin-bottom: 15px !important;
+          }
+
+          .page-break-before {
+            break-before: page !important;
+            page-break-before: always !important;
           }
 
           .protocol-section {

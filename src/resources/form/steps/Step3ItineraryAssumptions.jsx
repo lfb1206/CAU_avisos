@@ -7,6 +7,8 @@ import AutocompleteInput from '../components/AutocompleteInput';
 
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+  const [expandedTramo, setExpandedTramo] = React.useState(formData.itinerario.length - 1);
+  const [expandedSupuesto, setExpandedSupuesto] = React.useState({});
 
   // Excel logic for risk assessment - FIXED LOGIC
   const calculateRiskAction = (probability, impact) => {
@@ -37,6 +39,7 @@ export default function Step3ItineraryAssumptions() {
       supuestos: []
     };
     addItem('itinerario', newDay);
+    setExpandedTramo(formData.itinerario.length - 1);
   };
 
   // Suggest assumptions based on selected difficulties
@@ -73,6 +76,7 @@ export default function Step3ItineraryAssumptions() {
     const updatedItinerary = [...formData.itinerario];
     updatedItinerary[itineraryIndex].supuestos.push(newAssumption);
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
+    setExpandedSupuesto(ec => ({ ...ec, [itineraryIndex]: updatedItinerary[itineraryIndex].supuestos.length - 1 }));
   };
 
   const addSuggestedAssumptions = (itineraryIndex) => {
@@ -86,6 +90,7 @@ export default function Step3ItineraryAssumptions() {
       updatedItinerary[itineraryIndex].supuestos.push(suggestion);
     });
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
+    setExpandedSupuesto(ec => ({ ...ec, [itineraryIndex]: updatedItinerary[itineraryIndex].supuestos.length - 1 }));
   };
 
   // Handle difficulty addition
@@ -128,6 +133,12 @@ export default function Step3ItineraryAssumptions() {
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
+  const removeAssumption = (itineraryIndex, assumptionIndex) => {
+    const updatedItinerary = [...formData.itinerario];
+    updatedItinerary[itineraryIndex].supuestos.splice(assumptionIndex, 1);
+    updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
+  };
+
   const getActionColor = (action) => {
     switch (action) {
       case 'gestionar': return 'bg-red-100 text-red-800 border-red-200';
@@ -162,296 +173,225 @@ export default function Step3ItineraryAssumptions() {
       {/* Itinerary Days */}
       <div className="space-y-6">
         {formData.itinerario.map((day, dayIndex) => (
-          <div key={dayIndex} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Tramo {dayIndex + 1}
-              </h3>
+          <details key={dayIndex} className="border border-yellow-200 rounded-lg bg-yellow-50 mb-4">
+            <summary className="flex items-center gap-4 px-4 py-2 text-yellow-900 font-semibold cursor-pointer">
+              <span>{day.tramo || `Tramo ${dayIndex + 1}`}</span>
+              {day.fecha && <span className="text-xs text-yellow-700">{day.fecha}</span>}
               <button
                 type="button"
-                onClick={() => removeItem('itinerario', dayIndex)}
-                className="text-red-500 hover:text-red-700 text-sm font-medium"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeItem('itinerario', dayIndex);
+                }}
+                className="ml-auto text-red-600 text-xs font-semibold hover:underline hover:font-bold"
               >
-                Eliminar Tramo
+                Eliminar tramo
               </button>
-            </div>
-
-            {/* Itinerary Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <AutocompleteInput
-                label="Tramo"
-                value={day.tramo}
-                onChange={(value) => updateItem('itinerario', dayIndex, { ...day, tramo: value })}
-                options={formOptions.tramos}
-                placeholder="Seleccione o escriba el tramo"
-                required
-              />
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Fecha *
-                </label>
-                <input
-                  type="date"
-                  value={day.fecha}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, fecha: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            </summary>
+            <div className="p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <AutocompleteInput
+                  label="Tramo *"
+                  value={day.tramo}
+                  onChange={(value) => updateItem('itinerario', dayIndex, { ...day, tramo: value })}
+                  options={formOptions.tramos}
+                  placeholder="Seleccione o escriba el tramo"
                   required
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Actividad *
-                </label>
-                <input
-                  type="text"
-                  value={day.actividad}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, actividad: e.target.value })}
-                  placeholder="Ej: Ascenso al campamento"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div className="md:col-span-2 space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Principales dificultades
-                  </label>
-                  <div className="flex items-center gap-2">
-                    {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d.trim()).length > 0 && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Fecha *</label>
+                  <input
+                    type="date"
+                    value={day.fecha}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, fecha: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Actividad *</label>
+                  <input
+                    type="text"
+                    value={day.actividad}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, actividad: e.target.value })}
+                    placeholder="Ej: Ascenso al campamento"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="md:col-span-2 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-sm font-medium text-gray-700">Principales dificultades</label>
+                    <div className="flex items-center gap-2">
+                      {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d.trim()).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => addSuggestedAssumptions(dayIndex)}
+                          className="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                        >
+                          💡 Sugerir Supuestos ({day.dificultadesPrincipales.filter(d => d.trim()).length})
+                        </button>
+                      )}
                       <button
                         type="button"
-                        onClick={() => addSuggestedAssumptions(dayIndex)}
-                        className="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                        onClick={() => addDifficulty(dayIndex)}
+                        className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                       >
-                        💡 Sugerir Supuestos ({day.dificultadesPrincipales.filter(d => d.trim()).length})
+                        + Agregar Dificultad
                       </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => addDifficulty(dayIndex)}
-                      className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    >
-                      + Agregar Dificultad
-                    </button>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Difficulties List */}
-                <div className="space-y-2">
-                  {(day.dificultadesPrincipales || []).map((difficulty, difficultyIndex) => (
-                    <div key={difficultyIndex} className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <AutocompleteInput
-                          value={difficulty}
-                          onChange={(value) => updateDifficulty(dayIndex, difficultyIndex, value)}
-                          options={formOptions.dificultadesPrincipales}
-                          placeholder="Seleccione o escriba una dificultad"
-                          className="text-sm"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeDifficulty(dayIndex, difficultyIndex)}
-                        className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  ))}
-                  
-                  {(!day.dificultadesPrincipales || day.dificultadesPrincipales.length === 0) && (
-                    <p className="text-sm text-gray-500 italic">
-                      No se han agregado dificultades. Haga clic en "Agregar Dificultad" para comenzar.
-                    </p>
-                  )}
-                </div>
-                
-                <p className="text-xs text-gray-500">
-                  Agregue las principales dificultades del tramo una por una. El sistema sugerirá supuestos automáticamente basados en su selección.
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Hora Inicio
-                </label>
-                <input
-                  type="time"
-                  value={day.horaInicio}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaInicio: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Hora Fin
-                </label>
-                <input
-                  type="time"
-                  value={day.horaFin}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaFin: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Altitud Inicio (msnm)
-                </label>
-                <input
-                  type="number"
-                  value={day.altitudInicio}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudInicio: e.target.value })}
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Altitud Fin (msnm)
-                </label>
-                <input
-                  type="number"
-                  value={day.altitudFin}
-                  onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudFin: e.target.value })}
-                  placeholder="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Assumptions for this day */}
-            <div className="mt-6">
-              <h4 className="text-md font-semibold text-gray-900 mb-2">
-                Supuestos Clave para el Éxito
-              </h4>
-              
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                <p className="text-xs text-blue-800">
-                  <strong>Solo los supuestos marcados como "Incluir en aviso" aparecerán en el documento final.</strong> 
-                  Use los checkboxes para seleccionar qué supuestos son relevantes para este tramo.
-                </p>
-              </div>
-              
-              <div className="space-y-4">
-                {day.supuestos.map((assumption, assumptionIndex) => (
-                  <div key={assumptionIndex} className={`border border-gray-200 rounded-lg p-4 transition-colors ${
-                    assumption.incluir ? 'bg-green-50 border-green-200' : 'bg-white'
-                  }`}>
-                    <div className="flex justify-between items-center mb-3">
-                      <div className="flex items-center gap-3">
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={assumption.incluir || false}
-                            onChange={(e) => updateAssumption(dayIndex, assumptionIndex, 'incluir', e.target.checked)}
-                            className="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                  {/* Difficulties List */}
+                  <div className="space-y-2">
+                    {(day.dificultadesPrincipales || []).map((difficulty, difficultyIndex) => (
+                      <div key={difficultyIndex} className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <AutocompleteInput
+                            value={difficulty}
+                            onChange={(value) => updateDifficulty(dayIndex, difficultyIndex, value)}
+                            options={formOptions.dificultadesPrincipales}
+                            placeholder="Seleccione o escriba una dificultad"
+                            className="text-sm"
                           />
-                          <span className="ml-2 text-xs text-gray-700">
-                            {assumption.incluir ? 'Incluir en aviso' : 'No incluir'}
-                          </span>
-                        </label>
-                        <h5 className="text-sm font-medium text-gray-900">
-                          Supuesto {assumptionIndex + 1}
-                        </h5>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeDifficulty(dayIndex, difficultyIndex)}
+                          className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                        >
+                          Eliminar
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updatedSupuestos = day.supuestos.filter((_, i) => i !== assumptionIndex);
-                          updateItem('itinerario', dayIndex, { ...day, supuestos: updatedSupuestos });
-                        }}
-                        className="text-red-500 hover:text-red-700 text-xs"
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2">
+                    ))}
+                    {(!day.dificultadesPrincipales || day.dificultadesPrincipales.length === 0) && (
+                      <p className="text-sm text-gray-500 italic">
+                        No se han agregado dificultades. Haga clic en "Agregar Dificultad" para comenzar.
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Agregue las principales dificultades del tramo una por una. El sistema sugerirá supuestos automáticamente basados en su selección.
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Hora Inicio</label>
+                  <input
+                    type="time"
+                    value={day.horaInicio}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaInicio: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Hora Fin</label>
+                  <input
+                    type="time"
+                    value={day.horaFin}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaFin: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Altitud Inicio (msnm)</label>
+                  <input
+                    type="number"
+                    value={day.altitudInicio}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudInicio: e.target.value })}
+                    placeholder="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">Altitud Fin (msnm)</label>
+                  <input
+                    type="number"
+                    value={day.altitudFin}
+                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudFin: e.target.value })}
+                    placeholder="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="space-y-4 mt-6">
+                {(day.supuestos || []).map((sup, supIdx) => (
+                  <div key={supIdx} className="border border-gray-200 rounded bg-blue-50 mb-2 p-4">
+                    <div className="space-y-6">
+                      <div className="mb-4">
                         <AutocompleteInput
-                          label="Supuesto clave"
-                          value={assumption.supuesto}
-                          onChange={(value) => updateAssumption(dayIndex, assumptionIndex, 'supuesto', value)}
+                          label="Supuesto clave *"
+                          value={sup.supuesto}
+                          onChange={(value) => updateAssumption(dayIndex, supIdx, 'supuesto', value)}
                           options={formOptions.supuestos}
                           placeholder="Seleccione o escriba el supuesto clave"
                           required
                         />
                       </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-xs font-medium text-gray-700">
-                          Tipo de supuesto
-                        </label>
-                        <select
-                          value={assumption.tipoSupuesto}
-                          onChange={(e) => updateAssumption(dayIndex, assumptionIndex, 'tipoSupuesto', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        >
-                          <option value="">Seleccionar tipo</option>
-                          {formOptions.tipoSupuestos.map(option => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
+                      <select
+                        value={sup.tipoSupuesto}
+                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'tipoSupuesto', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                      >
+                        <option value="">Seleccionar tipo</option>
+                        {formOptions.tipoSupuestos.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={sup.probabilidad}
+                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'probabilidad', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        required
+                      >
+                        <option value="">Seleccionar probabilidad</option>
+                        {formOptions.probabilidades.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <select
+                        value={sup.impacto}
+                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'impacto', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        required
+                      >
+                        <option value="">Seleccionar impacto</option>
+                        {formOptions.impactos.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="mt-6">
+                      <label className="block text-xs font-medium text-gray-700 mb-2">
+                        Acción Requerida
+                      </label>
+                      <div className={`px-3 py-2 rounded-md border text-sm font-medium ${getActionColor(sup.accion)}`}>
+                        {getActionLabel(sup.accion)}
                       </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-xs font-medium text-gray-700">
-                          Probabilidad *
-                        </label>
-                        <select
-                          value={assumption.probabilidad}
-                          onChange={(e) => updateAssumption(dayIndex, assumptionIndex, 'probabilidad', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          required
-                        >
-                          <option value="">Seleccionar probabilidad</option>
-                          {formOptions.probabilidades.map(option => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-xs font-medium text-gray-700">
-                          Impacto *
-                        </label>
-                        <select
-                          value={assumption.impacto}
-                          onChange={(e) => updateAssumption(dayIndex, assumptionIndex, 'impacto', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                          required
-                        >
-                          <option value="">Seleccionar impacto</option>
-                          {formOptions.impactos.map(option => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="md:col-span-2 space-y-1">
-                        <label className="block text-xs font-medium text-gray-700">
-                          Acción Requerida
-                        </label>
-                        <div className={`px-3 py-2 rounded-md border text-sm font-medium ${getActionColor(assumption.accion)}`}>
-                          {getActionLabel(assumption.accion)}
-                        </div>
-                      </div>
+                    </div>
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                      <button
+                        type="button"
+                        onClick={() => updateAssumption(dayIndex, supIdx, 'incluir', !sup.incluir)}
+                        className={`flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${sup.incluir ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+                        aria-pressed={sup.incluir}
+                      >
+                        {sup.incluir ? 'Incluir en aviso' : 'No incluir'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeAssumption(dayIndex, supIdx)}
+                        className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
+                      >
+                        Eliminar supuesto
+                      </button>
                     </div>
                   </div>
                 ))}
-
                 <button
                   type="button"
                   onClick={() => addAssumption(dayIndex)}
@@ -461,7 +401,7 @@ export default function Step3ItineraryAssumptions() {
                 </button>
               </div>
             </div>
-          </div>
+          </details>
         ))}
 
         {/* Add Day Button */}
@@ -476,9 +416,9 @@ export default function Step3ItineraryAssumptions() {
 
       {/* Instructions */}
       <div className="mt-8 bg-yellow-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-yellow-900 mb-3">
-          🗺️ Consejos para planificar su itinerario (Paso Opcional):
-        </h4>
+                  <h4 className="text-sm font-semibold text-yellow-900 mb-3">
+            🗺️ Consejos para planificar su itinerario:
+          </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-yellow-800">
           <div>
             <p className="font-medium mb-1">Información del tramo:</p>
@@ -507,9 +447,9 @@ export default function Step3ItineraryAssumptions() {
           <div>
             <p className="font-medium mb-1">Recordatorio importante:</p>
             <ul className="space-y-1 ml-2">
-              <li>• Este paso es opcional pero recomendado</li>
+              <li>• Complete el itinerario detallado de su expedición</li>
               <li>• Solo los supuestos marcados aparecen en el aviso</li>
-              <li>• Puede saltar este paso si no tiene itinerario detallado</li>
+              <li>• Identifique las dificultades principales de cada tramo</li>
             </ul>
           </div>
         </div>

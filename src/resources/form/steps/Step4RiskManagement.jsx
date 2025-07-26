@@ -3,235 +3,198 @@ import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { formOptions } from '../../constants/formOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
+import { useRef } from 'react';
 
 export default function Step4RiskManagement() {
-  const { formData, addItem, removeItem, updateItem } = useFormContext();
+  const { formData, updateItem } = useFormContext();
+  const [expandedSupuesto, setExpandedSupuesto] = React.useState(null);
+  const [expandedCausa, setExpandedCausa] = React.useState({});
+  const supRefs = useRef([]);
 
-  const addRisk = () => {
-    const newRisk = {
-      supuesto: '',
-      riesgo: '',
+  // Obtener supuestos a gestionar del itinerario
+  const supuestosGestionar = [];
+  formData.itinerario.forEach((day, dayIndex) => {
+    (day.supuestos || []).forEach((assumption, assumptionIndex) => {
+      if (assumption.accion === 'gestionar') {
+        supuestosGestionar.push({
+          key: `${dayIndex}-${assumptionIndex}`,
+          tramo: day.tramo,
+          supuesto: assumption.supuesto,
+          indexItinerario: dayIndex,
+          indexSupuesto: assumptionIndex,
+          causas: assumption.causas || []
+        });
+      }
+    });
+  });
+
+  // Agregar causa/peligro a un supuesto
+  const addCausa = (supKey) => {
+    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    const updatedItinerario = [...formData.itinerario];
+    const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+    if (!sup.causas) sup.causas = [];
+    sup.causas.push({
       peligro: '',
+      riesgo: '',
       lugar: '',
       accionProbabilidad: '',
       accionExposicion: '',
       accionConsecuencias: ''
-    };
-    addItem('riesgos', newRisk);
-  };
-
-  const updateRisk = (index, field, value) => {
-    updateItem('riesgos', index, { [field]: value });
-  };
-
-  // Get risks that need management from Step 3
-  const getRisksToManage = () => {
-    const risksToManage = [];
-    formData.itinerario.forEach((day, dayIndex) => {
-      day.supuestos.forEach((assumption, assumptionIndex) => {
-        if (assumption.accion === 'gestionar') {
-          risksToManage.push({
-            supuesto: assumption.supuesto,
-            tramo: day.tramo,
-            dia: day.dia,
-            riesgo: '',
-            peligro: '',
-            lugar: '',
-            accionProbabilidad: '',
-            accionExposicion: '',
-            accionConsecuencias: ''
-          });
-        }
-      });
     });
-    return risksToManage;
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    setTimeout(() => {
+      const el = document.querySelector(`[data-causa-item="${supKey}-${sup.causas.length - 1}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
   };
 
-  // Auto-populate risks from Step 3
-  React.useEffect(() => {
-    const risksToManage = getRisksToManage();
-    if (risksToManage.length > 0 && formData.riesgos.length === 0) {
-      risksToManage.forEach(risk => {
-        addItem('riesgos', risk);
-      });
-    }
-  }, [formData.itinerario]);
+  // Actualizar causa/peligro
+  const updateCausa = (supKey, causaIndex, field, value) => {
+    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    const updatedItinerario = [...formData.itinerario];
+    const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+    if (!sup.causas) sup.causas = [];
+    sup.causas[causaIndex][field] = value;
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+  };
 
+  // Eliminar causa/peligro
+  const removeCausa = (supKey, causaIndex) => {
+    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    const updatedItinerario = [...formData.itinerario];
+    const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+    if (!sup.causas) sup.causas = [];
+    sup.causas.splice(causaIndex, 1);
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+  };
+
+  // Eliminar supuesto completo
+  const removeSupuesto = (supKey) => {
+    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    const updatedItinerario = [...formData.itinerario];
+    updatedItinerario[dayIndex].supuestos.splice(assumptionIndex, 1);
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+  };
+
+  // UI
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Gestión de Riesgos
-        </h2>
-        <p className="text-gray-600">
-          Identifique riesgos, causas subyacentes y establezca acciones de gestión
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Riesgos</h2>
+        <p className="text-gray-600">Para cada supuesto crítico, agregue y gestione las causas/peligros relevantes.</p>
       </div>
-
-
-
-      {/* Risk Management List */}
-      <div className="space-y-6">
-        {formData.riesgos.map((risk, index) => (
-          <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Riesgo {index + 1}
-              </h3>
-              <button
-                type="button"
-                onClick={() => removeItem('riesgos', index)}
-                className="text-red-500 hover:text-red-700 text-sm font-medium"
-              >
-                Eliminar
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Original Assumption */}
-              <div className="md:col-span-2 space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Supuesto Original
-                </label>
-                <input
-                  type="text"
-                  value={risk.supuesto}
-                  onChange={(e) => updateRisk(index, 'supuesto', e.target.value)}
-                  placeholder="Ej: Se logra cruzar el glaciar"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-100"
-                  readOnly
-                />
-              </div>
-
-              <AutocompleteInput
-                label="Riesgo específico"
-                value={risk.riesgo}
-                onChange={(value) => updateRisk(index, 'riesgo', value)}
-                options={formOptions.riesgos}
-                placeholder="Seleccione o escriba el riesgo específico"
-                required
-              />
-
-              <AutocompleteInput
-                label="Peligro o causa subyacente"
-                value={risk.peligro}
-                onChange={(value) => updateRisk(index, 'peligro', value)}
-                options={formOptions.peligros}
-                placeholder="Seleccione o escriba el peligro"
-                required
-              />
-
-              <div className="md:col-span-2 space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  Lugar o coordenadas (WGS 84)
-                </label>
-                <input
-                  type="text"
-                  value={risk.lugar}
-                  onChange={(e) => updateRisk(index, 'lugar', e.target.value)}
-                  placeholder="Ej: Glaciar, Coordenadas específicas, etc."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              {/* Risk Management Actions */}
-              <div className="md:col-span-2">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3 border-b pb-1">
-                  Acciones de Gestión de Riesgos
-                </h4>
-              </div>
-
-              <div className="md:col-span-2 space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  ¿Cómo hago más probable que mi supuesto se cumpla? (Probabilidad)
-                </label>
-                <textarea
-                  value={risk.accionProbabilidad}
-                  onChange={(e) => updateRisk(index, 'accionProbabilidad', e.target.value)}
-                  placeholder="Ej: Salgo temprano, voy en invierno, pronóstico de temperaturas bajas, selecciono itinerario..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="md:col-span-2 space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  ¿Cómo disminuyo el impacto si el supuesto no se cumple? (Exposición)
-                </label>
-                <textarea
-                  value={risk.accionExposicion}
-                  onChange={(e) => updateRisk(index, 'accionExposicion', e.target.value)}
-                  placeholder="Ej: Trazo ruta alternativa, llevo equipo de emergencia..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="md:col-span-2 space-y-1">
-                <label className="block text-sm font-medium text-gray-700">
-                  ¿Qué hago para mitigar los efectos de los riesgos derivados de que no se cumpla el supuesto? (Consecuencias)
-                </label>
-                <textarea
-                  value={risk.accionConsecuencias}
-                  onChange={(e) => updateRisk(index, 'accionConsecuencias', e.target.value)}
-                  placeholder="Ej: Voy encordado, uso casco, piolet, conocimiento, entrenamiento..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+      <div className="space-y-4">
+        {supuestosGestionar.length === 0 && (
+          <div className="text-gray-500 italic">No hay supuestos críticos para gestionar.</div>
+        )}
+        {supuestosGestionar.map((sup, supIndex) => (
+          <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
+            <summary className="flex items-center gap-4 px-4 py-2 text-blue-900 font-semibold cursor-pointer">
+              <span>{sup.supuesto}</span>
+            </summary>
+            <div className="p-4">
+              <div className="space-y-4">
+                {(sup.causas || []).map((causa, causaIdx) => (
+                  <div key={causaIdx} data-causa-item={`${sup.key}-${causaIdx}`} className="border border-gray-200 rounded bg-yellow-50 mb-2 p-4">
+                    <div className="space-y-4">
+                      <AutocompleteInput
+                        label="Peligro o causa subyacente"
+                        value={causa.peligro}
+                        onChange={v => updateCausa(sup.key, causaIdx, 'peligro', v)}
+                        options={formOptions.peligros}
+                        placeholder="Seleccione o escriba el peligro"
+                        required
+                      />
+                      <AutocompleteInput
+                        label="Riesgo asociado"
+                        value={causa.riesgo}
+                        onChange={v => updateCausa(sup.key, causaIdx, 'riesgo', v)}
+                        options={formOptions.riesgos}
+                        placeholder="Describa el riesgo"
+                        required
+                      />
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        value={causa.lugar}
+                        onChange={e => updateCausa(sup.key, causaIdx, 'lugar', e.target.value)}
+                        placeholder="Lugar o coordenadas (opcional)"
+                      />
+                      {/* Acciones de gestión con tooltips */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                        <div>
+                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                            Probabilidad
+                            <span className="relative group">
+                              <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones aumentan la probabilidad de éxito?</span>
+                            </span>
+                          </label>
+                          <textarea
+                            value={causa.accionProbabilidad}
+                            onChange={e => updateCausa(sup.key, causaIdx, 'accionProbabilidad', e.target.value)}
+                            rows={2}
+                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                            Exposición
+                            <span className="relative group">
+                              <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones reducen la exposición al peligro?</span>
+                            </span>
+                          </label>
+                          <textarea
+                            value={causa.accionExposicion}
+                            onChange={e => updateCausa(sup.key, causaIdx, 'accionExposicion', e.target.value)}
+                            rows={2}
+                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                            Consecuencias
+                            <span className="relative group">
+                              <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones mitigan las consecuencias si ocurre el riesgo?</span>
+                            </span>
+                          </label>
+                          <textarea
+                            value={causa.accionConsecuencias}
+                            onChange={e => updateCausa(sup.key, causaIdx, 'accionConsecuencias', e.target.value)}
+                            rows={2}
+                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                          />
+                        </div>
+                      </div>
+                      {/* Si hay Acción Requerida aquí, dale un margen superior */}
+                      {causa.accionRequerida && (
+                        <div className="mt-2">
+                          {/* Acción Requerida */}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                      <span className="text-xs text-gray-500">{causa.riesgo ? 'Riesgo: ' + causa.riesgo : ''}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeCausa(sup.key, causaIdx)}
+                        className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
+                      >
+                        Eliminar peligro
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button onClick={() => addCausa(sup.key)} className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
+                  + Agregar causa/peligro
+                </button>
               </div>
             </div>
-          </div>
+          </details>
         ))}
-
-        {/* Add Risk Button */}
-        <button
-          type="button"
-          onClick={addRisk}
-          className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
-        >
-          + Agregar Riesgo
-        </button>
-      </div>
-
-      {/* Instructions */}
-      <div className="mt-8 bg-red-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-red-900 mb-3">
-          ⚠️ Consejos para gestión detallada de riesgos (Paso Opcional):
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-red-800">
-          <div>
-            <p className="font-medium mb-1">Riesgos identificados:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Se cargan automáticamente desde el paso anterior</li>
-              <li>• Solo aparecen supuestos marcados como "gestionar"</li>
-              <li>• Puede agregar riesgos adicionales manualmente</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Análisis de causas:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Identifique el riesgo específico del supuesto</li>
-              <li>• Determine el peligro principal involucrado</li>
-              <li>• Especifique el lugar donde puede ocurrir</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Acciones de gestión:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Acciones para reducir la probabilidad</li>
-              <li>• Acciones para reducir la exposición</li>
-              <li>• Acciones para mitigar consecuencias</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Recordatorio importante:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Este paso es opcional pero recomendado</li>
-              <li>• Solo para supuestos de alto riesgo</li>
-              <li>• Puede saltar si no tiene riesgos que gestionar</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </div>
   );

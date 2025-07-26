@@ -216,10 +216,16 @@ export const FormContextProvider = ({ children }) => {
       case 2: // Participants (now includes medical data)
         return participantes.length > 0 &&
                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
-      case 3: // Itinerary & Assumptions - MADE OPTIONAL
-        return true; // Always valid, optional step
-      case 4: // Risk Management - MADE OPTIONAL
-        return true; // Always valid, optional step
+      case 3: // Itinerary & Assumptions
+        const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
+        return itinerario.length > 0 && itinerario.every(day => 
+          day.tramo && day.actividad && day.horaInicio && day.horaFin
+        );
+      case 4: // Risk Management
+        const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
+        return riesgos.length > 0 && riesgos.every(risk => 
+          risk.supuesto && risk.riesgo && risk.peligro
+        );
       case 5: // Equipment & Transport
         // Check if there's at least one valid equipment or transport
         const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
@@ -237,6 +243,8 @@ export const FormContextProvider = ({ children }) => {
     const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
     const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
     const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
+    const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
+    const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
 
     const basicInfoComplete = formData.basicInfo.contactoCAU &&
                              formData.basicInfo.telefonoContacto &&
@@ -251,11 +259,19 @@ export const FormContextProvider = ({ children }) => {
     const participantsComplete = participantes.length > 0 &&
                                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
 
+    const itineraryComplete = itinerario.length > 0 && itinerario.every(day => 
+      day.tramo && day.actividad && day.horaInicio && day.horaFin
+    );
+
+    const risksComplete = riesgos.length > 0 && riesgos.every(risk => 
+      risk.supuesto && risk.riesgo && risk.peligro
+    );
+
     const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
     const validTransporte = transporte.filter(t => t.tipo && t.conductor);
     const equipmentComplete = validEquipo.length > 0 || validTransporte.length > 0;
 
-    return basicInfoComplete && inReachComplete && participantsComplete && equipmentComplete;
+    return basicInfoComplete && inReachComplete && participantsComplete && itineraryComplete && risksComplete && equipmentComplete;
   };
 
   const value = {

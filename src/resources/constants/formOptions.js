@@ -211,15 +211,15 @@ export const formOptions = {
 
   // Medical Options
   bloodTypes: [
-    { value: 'a_positivo', label: 'A+' },
-    { value: 'a_negativo', label: 'A-' },
-    { value: 'b_positivo', label: 'B+' },
-    { value: 'b_negativo', label: 'B-' },
-    { value: 'ab_positivo', label: 'AB+' },
-    { value: 'ab_negativo', label: 'AB-' },
-    { value: 'o_positivo', label: 'O+' },
-    { value: 'o_negativo', label: 'O-' },
-    { value: 'desconocido', label: 'Desconocido' }
+    { value: 'A+', label: 'A+' },
+    { value: 'A-', label: 'A-' },
+    { value: 'B+', label: 'B+' },
+    { value: 'B-', label: 'B-' },
+    { value: 'AB+', label: 'AB+' },
+    { value: 'AB-', label: 'AB-' },
+    { value: 'O+', label: 'O+' },
+    { value: 'O-', label: 'O-' },
+    { value: 'Desconocido', label: 'Desconocido' }
   ],
 
   allergies: [

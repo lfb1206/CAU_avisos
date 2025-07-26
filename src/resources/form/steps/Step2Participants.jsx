@@ -23,45 +23,37 @@ export default function Step2Participants() {
       alergias: '',
       enfermedades: '',
       medicamentos: '',
-      condicionesEspeciales: ''
+      condicionesEspeciales: '',
+      isDuplicate: false // Added isDuplicate flag
     };
     addItem('participantes', newParticipant);
   };
 
   const updateParticipant = (index, field, value) => {
-    updateItem('participantes', index, { [field]: value });
+    const updatedParticipant = { ...participantes[index], [field]: value };
+    updateItem('participantes', index, updatedParticipant);
   };
 
   // Handle participant name change with auto-fill
   const handleParticipantNameChange = (index, participantName) => {
-    console.log('Changing participant name to:', participantName);
+    // Check for duplicates
+    const isDuplicate = participantes.some((p, i) => i !== index && p.nombre === participantName);
+    if (isDuplicate) {
+      updateItem('participantes', index, { ...participantes[index], isDuplicate: true });
+      return;
+    }
+    
+    // Update name and clear duplicate flag
+    updateItem('participantes', index, { ...participantes[index], nombre: participantName, isDuplicate: false });
     
     // Auto-fill data if it's a saved participant
     if (savedData.savedParticipants[participantName]) {
-      const participant = savedData.savedParticipants[participantName];
-      console.log('Found saved participant data:', participant);
-      
-      // Update all fields at once including the name
-      const allUpdates = {
+      const saved = savedData.savedParticipants[participantName];
+      updateItem('participantes', index, {
+        ...saved,
         nombre: participantName,
-        rut: participant.rut || '',
-        telefono: participant.telefono || '',
-        contactoEmergencia: participant.contactoEmergencia || '',
-        telefonoEmergencia: participant.telefonoEmergencia || '',
-        grupoSanguineo: participant.grupoSanguineo || '',
-        alergias: participant.alergias || '',
-        enfermedades: participant.enfermedades || '',
-        medicamentos: participant.medicamentos || '',
-        condicionesEspeciales: participant.condicionesEspeciales || ''
-      };
-      
-      console.log('Updating participant with:', allUpdates);
-      updateItem('participantes', index, allUpdates);
-      console.log('Auto-fill completed for:', participantName);
-    } else {
-      console.log('No saved data found for participant:', participantName);
-      // Just update the name
-      updateParticipant(index, 'nombre', participantName);
+        isDuplicate: false
+      });
     }
   };
 
@@ -146,15 +138,22 @@ export default function Step2Participants() {
                 </h4>
               </div>
 
-              <AutocompleteInput
-                label="Nombre completo *"
-                value={participant.nombre || ''}
-                onChange={(value) => handleParticipantNameChange(index, value)}
-                options={getSavedParticipantNames()}
-                placeholder="Seleccione o escriba el nombre del participante"
-                required
-              />
+              <div className="md:col-span-2 space-y-1">
+                <label className="block text-sm font-medium text-gray-700">Nombre completo *</label>
+                {participant.isDuplicate && (
+                  <p className="text-red-500 text-xs bg-white px-2 py-1 rounded shadow z-10 mb-1">Ya existe un participante con ese nombre.</p>
+                )}
+                <AutocompleteInput
+                  value={participant.nombre}
+                  onChange={(value) => handleParticipantNameChange(index, value)}
+                  options={getSavedParticipantNames()}
+                  placeholder="Nombre completo"
+                  required
+                  className={participant.isDuplicate ? 'border-red-500' : ''}
+                />
+              </div>
 
+              {/* Si hay error, el campo de RUT debe ir en una línea aparte (no en la misma fila que nombre). */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   RUT *
@@ -163,7 +162,7 @@ export default function Step2Participants() {
                   type="text"
                   value={participant.rut || ''}
                   onChange={(e) => handleRUTChange(index, e.target.value)}
-                  placeholder="20.666.498-3"
+                  placeholder="RUT *"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -177,7 +176,7 @@ export default function Step2Participants() {
                   type="tel"
                   value={participant.telefono || ''}
                   onChange={(e) => updateParticipant(index, 'telefono', e.target.value)}
-                  placeholder="+569xxxxxxxx"
+                  placeholder="Teléfono *"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -191,7 +190,7 @@ export default function Step2Participants() {
                   type="text"
                   value={participant.contactoEmergencia || ''}
                   onChange={(e) => updateParticipant(index, 'contactoEmergencia', e.target.value)}
-                  placeholder="Nombre del contacto de emergencia"
+                  placeholder="Contacto de emergencia *"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -205,7 +204,7 @@ export default function Step2Participants() {
                   type="tel"
                   value={participant.telefonoEmergencia || ''}
                   onChange={(e) => updateParticipant(index, 'telefonoEmergencia', e.target.value)}
-                  placeholder="+569xxxxxxxx"
+                  placeholder="Teléfono de emergencia *"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />

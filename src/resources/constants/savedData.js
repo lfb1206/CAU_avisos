@@ -162,125 +162,134 @@ export const savedData = {
 
   // Activity Recommendations
   activityRecommendations: {
-    'Ascenso técnico': {
-      equipment: {
-        seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Grigri'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica']
-      }
-    },
-    'Trekking': {
-      equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        vestuario: ['Ropa técnica', 'Gore-tex', 'Botas', 'Polainas'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
-      }
-    },
-    'Escalada en roca': {
-      equipment: {
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Cordinos', 'Cintas', 'Grigri', 'Asegurador'],
-        seguridad: ['Casco', 'Arnés', 'Mosquetones'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
-      }
-    },
-    'Escalada en hielo': {
-      equipment: {
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Cordinos', 'Cintas'],
-        seguridad: ['Casco', 'Arnés', 'Piolet', 'Crampones', 'Mosquetones'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica']
-      }
-    },
+    'Ascenso técnico': [
+      { categoria: 'Seguridad', item: 'Crampones', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Seguridad', item: 'Cuerda de escalada', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Seguridad', item: 'Arnés', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Seguridad', item: 'Casco', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Escalada', item: 'Piolet', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Escalada', item: 'Mosquetones', cantidad: '6', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Comunicaciones', item: 'Radio en frecuencia CAU 145.350', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Navegación', item: 'GPS', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' },
+      { categoria: 'Primeros Auxilios', item: 'Botiquín', cantidad: '1', observaciones: 'Recomendado para Ascenso técnico' }
+    ],
+    'Trekking': [
+      { categoria: 'Navegación', item: 'GPS', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Navegación', item: 'Brújula', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Navegación', item: 'Mapa topográfico', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Vestuario', item: 'Ropa técnica', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Vestuario', item: 'Botas', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Comunicaciones', item: 'Radio en frecuencia CAU 145.350', cantidad: '1', observaciones: 'Recomendado para Trekking' },
+      { categoria: 'Primeros Auxilios', item: 'Botiquín', cantidad: '1', observaciones: 'Recomendado para Trekking' }
+    ],
+    'Escalada en roca': [
+      { categoria: 'Seguridad', item: 'Casco', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Seguridad', item: 'Arnés', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Escalada', item: 'Cuerda de escalada', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Escalada', item: 'Quickdraws', cantidad: '12', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Escalada', item: 'Friends', cantidad: '6', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Escalada', item: 'Nuts', cantidad: '8', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Escalada', item: 'Grigri', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Comunicaciones', item: 'Radio en frecuencia CAU 145.350', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' },
+      { categoria: 'Primeros Auxilios', item: 'Botiquín', cantidad: '1', observaciones: 'Recomendado para Escalada en roca' }
+    ],
+    'Escalada en hielo': [
+      { categoria: 'Seguridad', item: 'Casco', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Seguridad', item: 'Arnés', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Seguridad', item: 'Cuerda', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Seguridad', item: 'Mosquetones', cantidad: '6', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Escalada', item: 'Piolet', cantidad: '2', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Escalada', item: 'Crampones', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Comunicaciones', item: 'Radio en frecuencia CAU 145.350', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' },
+      { categoria: 'Primeros Auxilios', item: 'Botiquín', cantidad: '1', observaciones: 'Recomendado para Escalada en hielo' }
+    ],
     'Alpinismo': {
       equipment: {
-        seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones', 'Avalanche beacon', 'Sonda de avalancha', 'Pala de avalancha'],
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Cordinos', 'Cintas', 'Grigri', 'Asegurador'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica'],
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro']
+        Seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones', 'Avalanche beacon', 'Sonda de avalancha', 'Pala de avalancha'],
+        Escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Cordinos', 'Cintas', 'Grigri', 'Asegurador'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
+        'Primeros Auxilios': ['Botiquín', 'Kit de supervivencia', 'Manta térmica'],
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro']
       }
     },
     'Montañismo': {
       equipment: {
-        seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
+        Seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín', 'Kit de supervivencia']
       }
     },
     'Senderismo': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        vestuario: ['Ropa técnica', 'Botas', 'Polainas'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico'],
+        Vestuario: ['Ropa técnica', 'Botas', 'Polainas'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín']
       }
     },
     'Caminata': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        vestuario: ['Ropa técnica', 'Botas'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico'],
+        Vestuario: ['Ropa técnica', 'Botas'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín']
       }
     },
     'Exploración': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia'],
-        documentacion: ['Permisos', 'Documentos de identidad', 'Mapas']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
+        'Primeros Auxilios': ['Botiquín', 'Kit de supervivencia'],
+        Documentación: ['Permisos', 'Documentos de identidad', 'Mapas']
       }
     },
     'Rescate': {
       equipment: {
-        seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
-        primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica', 'Vendas', 'Antiséptico', 'Medicamentos'],
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Grigri']
+        Seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
+        'Primeros Auxilios': ['Botiquín', 'Kit de supervivencia', 'Manta térmica', 'Vendas', 'Antiséptico', 'Medicamentos'],
+        Escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Grigri']
       }
     },
     'Entrenamiento': {
       equipment: {
-        seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones'],
-        escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín']
+        Seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones'],
+        Escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín']
       }
     },
     'Investigación': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín'],
-        documentacion: ['Permisos', 'Documentos de identidad', 'Mapas']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín'],
+        Documentación: ['Permisos', 'Documentos de identidad', 'Mapas']
       }
     },
     'Fotografía de montaña': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín'],
-        otros: ['Cámara', 'Libreta', 'Lápiz']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín'],
+        Otros: ['Cámara', 'Libreta', 'Lápiz']
       }
     },
     'Geología': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín'],
-        otros: ['Libreta', 'Lápiz']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín'],
+        Otros: ['Libreta', 'Lápiz']
       }
     },
     'Biología de montaña': {
       equipment: {
-        navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 145.350'],
-        primeros_auxilios: ['Botiquín'],
-        otros: ['Libreta', 'Lápiz']
+        Navegación: ['GPS', 'Brújula', 'Mapa topográfico'],
+        Comunicaciones: ['Radio en frecuencia CAU 145.350'],
+        'Primeros Auxilios': ['Botiquín'],
+        Otros: ['Libreta', 'Lápiz']
       }
     }
   }

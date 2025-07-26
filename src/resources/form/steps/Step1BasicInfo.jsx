@@ -158,9 +158,15 @@ export default function Step1BasicInfo() {
             type="datetime-local"
             value={formData.basicInfo.fechaHoraReporteRegreso}
             onChange={(e) => handleFieldChange('fechaHoraReporteRegreso', e.target.value)}
+            min={new Date().toISOString().slice(0, 16)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+          {formData.basicInfo.fechaHoraReporteRegreso && new Date(formData.basicInfo.fechaHoraReporteRegreso) <= new Date() && (
+            <p className="text-red-500 text-xs mt-1">
+              La fecha de regreso debe ser posterior a la fecha actual
+            </p>
+          )}
         </div>
 
         {/* Activity Details */}
