@@ -117,6 +117,18 @@ export default function Step5EquipmentTransport() {
           </div>
         </div>
 
+        {/* Equipment Disclaimer */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <h4 className="text-sm font-semibold text-blue-900 mb-2">
+            ℹ️ Importante - Checklist de Equipo
+          </h4>
+          <p className="text-sm text-blue-800">
+            <strong>Solo el equipo marcado como "Se está portando" aparecerá en el aviso de salida.</strong> 
+            Use los checkboxes para indicar qué equipo realmente se lleva en la expedición. 
+            El equipo no marcado no se incluirá en el documento final.
+          </p>
+        </div>
+
         {formData.basicInfo.actividad && savedData.activityRecommendations[formData.basicInfo.actividad] && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <h4 className="text-sm font-semibold text-yellow-900 mb-2">
@@ -143,9 +155,9 @@ export default function Step5EquipmentTransport() {
                       onChange={(e) => updateEquipment(index, 'checked', e.target.checked)}
                       className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
                     />
-                    <span className="ml-2 text-sm text-gray-700">
-                      {equipment.checked ? 'Incluir en aviso' : 'No incluir'}
-                    </span>
+                                         <span className="ml-2 text-sm text-gray-700">
+                       {equipment.checked ? 'Se está portando' : 'No se porta'}
+                     </span>
                   </label>
                   <h4 className="text-lg font-semibold text-gray-900">
                     Equipo {index + 1}

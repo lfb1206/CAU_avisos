@@ -106,6 +106,9 @@ export default function Step7FinalReview() {
                 </div>
               )}
             </div>
+            {formData.basicInfo.llevaInreach && (
+              <div><strong>InReach:</strong> Sí - Número: {formData.basicInfo.numeroInreach}, Código: {formData.basicInfo.codigoInreach}</div>
+            )}
           </div>
         </div>
 
@@ -144,6 +147,11 @@ export default function Step7FinalReview() {
                 <div key={index} className="text-sm">
                   <strong>{day.tramo}</strong> - {day.actividad}
                   {day.horaInicio && day.horaFin && ` (${day.horaInicio} - ${day.horaFin})`}
+                  {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d && d.trim()).length > 0 && (
+                    <div className="text-xs text-gray-600 mt-1">
+                      Dificultades: {day.dificultadesPrincipales.filter(d => d && d.trim()).join(', ')}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

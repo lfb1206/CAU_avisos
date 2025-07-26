@@ -75,7 +75,7 @@ export const formOptions = {
 
   equipmentItems: {
     comunicaciones: [
-      'Radio en frecuencia CAU 151.250',
+              'Radio en frecuencia CAU 145.350',
       'Teléfono satelital',
       'Walkie-talkie',
       'Cargador portátil',
@@ -326,6 +326,30 @@ export const formOptions = {
     'Cumbre - Río',
     'Bosque - Cumbre',
     'Cumbre - Bosque'
+  ],
+
+  // Principales dificultades
+  dificultadesPrincipales: [
+    'Condiciones climáticas adversas',
+    'Terreno técnico de escalada',
+    'Altura y mal de montaña',
+    'Caída de rocas',
+    'Condiciones de nieve/hielo',
+    'Exposición al viento',
+    'Terreno inestable',
+    'Cruce de ríos',
+    'Orientación y navegación',
+    'Fatiga y agotamiento',
+    'Equipamiento técnico complejo',
+    'Rescate complicado',
+    'Comunicación limitada',
+    'Cambios de temperatura extremos',
+    'Avalanchas',
+    'Grietas en glaciares',
+    'Desprendimientos',
+    'Mal tiempo prolongado',
+    'Falta de refugios',
+    'Terreno expuesto'
   ],
 
   supuestos: [

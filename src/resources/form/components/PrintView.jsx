@@ -259,7 +259,7 @@ export default function PrintView({ formData, onClose }) {
   };
 
   const defaultEquipment = [
-    { item: 'Radio en frecuencia CAU 151.250', cantidad: '1', descripcion: 'Comunicación de emergencia' },
+    { item: 'Radio en frecuencia CAU 145.350', cantidad: '1', descripcion: 'Comunicación de emergencia' },
     { item: 'GPS', cantidad: '1', descripcion: 'Navegación' },
     { item: 'Teléfono', cantidad: '1', descripcion: 'Comunicación' },
     { item: 'Linterna', cantidad: '1', descripcion: 'Iluminación' },
@@ -362,6 +362,22 @@ export default function PrintView({ formData, onClose }) {
                 <span className="label">Link a la ruta:</span>
                 <span className="value">{formData.basicInfo.linkRuta || ''}</span>
               </div>
+              {formData.basicInfo.llevaInreach && (
+                <>
+                  <div className="detail-row">
+                    <span className="label">Dispositivo InReach:</span>
+                    <span className="value">Sí</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="label">Número InReach:</span>
+                    <span className="value">{formData.basicInfo.numeroInreach || ''}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="label">Código InReach:</span>
+                    <span className="value">{formData.basicInfo.codigoInreach || ''}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -533,6 +549,7 @@ export default function PrintView({ formData, onClose }) {
                     <th>Tramo</th>
                     <th>Fecha</th>
                     <th>Actividad</th>
+                    <th>Principales Dificultades</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
                   </tr>
@@ -543,6 +560,7 @@ export default function PrintView({ formData, onClose }) {
                       <td>{item.tramo || ''}</td>
                       <td>{item.fecha || ''}</td>
                       <td>{item.actividad || ''}</td>
+                      <td>{(item.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', ')}</td>
                       <td>{item.horaInicio || ''}</td>
                       <td>{item.horaFin || ''}</td>
                     </tr>
@@ -556,37 +574,60 @@ export default function PrintView({ formData, onClose }) {
             )}
           </div>
 
-          {/* Risk Management - Show even if empty */}
+          {/* Risk Management - Show only included assumptions */}
           <div className="section">
             <h2>GESTIÓN DE RIESGOS</h2>
-            {riesgos.length > 0 ? (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Supuesto</th>
-                    <th>Riesgo</th>
-                    <th>Peligro</th>
-                    <th>Probabilidad</th>
-                    <th>Impacto</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {riesgos.map((risk, index) => (
-                    <tr key={index}>
-                      <td>{risk.supuesto || ''}</td>
-                      <td>{risk.riesgo || ''}</td>
-                      <td>{risk.peligro || ''}</td>
-                      <td>{risk.probabilidad || ''}</td>
-                      <td>{risk.impacto || ''}</td>
+            {(() => {
+              // Get all included assumptions from all itinerary days
+              const includedAssumptions = [];
+              itinerario.forEach(day => {
+                if (day.supuestos) {
+                  day.supuestos.forEach(assumption => {
+                    if (assumption.incluir) {
+                      includedAssumptions.push({
+                        tramo: day.tramo,
+                        supuesto: assumption.supuesto,
+                        tipo: assumption.tipoSupuesto,
+                        probabilidad: assumption.probabilidad,
+                        impacto: assumption.impacto,
+                        accion: assumption.accion
+                      });
+                    }
+                  });
+                }
+              });
+              
+              return includedAssumptions.length > 0 ? (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Tramo</th>
+                      <th>Supuesto</th>
+                      <th>Tipo</th>
+                      <th>Probabilidad</th>
+                      <th>Impacto</th>
+                      <th>Acción</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="empty-section">
-                <p className="text-gray-500 italic">No se han identificado riesgos específicos</p>
-              </div>
-            )}
+                  </thead>
+                  <tbody>
+                    {includedAssumptions.map((assumption, index) => (
+                      <tr key={index}>
+                        <td>{assumption.tramo || ''}</td>
+                        <td>{assumption.supuesto || ''}</td>
+                        <td>{assumption.tipo || ''}</td>
+                        <td>{assumption.probabilidad || ''}</td>
+                        <td>{assumption.impacto || ''}</td>
+                        <td>{assumption.accion || ''}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <div className="empty-section">
+                  <p className="text-gray-500 italic">No se han seleccionado supuestos para incluir en el aviso</p>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Emergency Contacts */}

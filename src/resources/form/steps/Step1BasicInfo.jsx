@@ -225,6 +225,66 @@ export default function Step1BasicInfo() {
           />
         </div>
 
+        {/* InReach Section */}
+        <div className="md:col-span-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
+            Dispositivo InReach
+          </h3>
+        </div>
+
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex items-center space-x-3">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.basicInfo.llevaInreach || false}
+                onChange={(e) => handleFieldChange('llevaInreach', e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+              />
+              <span className="ml-2 text-sm font-medium text-gray-700">
+                ¿Lleva dispositivo InReach?
+              </span>
+            </label>
+          </div>
+
+          {formData.basicInfo.llevaInreach && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Número de InReach *
+                </label>
+                <input
+                  type="text"
+                  value={formData.basicInfo.numeroInreach || ''}
+                  onChange={(e) => handleFieldChange('numeroInreach', e.target.value)}
+                  placeholder="Ej: 1234567890"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required={formData.basicInfo.llevaInreach}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Código InReach *
+                </label>
+                <input
+                  type="text"
+                  value={formData.basicInfo.codigoInreach || ''}
+                  onChange={(e) => handleFieldChange('codigoInreach', e.target.value)}
+                  placeholder="Ej: ABC123"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required={formData.basicInfo.llevaInreach}
+                />
+              </div>
+
+              <div className="md:col-span-2 text-xs text-blue-700 bg-blue-100 p-2 rounded">
+                <strong>Nota:</strong> El dispositivo InReach permite comunicación satelital y seguimiento en tiempo real. 
+                Asegúrese de que esté activado y configurado correctamente antes de la expedición.
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Weather Images Section */}
         <div className="md:col-span-2">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
@@ -319,8 +379,10 @@ export default function Step1BasicInfo() {
           <li>• Al seleccionar un contacto guardado, se auto-completarán teléfono y email</li>
           <li>• Especifique la fecha y hora de reporte de regreso</li>
           <li>• Describa la actividad y el cerro/sector</li>
+          <li>• <strong>Marque si lleva InReach</strong> y complete número y código si aplica</li>
           <li>• Agregue enlaces al pronóstico del tiempo y la ruta si están disponibles</li>
           <li>• Puede agregar imágenes del pronóstico del tiempo arrastrando y soltando o seleccionando archivos</li>
+          <li>• <strong>Asigne fecha de obtención</strong> a cada imagen del clima</li>
           <li>• Use las opciones sugeridas o escriba su propio texto</li>
         </ul>
       </div>

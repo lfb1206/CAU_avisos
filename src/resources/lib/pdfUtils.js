@@ -185,7 +185,7 @@ export const generateAvisoSalidaPDF = async (aviso) => {
   } else {
     // Default equipment table
     const defaultEquipment = [
-      ['Radio en frecuencia CAU 151.250', '1', 'Comunicación de emergencia', ''],
+      ['Radio en frecuencia CAU 145.350', '1', 'Comunicación de emergencia', ''],
       ['GPS', '1', 'Navegación', ''],
       ['Teléfono', '1', 'Comunicación', ''],
       ['Linterna', '1', 'Iluminación', ''],

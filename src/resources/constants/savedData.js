@@ -166,7 +166,7 @@ export const savedData = {
       equipment: {
         seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Grigri'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250', 'Teléfono satelital'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica']
       }
     },
@@ -174,7 +174,7 @@ export const savedData = {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
         vestuario: ['Ropa técnica', 'Gore-tex', 'Botas', 'Polainas'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
       }
     },
@@ -182,7 +182,7 @@ export const savedData = {
       equipment: {
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Cordinos', 'Cintas', 'Grigri', 'Asegurador'],
         seguridad: ['Casco', 'Arnés', 'Mosquetones'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
       }
     },
@@ -190,7 +190,7 @@ export const savedData = {
       equipment: {
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Cordinos', 'Cintas'],
         seguridad: ['Casco', 'Arnés', 'Piolet', 'Crampones', 'Mosquetones'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica']
       }
     },
@@ -198,7 +198,7 @@ export const savedData = {
       equipment: {
         seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones', 'Avalanche beacon', 'Sonda de avalancha', 'Pala de avalancha'],
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Cordinos', 'Cintas', 'Grigri', 'Asegurador'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250', 'Teléfono satelital'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica'],
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro']
       }
@@ -207,7 +207,7 @@ export const savedData = {
       equipment: {
         seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia']
       }
     },
@@ -215,7 +215,7 @@ export const savedData = {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
         vestuario: ['Ropa técnica', 'Botas', 'Polainas'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín']
       }
     },
@@ -223,14 +223,14 @@ export const savedData = {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
         vestuario: ['Ropa técnica', 'Botas'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín']
       }
     },
     'Exploración': {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250', 'Teléfono satelital'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia'],
         documentacion: ['Permisos', 'Documentos de identidad', 'Mapas']
       }
@@ -238,7 +238,7 @@ export const savedData = {
     'Rescate': {
       equipment: {
         seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones', 'Piolet', 'Crampones'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250', 'Teléfono satelital'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350', 'Teléfono satelital'],
         primeros_auxilios: ['Botiquín', 'Kit de supervivencia', 'Manta térmica', 'Vendas', 'Antiséptico', 'Medicamentos'],
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts', 'Grigri']
       }
@@ -247,14 +247,14 @@ export const savedData = {
       equipment: {
         seguridad: ['Casco', 'Arnés', 'Cuerda', 'Mosquetones'],
         escalada: ['Cuerda de escalada', 'Quickdraws', 'Friends', 'Nuts'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín']
       }
     },
     'Investigación': {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico', 'Altímetro'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín'],
         documentacion: ['Permisos', 'Documentos de identidad', 'Mapas']
       }
@@ -262,7 +262,7 @@ export const savedData = {
     'Fotografía de montaña': {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín'],
         otros: ['Cámara', 'Libreta', 'Lápiz']
       }
@@ -270,7 +270,7 @@ export const savedData = {
     'Geología': {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín'],
         otros: ['Libreta', 'Lápiz']
       }
@@ -278,12 +278,200 @@ export const savedData = {
     'Biología de montaña': {
       equipment: {
         navegacion: ['GPS', 'Brújula', 'Mapa topográfico'],
-        comunicaciones: ['Radio en frecuencia CAU 151.250'],
+        comunicaciones: ['Radio en frecuencia CAU 145.350'],
         primeros_auxilios: ['Botiquín'],
         otros: ['Libreta', 'Lápiz']
       }
     }
   }
+};
+
+// Difficulty-based assumption recommendations
+export const difficultyRecommendations = {
+  'Condiciones climáticas adversas': [
+    {
+      supuesto: 'Cambio climático adverso durante el ascenso',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'significativo'
+    },
+    {
+      supuesto: 'Visibilidad reducida por mal tiempo',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Terreno técnico de escalada': [
+    {
+      supuesto: 'Dificultad técnica mayor a la esperada',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    },
+    {
+      supuesto: 'Falla de anclajes o protecciones',
+      tipoSupuesto: 'equipo',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Altura y mal de montaña': [
+    {
+      supuesto: 'Problemas de aclimatación en participantes',
+      tipoSupuesto: 'medico',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    },
+    {
+      supuesto: 'Edema pulmonar o cerebral',
+      tipoSupuesto: 'medico',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Caída de rocas': [
+    {
+      supuesto: 'Desprendimiento de rocas en zona de paso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Condiciones de nieve/hielo': [
+    {
+      supuesto: 'Condiciones de nieve/hielo peligrosas',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'critico'
+    },
+    {
+      supuesto: 'Formación de cornisas inestables',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Exposición al viento': [
+    {
+      supuesto: 'Vientos fuertes que impiden el avance',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Terreno inestable': [
+    {
+      supuesto: 'Colapso de terreno inestable',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Cruce de ríos': [
+    {
+      supuesto: 'Crecida de río impide el cruce',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Orientación y navegación': [
+    {
+      supuesto: 'Pérdida de orientación en mal tiempo',
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Fatiga y agotamiento': [
+    {
+      supuesto: 'Agotamiento excesivo de participantes',
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Equipamiento técnico complejo': [
+    {
+      supuesto: 'Falla de equipo técnico crítico',
+      tipoSupuesto: 'equipo',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Rescate complicado': [
+    {
+      supuesto: 'Dificultad para evacuar en caso de emergencia',
+      tipoSupuesto: 'logistica',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Comunicación limitada': [
+    {
+      supuesto: 'Pérdida de comunicación con base',
+      tipoSupuesto: 'comunicacion',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Cambios de temperatura extremos': [
+    {
+      supuesto: 'Hipotermia por cambio brusco de temperatura',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Avalanchas': [
+    {
+      supuesto: 'Riesgo de avalancha en zona de paso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Grietas en glaciares': [
+    {
+      supuesto: 'Caída en grieta de glaciar',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Desprendimientos': [
+    {
+      supuesto: 'Desprendimiento de seracs o cornisas',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Mal tiempo prolongado': [
+    {
+      supuesto: 'Mal tiempo que impide el avance por días',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Falta de refugios': [
+    {
+      supuesto: 'No disponibilidad de refugio en mal tiempo',
+      tipoSupuesto: 'logistica',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Terreno expuesto': [
+    {
+      supuesto: 'Exposición prolongada en terreno peligroso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'algo_probable',
+      impacto: 'significativo'
+    }
+  ]
 };
 
 export default savedData; 
