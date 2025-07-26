@@ -65,7 +65,13 @@ const formReducer = (state, action) => {
       const sectionToUpdate = Array.isArray(state[action.section]) ? state[action.section] : [];
       const updatedSection = [...sectionToUpdate];
       if (updatedSection[action.index]) {
-        updatedSection[action.index] = { ...updatedSection[action.index], [action.field]: action.value };
+        if (action.field) {
+          // Single field update
+          updatedSection[action.index] = { ...updatedSection[action.index], [action.field]: action.value };
+        } else if (action.updates) {
+          // Multiple field update
+          updatedSection[action.index] = { ...updatedSection[action.index], ...action.updates };
+        }
       }
       return {
         ...state,
@@ -160,10 +166,14 @@ export const FormContextProvider = ({ children }) => {
   };
 
   const updateItem = (section, index, updatedItem) => {
-    if (typeof updatedItem === 'object') {
-      Object.keys(updatedItem).forEach(field => {
-        dispatch({ type: 'UPDATE_ITEM', section, index, field, value: updatedItem[field] });
-      });
+    if (typeof updatedItem === 'object' && Object.keys(updatedItem).length === 1) {
+      // Single field update (backward compatibility)
+      const field = Object.keys(updatedItem)[0];
+      const value = Object.values(updatedItem)[0];
+      dispatch({ type: 'UPDATE_ITEM', section, index, field, value });
+    } else if (typeof updatedItem === 'object') {
+      // Multiple field update - single dispatch
+      dispatch({ type: 'UPDATE_ITEM', section, index, updates: updatedItem });
     } else {
       dispatch({ type: 'UPDATE_ITEM', section, index, field: 'value', value: updatedItem });
     }

@@ -34,26 +34,34 @@ export default function Step2Participants() {
 
   // Handle participant name change with auto-fill
   const handleParticipantNameChange = (index, participantName) => {
-    updateParticipant(index, 'nombre', participantName);
+    console.log('Changing participant name to:', participantName);
     
     // Auto-fill data if it's a saved participant
     if (savedData.savedParticipants[participantName]) {
       const participant = savedData.savedParticipants[participantName];
+      console.log('Found saved participant data:', participant);
       
-      // Basic info
-      if (participant.rut) updateParticipant(index, 'rut', participant.rut);
-      if (participant.telefono) updateParticipant(index, 'telefono', participant.telefono);
-      if (participant.contactoEmergencia) updateParticipant(index, 'contactoEmergencia', participant.contactoEmergencia);
-      if (participant.telefonoEmergencia) updateParticipant(index, 'telefonoEmergencia', participant.telefonoEmergencia);
+      // Update all fields at once including the name
+      const allUpdates = {
+        nombre: participantName,
+        rut: participant.rut || '',
+        telefono: participant.telefono || '',
+        contactoEmergencia: participant.contactoEmergencia || '',
+        telefonoEmergencia: participant.telefonoEmergencia || '',
+        grupoSanguineo: participant.grupoSanguineo || '',
+        alergias: participant.alergias || '',
+        enfermedades: participant.enfermedades || '',
+        medicamentos: participant.medicamentos || '',
+        condicionesEspeciales: participant.condicionesEspeciales || ''
+      };
       
-      // Medical data - force update even if empty
-      updateParticipant(index, 'grupoSanguineo', participant.grupoSanguineo || '');
-      updateParticipant(index, 'alergias', participant.alergias || '');
-      updateParticipant(index, 'enfermedades', participant.enfermedades || '');
-      updateParticipant(index, 'medicamentos', participant.medicamentos || '');
-      updateParticipant(index, 'condicionesEspeciales', participant.condicionesEspeciales || '');
-      
-      console.log('Auto-filled participant:', participantName, participant);
+      console.log('Updating participant with:', allUpdates);
+      updateItem('participantes', index, allUpdates);
+      console.log('Auto-fill completed for:', participantName);
+    } else {
+      console.log('No saved data found for participant:', participantName);
+      // Just update the name
+      updateParticipant(index, 'nombre', participantName);
     }
   };
 
