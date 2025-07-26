@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
-import { formOptions } from '../../constants/formOptions';
+import { useFormContext } from '../../contexts/FormContext';
+import { savedData } from '../../constants/savedData';
 import AutocompleteInput from './AutocompleteInput';
 
 export default function ItineraryDayForm({ 
@@ -63,7 +64,7 @@ export default function ItineraryDayForm({
             label="Tramo"
             value={day.tramo || ''}
             onChange={(value) => onUpdate(dayIndex, 'tramo', value)}
-            options={formOptions.tramos}
+            options={savedData.formOptions.tramos}
             placeholder="Seleccione o escriba el tramo"
             required
           />
@@ -95,12 +96,11 @@ export default function ItineraryDayForm({
           </div>
           <div className="space-y-1">
             <label className="block text-sm font-medium text-gray-700">Actividad *</label>
-            <input
-              type="text"
+            <AutocompleteInput
               value={day.actividad || ''}
-              onChange={(e) => onUpdate(dayIndex, 'actividad', e.target.value)}
+              onChange={(value) => onUpdate(dayIndex, 'actividad', value)}
+              options={savedData.formOptions.actividades}
               placeholder="Ej: Ascenso al campamento"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -135,7 +135,7 @@ export default function ItineraryDayForm({
                     <AutocompleteInput
                       value={difficulty}
                       onChange={(value) => onUpdateDifficulty(dayIndex, difficultyIndex, value)}
-                      options={formOptions.dificultadesPrincipales}
+                      options={savedData.formOptions.dificultadesPrincipales || []}
                       placeholder="Seleccione o escriba una dificultad"
                       className="text-sm"
                     />
@@ -209,7 +209,7 @@ export default function ItineraryDayForm({
                     label="Supuesto clave"
                     value={sup.supuesto || ''}
                     onChange={(value) => onUpdateAssumption(dayIndex, supIdx, 'supuesto', value)}
-                    options={formOptions.supuestos}
+                    options={savedData.formOptions.supuestos}
                     placeholder="Seleccione o escriba el supuesto clave"
                     required
                   />
@@ -220,7 +220,7 @@ export default function ItineraryDayForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
                   <option value="">Seleccionar tipo</option>
-                  {formOptions.tipoSupuestos.map(option => (
+                  {savedData.formOptions.tipoSupuestos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -233,7 +233,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar probabilidad</option>
-                  {formOptions.probabilidades.map(option => (
+                  {savedData.formOptions.probabilidades.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -246,7 +246,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar impacto</option>
-                  {formOptions.impactos.map(option => (
+                  {savedData.formOptions.impactos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

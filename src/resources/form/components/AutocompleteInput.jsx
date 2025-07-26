@@ -50,13 +50,13 @@ export default function AutocompleteInput({
   const handleInputChange = (e) => {
     const newValue = e.target.value;
     setInputValue(newValue);
-    onChange(newValue);
+    // Solo actualizar el filtro local, no llamar onChange inmediatamente
     setIsOpen(true);
   };
 
   const handleOptionClick = (option) => {
     setInputValue(option);
-    onChange(option);
+    onChange(option); // Solo llamar onChange cuando se selecciona una opción
     setIsOpen(false);
   };
 
@@ -65,11 +65,26 @@ export default function AutocompleteInput({
   };
 
   const handleInputKeyDown = (e) => {
-    if (e.key === 'Enter' && filteredOptions.length > 0) {
-      handleOptionClick(filteredOptions[0]);
+    if (e.key === 'Enter') {
+      if (filteredOptions.length > 0) {
+        handleOptionClick(filteredOptions[0]);
+      } else {
+        // Si no hay opciones filtradas, usar el valor actual del input
+        onChange(inputValue);
+        setIsOpen(false);
+      }
     } else if (e.key === 'Escape') {
       setIsOpen(false);
     }
+  };
+
+  const handleInputBlur = () => {
+    // Solo actualizar si el valor cambió y no hay opciones abiertas
+    setTimeout(() => {
+      if (!isOpen && inputValue !== value) {
+        onChange(inputValue);
+      }
+    }, 200);
   };
 
   return (
@@ -86,6 +101,7 @@ export default function AutocompleteInput({
         onChange={handleInputChange}
         onFocus={handleInputFocus}
         onKeyDown={handleInputKeyDown}
+        onBlur={handleInputBlur}
         placeholder={placeholder}
         disabled={disabled}
         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"

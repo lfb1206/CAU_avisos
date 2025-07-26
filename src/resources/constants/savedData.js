@@ -292,6 +292,124 @@ export const savedData = {
         Otros: ['Libreta', 'Lápiz']
       }
     }
+  },
+
+  // Options for form fields
+  formOptions: {
+    tramos: [
+      'Aproximación',
+      'Ascenso',
+      'Descenso', 
+      'Cumbre',
+      'Campamento base',
+      'Campamento alto',
+      'Refugio',
+      'Vivac',
+      'Travesía',
+      'Ruta de escape',
+      'Punto de control',
+      'Zona de descanso'
+    ],
+    actividades: [
+      'Trekking de aproximación',
+      'Ascenso técnico',
+      'Escalada en roca',
+      'Escalada en hielo',
+      'Rapel',
+      'Caminata por sendero',
+      'Travesía por glaciar',
+      'Campamento',
+      'Pernocta',
+      'Descenso por ruta alternativa',
+      'Vadeo de río',
+      'Cruce de quebrada',
+      'Ascenso por canaleta',
+      'Travesía por cresta',
+      'Descenso por ladera',
+      'Navegación por nieve',
+      'Progresión en terreno mixto',
+      'Aproximación vehicular',
+      'Aproximación a pie',
+      'Retorno al punto de partida'
+    ],
+    dificultadesPrincipales: [
+      'Terreno expuesto',
+      'Pendiente pronunciada',
+      'Roca suelta',
+      'Nieve profunda',
+      'Hielo',
+      'Grietas en glaciar',
+      'Vadeo de río',
+      'Mal tiempo',
+      'Falta de agua',
+      'Altitud',
+      'Distancia larga',
+      'Carga pesada',
+      'Terreno técnico',
+      'Exposición al viento',
+      'Falta de refugio'
+    ],
+    supuestos: [
+      'Mal tiempo',
+      'Lesión de participante',
+      'Pérdida de orientación',
+      'Falla de equipo',
+      'Retraso en itinerario',
+      'Condiciones de nieve adversas',
+      'Río crecido',
+      'Falta de agua',
+      'Problemas de comunicación',
+      'Agotamiento del grupo',
+      'Condiciones de hielo peligrosas',
+      'Avalancha',
+      'Desprendimiento de roca',
+      'Caída en grieta',
+      'Hipotermia'
+    ],
+    tipoSupuestos: [
+      { value: 'clima', label: 'Clima' },
+      { value: 'grupo_humano', label: 'Grupo Humano' },
+      { value: 'equipo', label: 'Equipo' },
+      { value: 'logistica', label: 'Logística' },
+      { value: 'terreno', label: 'Terreno' },
+      { value: 'comunicacion', label: 'Comunicación' }
+    ],
+    probabilidades: [
+      { value: 'muy_probable', label: 'Muy Probable' },
+      { value: 'probable', label: 'Probable' },
+      { value: 'algo_probable', label: 'Algo Probable' },
+      { value: 'poco_probable', label: 'Poco Probable' },
+      { value: 'muy_improbable', label: 'Muy Improbable' }
+    ],
+    impactos: [
+      { value: 'critico', label: 'Crítico' },
+      { value: 'significativo', label: 'Significativo' },
+      { value: 'moderado', label: 'Moderado' },
+      { value: 'menor', label: 'Menor' },
+      { value: 'insignificante', label: 'Insignificante' }
+    ],
+    categoriasEquipo: [
+      'Equipo de Escalada',
+      'Equipo Básico',
+      'Ropa',
+      'Calzado',
+      'Protección Solar',
+      'Hidratación',
+      'Alimentación',
+      'Campamento',
+      'Equipo de Nieve',
+      'Seguridad',
+      'Navegación',
+      'Comunicación',
+      'Primeros Auxilios',
+      'Medicina',
+      'Equipo de Trekking',
+      'Equipo de Montaña',
+      'Equipo de Camping',
+      'Equipo de Emergencia',
+      'Equipo de Cocina',
+      'Equipo de Iluminación'
+    ]
   }
 };
 

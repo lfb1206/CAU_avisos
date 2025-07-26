@@ -1,113 +1,133 @@
 'use client';
-import React from 'react';
-import { formOptions } from '../../constants/formOptions';
+import React, { useState, useCallback } from 'react';
 import AutocompleteInput from './AutocompleteInput';
+import { savedData } from '../../constants/savedData';
 
-export default function EquipmentForm({ 
-  equipment, 
-  index, 
-  onUpdate, 
-  onRemove 
-}) {
-  const handleQuantityChange = (value) => {
-    const numValue = parseInt(value);
-    if (numValue > 0) {
-      onUpdate(index, 'cantidad', value);
-    }
-  };
+export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) {
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  const handleInputChange = useCallback((field, value) => {
+    onUpdate(index, field, value);
+  }, [onUpdate, index]);
+
+  const handleRemove = useCallback(() => {
+    onRemove(index);
+  }, [onRemove, index]);
+
+  const handleToggleChecked = useCallback(() => {
+    handleInputChange('checked', !equipment.checked);
+  }, [handleInputChange, equipment.checked]);
+
+  const handleToggleExpanded = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded]);
 
   return (
-    <details
-      className={`border border-gray-200 rounded-lg p-0 transition-colors ${equipment.checked ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}
-    >
-      <summary className="flex items-center gap-2 cursor-pointer px-4 md:px-6 py-3 text-gray-900 font-semibold">
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            <span className="truncate">{equipment.categoria || 'Sin categoría'}</span>
-            <span className="hidden sm:inline mx-2">/</span>
-            <span className="truncate">{equipment.item || 'Sin item'}</span>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2 flex-shrink-0">
+    <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onUpdate(index, 'checked', !equipment.checked);
-            }}
-            className={`flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${equipment.checked ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
-            aria-pressed={equipment.checked}
+            onClick={handleToggleExpanded}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <span className="hidden sm:inline">{equipment.checked ? 'Se está portando' : 'No se porta'}</span>
-            <span className="sm:hidden">{equipment.checked ? '✓' : '✗'}</span>
+            <svg 
+              className={`w-5 h-5 transform transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          <span className="font-medium text-gray-900">
+            {equipment.item || 'Nuevo equipo'}
+          </span>
+          {equipment.categoria && (
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              {equipment.categoria}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleToggleChecked}
+            className={`flex items-center px-3 py-1 rounded-lg text-sm font-semibold transition-colors ${
+              equipment.checked 
+                ? 'bg-green-500 text-white hover:bg-green-600' 
+                : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+            }`}
+          >
+            {equipment.checked ? '✓ Se está portando' : '✗ No se porta'}
           </button>
           <button
             type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove(index);
-            }}
-            className="text-red-600 text-xs font-semibold hover:underline hover:font-bold flex-shrink-0"
+            onClick={handleRemove}
+            className="px-3 py-1 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
           >
-            <span className="hidden sm:inline">Eliminar equipo</span>
-            <span className="sm:hidden">Eliminar</span>
+            Eliminar
           </button>
-        </div>
-      </summary>
-      <div className="p-4 md:p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <AutocompleteInput
-            label="Categoría"
-            value={equipment.categoria || ''}
-            onChange={(value) => onUpdate(index, 'categoria', value)}
-            options={formOptions.equipmentCategories.map(cat => cat.label)}
-            placeholder="Seleccione o escriba la categoría"
-            required
-          />
-
-          <AutocompleteInput
-            label="Item"
-            value={equipment.item || ''}
-            onChange={(value) => onUpdate(index, 'item', value)}
-            options={formOptions.equipmentItems[equipment.categoria] || []}
-            placeholder="Seleccione o escriba el item"
-            required
-          />
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Cantidad
-            </label>
-            <input
-              type="number"
-              value={equipment.cantidad || '1'}
-              onChange={(e) => handleQuantityChange(e.target.value)}
-              placeholder="1"
-              min="1"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-            {equipment.cantidad && (isNaN(equipment.cantidad) || parseInt(equipment.cantidad) < 1) && (
-              <p className="text-red-500 text-xs mt-1">
-                La cantidad debe ser un número mayor a 0
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">
-              Observaciones
-            </label>
-            <input
-              type="text"
-              value={equipment.observaciones || ''}
-              onChange={(e) => onUpdate(index, 'observaciones', e.target.value)}
-              placeholder="Observaciones adicionales"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
         </div>
       </div>
-    </details>
+
+      {isExpanded && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Categoría
+              </label>
+              <AutocompleteInput
+                value={equipment.categoria || ''}
+                onChange={(value) => handleInputChange('categoria', value)}
+                options={savedData.formOptions.categoriasEquipo}
+                placeholder="Ej: Equipo de Escalada"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Item
+              </label>
+              <input
+                type="text"
+                value={equipment.item || ''}
+                onChange={(e) => handleInputChange('item', e.target.value)}
+                placeholder="Ej: Casco"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Cantidad
+              </label>
+              <input
+                type="number"
+                value={equipment.cantidad || ''}
+                onChange={(e) => handleInputChange('cantidad', e.target.value)}
+                placeholder="1"
+                min="1"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Observaciones
+              </label>
+              <textarea
+                value={equipment.observaciones || ''}
+                onChange={(e) => handleInputChange('observaciones', e.target.value)}
+                placeholder="Detalles adicionales sobre el equipo..."
+                rows="2"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 } 
