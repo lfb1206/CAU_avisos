@@ -267,7 +267,10 @@ export default function PrintView({ formData, onClose }) {
     { item: 'Ropa personal', cantidad: '1', descripcion: 'Vestuario técnico' }
   ];
 
-  const equipmentToShow = equipo.length > 0 ? equipo : defaultEquipment;
+  // Filter only checked equipment, or show default if no equipment is checked
+  const checkedEquipment = equipo.filter(item => item.checked);
+  const equipmentToShow = checkedEquipment.length > 0 ? checkedEquipment : 
+                         (equipo.length === 0 ? defaultEquipment : []);
 
   // Ensure we always have at least empty rows for transport and participants
   const participantesToShow = participantes.length > 0 ? participantes : [
@@ -415,10 +418,15 @@ export default function PrintView({ formData, onClose }) {
                         console.log('Weather image loaded successfully');
                       }}
                     />
-                    {image.name && (
-                      <p style={{ fontSize: '6px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
-                        {image.name}
-                      </p>
+                    {(image.name || image.fechaObtencion) && (
+                      <div style={{ fontSize: '6px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
+                        {image.name && <p style={{ margin: '0 0 2px 0' }}>{image.name}</p>}
+                        {image.fechaObtencion && (
+                          <p style={{ margin: '0', fontWeight: 'bold' }}>
+                            Fecha: {new Date(image.fechaObtencion).toLocaleDateString('es-CL')}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}

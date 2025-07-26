@@ -13,7 +13,8 @@ export default function Step5EquipmentTransport() {
       categoria: '',
       item: '',
       cantidad: '',
-      descripcion: ''
+      descripcion: '',
+      checked: true // Default to checked when added
     };
     addItem('equipo', newEquipment);
   };
@@ -70,7 +71,8 @@ export default function Step5EquipmentTransport() {
             categoria: category,
             item: item,
             cantidad: '1',
-            descripcion: `Recomendado para ${activity}`
+            descripcion: `Recomendado para ${activity}`,
+            checked: true // Default to checked for recommendations
           };
           addItem('equipo', newEquipment);
         });
@@ -129,11 +131,26 @@ export default function Step5EquipmentTransport() {
 
         <div className="space-y-4">
           {formData.equipo.map((equipment, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+            <div key={index} className={`border border-gray-200 rounded-lg p-6 transition-colors ${
+              equipment.checked ? 'bg-green-50 border-green-200' : 'bg-gray-50'
+            }`}>
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-lg font-semibold text-gray-900">
-                  Equipo {index + 1}
-                </h4>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={equipment.checked || false}
+                      onChange={(e) => updateEquipment(index, 'checked', e.target.checked)}
+                      className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">
+                      {equipment.checked ? 'Incluir en aviso' : 'No incluir'}
+                    </span>
+                  </label>
+                  <h4 className="text-lg font-semibold text-gray-900">
+                    Equipo {index + 1}
+                  </h4>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeItem('equipo', index)}
@@ -330,6 +347,8 @@ export default function Step5EquipmentTransport() {
         </h4>
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• Registre todo el equipo que se porta en la expedición</li>
+          <li>• <strong>Use el checkbox</strong> para marcar qué equipos incluir en el aviso de salida</li>
+          <li>• Los equipos marcados aparecen con fondo verde y se incluyen en el documento final</li>
           <li>• Use "Cargar Recomendaciones" para agregar equipo sugerido según la actividad</li>
           <li>• Organice el equipo por categorías para mejor control</li>
           <li>• Especifique cantidades y descripciones detalladas</li>

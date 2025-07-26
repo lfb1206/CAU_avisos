@@ -27,7 +27,9 @@ export default function Step7FinalReview() {
 
   const getEquipmentSummary = () => {
     const categories = {};
-    equipo.forEach(item => {
+    // Only show checked equipment
+    const checkedEquipment = equipo.filter(item => item.checked);
+    checkedEquipment.forEach(item => {
       if (item.categoria && item.item) {
         if (!categories[item.categoria]) {
           categories[item.categoria] = [];
@@ -93,7 +95,17 @@ export default function Step7FinalReview() {
             <div><strong>Ruta:</strong> {formData.basicInfo.ruta || 'No especificada'}</div>
             <div><strong>Teléfono:</strong> {formData.basicInfo.telefonoContacto || 'No especificado'}</div>
             <div><strong>Email:</strong> {formData.basicInfo.emailContacto || 'No especificado'}</div>
-            <div><strong>Imágenes del clima:</strong> {formData.basicInfo.weatherImages?.length || 0} imágenes</div>
+            <div><strong>Imágenes del clima:</strong> {formData.basicInfo.weatherImages?.length || 0} imágenes
+              {formData.basicInfo.weatherImages?.length > 0 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  {formData.basicInfo.weatherImages.map((img, idx) => (
+                    <div key={idx}>
+                      {img.name} {img.fechaObtencion && `(${new Date(img.fechaObtencion).toLocaleDateString('es-CL')})`}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

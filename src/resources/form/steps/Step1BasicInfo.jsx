@@ -37,7 +37,8 @@ export default function Step1BasicInfo() {
           file: file,
           name: file.name,
           url: URL.createObjectURL(file), // For preview
-          base64: e.target.result // For printing and storage
+          base64: e.target.result, // For printing and storage
+          fechaObtencion: new Date().toISOString().split('T')[0] // Default to today's date
         };
         
         const currentImages = formData.basicInfo.weatherImages || [];
@@ -81,6 +82,14 @@ export default function Step1BasicInfo() {
     }
     
     updateWeatherImages(filtered);
+  };
+
+  const updateImageDate = (imageId, newDate) => {
+    const currentImages = formData.basicInfo.weatherImages || [];
+    const updatedImages = currentImages.map(img => 
+      img.id === imageId ? { ...img, fechaObtencion: newDate } : img
+    );
+    updateWeatherImages(updatedImages);
   };
 
   return (
@@ -258,21 +267,40 @@ export default function Step1BasicInfo() {
 
             {/* Display uploaded images */}
             {formData.basicInfo.weatherImages && formData.basicInfo.weatherImages.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.basicInfo.weatherImages.map((image) => (
-                  <div key={image.id} className="relative group">
-                    <img
-                      src={image.url}
-                      alt={image.name}
-                      className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                    />
+                  <div key={image.id} className="relative border rounded-lg p-3 bg-gray-50">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0">
+                        <img
+                          src={image.url}
+                          alt={image.name}
+                          className="w-20 h-20 object-cover rounded border"
+                        />
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="text-xs text-gray-600 mb-2 truncate" title={image.name}>
+                          {image.name}
+                        </p>
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-gray-700">
+                            Fecha de obtención:
+                          </label>
+                          <input
+                            type="date"
+                            value={image.fechaObtencion || ''}
+                            onChange={(e) => updateImageDate(image.id, e.target.value)}
+                            className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <button
                       onClick={() => removeImage(image.id)}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
                     >
                       ×
                     </button>
-                    <p className="text-xs text-gray-600 mt-1 truncate">{image.name}</p>
                   </div>
                 ))}
               </div>
