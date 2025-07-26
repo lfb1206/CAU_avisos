@@ -1,44 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# CAU Avisos - Generador de PDFs
 
-## Getting Started
+Aplicación web para generar avisos de salida de montaña del Club Andino Universitario (CAU).
 
-First, run the development server:
+## Características
+
+- ✅ Formulario dinámico con validación
+- ✅ Generación de PDF profesional
+- ✅ Tablas dinámicas para participantes, itinerario, equipo y transporte
+- ✅ Gestión de riesgos y datos médicos
+- ✅ Descarga automática del PDF
+
+## Tecnologías
+
+- **Next.js 15** - Framework de React
+- **jsPDF** - Generación de PDFs
+- **jspdf-autotable** - Tablas en PDF
+- **Tailwind CSS** - Estilos
+
+## Instalación
 
 ```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Construir para producción
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Uso
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+1. Complete el formulario con la información de la actividad
+2. Agregue participantes, itinerario, equipo y transporte
+3. Haga clic en "Generar PDF"
+4. El PDF se descargará automáticamente
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estructura del Proyecto
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-## Testing e2e
-To record the screen for easier test writing use the following command
-```bash
-npx playwright codegen localhost:3000 --output=e2e/new_test.js
 ```
-The server must be up and running on localhost:3000 for the command to work.
+src/
+├── app/
+│   └── page.js          # Página principal
+├── resources/
+│   ├── constants/
+│   │   └── docFields.js # Configuración de campos
+│   ├── form/
+│   │   ├── DynamicForm.jsx
+│   │   └── FormField.jsx
+│   ├── lib/
+│   │   └── pdfUtils.js  # Generación de PDF
+│   └── imgs/
+│       └── Logo.png     # Logo CAU
+```
+
+## Campos del Formulario
+
+- **Información de Contacto**: CAU, teléfono, email
+- **Detalles de Actividad**: Cerro, ruta, enlaces
+- **Participantes**: Nombre, RUT, teléfono, contacto de emergencia
+- **Itinerario**: Fecha, actividad, horario, altitud
+- **Gestión de Riesgos**: Supuestos, lugares, acciones
+- **Equipo**: Categorías, items, cantidades
+- **Transporte**: Tipo, conductor, vehículo, distancia
+- **Datos Médicos**: Enfermedades, medicamentos, grupo sanguíneo
+
+## Licencia
+
+Club Andino Universitario (CAU)
