@@ -104,21 +104,26 @@ export default function AutocompleteInput({
         onBlur={handleInputBlur}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 text-sm"
         required={required}
       />
       
       {isOpen && filteredOptions.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-          {filteredOptions.map((option, index) => (
+        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 sm:max-h-60 overflow-auto">
+          {filteredOptions.slice(0, 8).map((option, index) => (
             <div
               key={index}
-              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
               onClick={() => handleOptionClick(option)}
             >
               {option}
             </div>
           ))}
+          {filteredOptions.length > 8 && (
+            <div className="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-t border-gray-200">
+              +{filteredOptions.length - 8} más opciones...
+            </div>
+          )}
         </div>
       )}
     </div>

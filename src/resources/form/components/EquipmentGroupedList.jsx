@@ -80,29 +80,32 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) 
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {Object.entries(groupedEquipment).map(([category, items]) => (
         <div key={category} className="border border-gray-200 rounded-lg bg-white shadow-sm">
           <button
             type="button"
             onClick={() => toggleCategory(category)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-3 sm:p-4 text-left hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{getCategoryIcon(category)}</span>
-              <div>
-                <h3 className="font-semibold text-gray-900">{category}</h3>
-                <p className="text-sm text-gray-500">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <span className="text-lg sm:text-xl flex-shrink-0">{getCategoryIcon(category)}</span>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{category}</h3>
+                <p className="text-xs sm:text-sm text-gray-500">
                   {items.length} {items.length === 1 ? 'item' : 'items'}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={`text-xs px-2 py-1 rounded-full ${getCategoryColor(category)}`}>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`text-xs px-2 py-1 rounded-full ${getCategoryColor(category)} hidden sm:inline-block`}>
                 {items.filter(item => item.checked).length} portando
               </span>
+              <span className={`text-xs px-2 py-1 rounded-full ${getCategoryColor(category)} sm:hidden`}>
+                {items.filter(item => item.checked).length}
+              </span>
               <svg 
-                className={`w-5 h-5 text-gray-500 transform transition-transform ${expandedCategories.has(category) ? 'rotate-180' : ''}`} 
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-500 transform transition-transform flex-shrink-0 ${expandedCategories.has(category) ? 'rotate-180' : ''}`} 
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -113,7 +116,7 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) 
           </button>
           
           {expandedCategories.has(category) && (
-            <div className="border-t border-gray-200 p-4 space-y-3">
+            <div className="border-t border-gray-200 p-3 sm:p-4 space-y-3">
               {items.map((item, itemIndex) => (
                 <EquipmentForm
                   key={`${category}-${itemIndex}`}
@@ -129,9 +132,9 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) 
       ))}
       
       {equipment.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No hay equipo registrado aún.</p>
-          <p className="text-sm">Agrega equipo manualmente o usa los botones de arriba para cargar recomendaciones.</p>
+        <div className="text-center py-8 text-gray-500 px-4">
+          <p className="text-sm sm:text-base">No hay equipo registrado aún.</p>
+          <p className="text-xs sm:text-sm mt-1">Agrega equipo manualmente o usa los botones de arriba para cargar recomendaciones.</p>
         </div>
       )}
     </div>
