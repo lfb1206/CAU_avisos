@@ -5,10 +5,31 @@ export default function PrintView({ formData, onClose }) {
   const printRef = useRef();
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-  const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
+  // Obtener riesgos de los supuestos del itinerario que están incluidos
+  const riesgos = [];
+  formData.itinerario.forEach((day) => {
+    (day.supuestos || []).forEach((assumption) => {
+      if (assumption.accion === 'gestionar' && assumption.incluir === true && assumption.causas) {
+        assumption.causas.forEach((causa) => {
+          if (causa.riesgo && causa.peligro) {
+            riesgos.push({
+              supuesto: assumption.supuesto,
+              riesgo: causa.riesgo,
+              peligro: causa.peligro,
+              lugar: causa.lugar || '',
+              accionProbabilidad: causa.accionProbabilidad || '',
+              accionExposicion: causa.accionExposicion || '',
+              accionConsecuencias: causa.accionConsecuencias || ''
+            });
+          }
+        });
+      }
+    });
+  });
   const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
   const weatherImages = formData.basicInfo.weatherImages || [];
+  const cuerposRescate = Array.isArray(formData.cuerposRescate) ? formData.cuerposRescate : [];
 
   // Función para formatear valores (quitar guiones bajos, capitalizar)
   const formatValue = (value) => {
@@ -561,139 +582,6 @@ export default function PrintView({ formData, onClose }) {
             </table>
           </div>
 
-          {/* Weather Forecast with Images */}
-          <div className="section">
-            <h2>PRONÓSTICO DE TIEMPO</h2>
-            {weatherImages.length > 0 ? (
-              <div className="weather-images">
-                {weatherImages.map((image, index) => (
-                  <div key={index} className="weather-image">
-                    <img 
-                      src={image.base64 || image.url || image} 
-                      alt={`Pronóstico del tiempo ${index + 1}`}
-                      style={{
-                        maxWidth: '100%',
-                        maxHeight: '200px',
-                        objectFit: 'contain',
-                        border: '1px solid #ddd',
-                        marginBottom: '10px',
-                        display: 'block'
-                      }}
-                      onError={(e) => {
-                        console.error('Error loading weather image:', e);
-                        e.target.style.display = 'none';
-                      }}
-                      onLoad={(e) => {
-                        console.log('Weather image loaded successfully');
-                      }}
-                    />
-                    {(image.name || image.fechaObtencion) && (
-                      <div style={{ fontSize: '6px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
-                        {image.name && <p style={{ margin: '0 0 2px 0' }}>{image.name}</p>}
-                        {image.fechaObtencion && (
-                          <p style={{ margin: '0', fontWeight: 'bold' }}>
-                            Fecha: {new Date(image.fechaObtencion).toLocaleDateString('es-CL')}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-weather">
-                <p className="text-gray-500 italic">No se han adjuntado imágenes del pronóstico del tiempo</p>
-              </div>
-            )}
-          </div>
-
-          {/* Equipment */}
-          <div className="section">
-            <h2>EQUIPO</h2>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Categoría</th>
-                  <th>Item</th>
-                  <th>Cantidad</th>
-                  <th>Observaciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {getGroupedEquipmentWithRowspan().map((item, index) => (
-                  <tr key={index}>
-                    {item.categoria && (
-                      <td rowSpan={item.categoriaRowspan}>{item.categoria}</td>
-                    )}
-                    <td>{item.item}</td>
-                    <td>{item.cantidad}</td>
-                    <td>{item.observaciones}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Transport */}
-          <div className="section">
-            <h2>TRANSPORTE</h2>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Conductor</th>
-                  <th>Tipo</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Color</th>
-                  <th>Patente</th>
-                  <th>Puesto CAU (N°)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transportToShow.map((t, index) => (
-                  <tr key={index}>
-                    <td>{t.conductor || ''}</td>
-                    <td>{t.tipo || ''}</td>
-                    <td>{t.marca || ''}</td>
-                    <td>{t.modelo || ''}</td>
-                    <td>{t.color || ''}</td>
-                    <td>{t.patente || ''}</td>
-                    <td></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Medical Data */}
-          <div className="section">
-            <h2>DATOS MÉDICOS IMPORTANTES</h2>
-            <table className="data-table medical-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Enfermedades, alergias a medicamentos, otras alergias</th>
-                  <th>Medicamentos habituales</th>
-                  <th>Grupo de sangre</th>
-                  <th>Enfermedad y lesiones</th>
-                  <th>Riesgo / comentarios</th>
-                </tr>
-              </thead>
-              <tbody>
-                {participantesToShow.map((p, index) => (
-                  <tr key={index}>
-                    <td>{p.nombre || ''}</td>
-                    <td>{p.alergias || ''}</td>
-                    <td>{p.medicamentos || ''}</td>
-                    <td>{p.grupoSanguineo || ''}</td>
-                    <td>{p.enfermedades || ''}</td>
-                    <td>{p.condicionesEspeciales || ''}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
           {/* Itinerary - Show even if empty */}
           <div className="section">
             <h2>ITINERARIO</h2>
@@ -818,6 +706,138 @@ export default function PrintView({ formData, onClose }) {
             })()}
           </div>
 
+          {/* Weather Forecast with Images */}
+          <div className="section">
+            <h2>PRONÓSTICO DE TIEMPO</h2>
+            {weatherImages.length > 0 ? (
+              <div className="weather-images">
+                {weatherImages.map((image, index) => (
+                  <div key={index} className="weather-image">
+                    <img 
+                      src={image.base64 || image.url || image} 
+                      alt={`Pronóstico del tiempo ${index + 1}`}
+                      style={{
+                        maxWidth: '100%',
+                        maxHeight: '200px',
+                        objectFit: 'contain',
+                        border: '1px solid #ddd',
+                        marginBottom: '10px',
+                        display: 'block'
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                      onLoad={(e) => {
+                        // Image loaded successfully
+                      }}
+                    />
+                    {(image.name || image.fechaObtencion) && (
+                      <div style={{ fontSize: '6px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
+                        {image.name && <p style={{ margin: '0 0 2px 0' }}>{image.name}</p>}
+                        {image.fechaObtencion && (
+                          <p style={{ margin: '0', fontWeight: 'bold' }}>
+                            Fecha: {new Date(image.fechaObtencion).toLocaleDateString('es-CL')}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-weather">
+                <p className="text-gray-500 italic">No se han adjuntado imágenes del pronóstico del tiempo</p>
+              </div>
+            )}
+          </div>
+
+          {/* Equipment */}
+          <div className="section">
+            <h2>EQUIPO</h2>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Categoría</th>
+                  <th>Item</th>
+                  <th>Cantidad</th>
+                  <th>Observaciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {getGroupedEquipmentWithRowspan().map((item, index) => (
+                  <tr key={index}>
+                    {item.categoria && (
+                      <td rowSpan={item.categoriaRowspan}>{item.categoria}</td>
+                    )}
+                    <td>{item.item}</td>
+                    <td>{item.cantidad}</td>
+                    <td>{item.observaciones}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Transport */}
+          <div className="section">
+            <h2>TRANSPORTE</h2>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Conductor</th>
+                  <th>Tipo</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Color</th>
+                  <th>Patente</th>
+                  <th>Puesto CAU (N°)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transportToShow.map((t, index) => (
+                  <tr key={index}>
+                    <td>{t.conductor || ''}</td>
+                    <td>{t.tipo || ''}</td>
+                    <td>{t.marca || ''}</td>
+                    <td>{t.modelo || ''}</td>
+                    <td>{t.color || ''}</td>
+                    <td>{t.patente || ''}</td>
+                    <td></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Medical Data */}
+          <div className="section">
+            <h2>DATOS MÉDICOS IMPORTANTES</h2>
+            <table className="data-table medical-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Enfermedades, alergias a medicamentos, otras alergias</th>
+                  <th>Medicamentos habituales</th>
+                  <th>Grupo de sangre</th>
+                  <th>Enfermedad y lesiones</th>
+                  <th>Riesgo / comentarios</th>
+                </tr>
+              </thead>
+              <tbody>
+                {participantesToShow.map((p, index) => (
+                  <tr key={index}>
+                    <td>{p.nombre || ''}</td>
+                    <td>{p.alergias || ''}</td>
+                    <td>{p.medicamentos || ''}</td>
+                    <td>{p.grupoSanguineo || ''}</td>
+                    <td>{p.enfermedades || ''}</td>
+                    <td>{p.condicionesEspeciales || ''}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
           {/* Page Break */}
           <div className="page-break-before" style={{ height: '0', pageBreakBefore: 'always', breakBefore: 'page' }}></div>
 
@@ -826,18 +846,14 @@ export default function PrintView({ formData, onClose }) {
             <h2>CUERPOS DE RESCATE OFICIALES:</h2>
             <div className="emergency-contacts-box">
               <div className="emergency-contacts">
-                <p><strong>Socorro Andino Magallanes:</strong> +56 9 6594 4314</p>
-                <p><strong>Carabineros:</strong> 133</p>
-                <p><strong>Bomberos:</strong> 132</p>
-                <p><strong>SAMU (Servicio de Atención Médica de Urgencia):</strong> 131</p>
-                <p><strong>PDI (Policía de Investigaciones):</strong> 134</p>
-                <p><strong>Socorro Andino Los Andes:</strong> +56 9 9442 4294</p>
-                <p><strong>Socorro Andino Santiago:</strong> +56 9 9680 5512</p>
-                <p><strong>Socorro Andino Valparaíso:</strong> +56 9 8225 7085</p>
-                <p><strong>Cuerpo de Socorro Andino Aconcagua:</strong> +56 9 9164 5890</p>
-                <p><strong>CONAF (Emergencias en Parques Nacionales):</strong> +56 2 2663 0000</p>
-                <p><strong>Armada de Chile (Rescate Marítimo):</strong> +56 32 220 8888</p>
-                <p><strong>FACH (Fuerza Aérea - Rescate Aéreo):</strong> +56 2 2690 1000</p>
+                {cuerposRescate.filter(cuerpo => cuerpo.incluir).map((cuerpo, index) => (
+                  <p key={index}>
+                    <strong>{cuerpo.nombre}:</strong> {cuerpo.telefono}
+                  </p>
+                ))}
+                {cuerposRescate.filter(cuerpo => cuerpo.incluir).length === 0 && (
+                  <p className="text-gray-500 italic">No hay cuerpos de rescate configurados</p>
+                )}
               </div>
             </div>
           </div>

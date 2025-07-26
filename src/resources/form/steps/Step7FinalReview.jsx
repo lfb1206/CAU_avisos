@@ -2,17 +2,37 @@
 import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import PrintView from '../components/PrintView';
+import EmergencyContactsForm from '../components/EmergencyContactsForm';
 
 export default function Step7FinalReview() {
-  const { formData, checkFormCompletion } = useFormContext();
+  const { formData, checkFormCompletion, updateItem, addItem, removeItem } = useFormContext();
   const [showPrintView, setShowPrintView] = useState(false);
+  const [showEmergencyContactsEditor, setShowEmergencyContactsEditor] = useState(false);
 
   // Ensure all arrays are properly initialized
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-  const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
+  // Obtener riesgos de los supuestos del itinerario que están incluidos
+  const riesgos = [];
+  formData.itinerario.forEach((day) => {
+    (day.supuestos || []).forEach((assumption) => {
+      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true && assumption.causas) {
+        assumption.causas.forEach((causa) => {
+          if (causa.riesgo && causa.peligro) {
+            riesgos.push({
+              supuesto: assumption.supuesto,
+              riesgo: causa.riesgo,
+              peligro: causa.peligro,
+              lugar: causa.lugar || ''
+            });
+          }
+        });
+      }
+    });
+  });
   const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
+  const cuerposRescate = Array.isArray(formData.cuerposRescate) ? formData.cuerposRescate : [];
 
   const formatDateTime = (dateTimeString) => {
     if (!dateTimeString) return 'No especificada';
@@ -55,6 +75,140 @@ export default function Step7FinalReview() {
       p.grupoSanguineo || p.alergias || p.enfermedades || p.medicamentos || p.condicionesEspeciales
     );
   };
+
+  const getValidationErrors = () => {
+    const errors = [];
+    
+    // Basic Info validation
+    if (!formData.basicInfo.contactoCAU) errors.push('Contacto CAU');
+    if (!formData.basicInfo.telefonoContacto) errors.push('Teléfono de contacto');
+    if (!formData.basicInfo.emailContacto) errors.push('Email de contacto');
+    if (!formData.basicInfo.fechaHoraReporteRegreso) errors.push('Fecha de reporte de regreso');
+    if (!formData.basicInfo.actividad) errors.push('Actividad');
+    if (!formData.basicInfo.cerroOSector) errors.push('Cerro o sector');
+    
+    // InReach validation
+    if (formData.basicInfo.llevaInreach) {
+      if (!formData.basicInfo.numeroInreach) errors.push('Número de InReach');
+      if (!formData.basicInfo.codigoInreach) errors.push('Código de InReach');
+    }
+    
+    // Participants validation
+    if (participantes.length === 0) {
+      errors.push('Al menos un participante');
+    } else {
+      participantes.forEach((participant, index) => {
+        if (!participant.nombre) errors.push(`Nombre del participante ${index + 1}`);
+        if (!participant.rut) errors.push(`RUT del participante ${index + 1}`);
+        if (!participant.telefono) errors.push(`Teléfono del participante ${index + 1}`);
+        if (!participant.contactoEmergencia) errors.push(`Contacto de emergencia del participante ${index + 1}`);
+        if (!participant.telefonoEmergencia) errors.push(`Teléfono de emergencia del participante ${index + 1}`);
+      });
+    }
+    
+    // Itinerary validation
+    if (itinerario.length === 0) {
+      errors.push('Al menos un tramo de itinerario');
+    } else {
+      itinerario.forEach((day, dayIndex) => {
+        if (!day.tramo) errors.push(`Tramo ${dayIndex + 1}`);
+        if (!day.fecha) errors.push(`Fecha del tramo ${dayIndex + 1}`);
+        if (!day.actividad) errors.push(`Actividad del tramo ${dayIndex + 1}`);
+        if (!day.horaInicio) errors.push(`Hora inicio del tramo ${dayIndex + 1}`);
+        if (!day.horaFin) errors.push(`Hora fin del tramo ${dayIndex + 1}`);
+        
+        // Validar supuestos si existen
+        if (day.supuestos && day.supuestos.length > 0) {
+          day.supuestos.forEach((supuesto, supuestoIndex) => {
+            if (!supuesto.supuesto) errors.push(`Supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+            if (!supuesto.tipoSupuesto) errors.push(`Tipo de supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+            if (!supuesto.accion) errors.push(`Acción del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+            
+            // Validar causas si existen
+            if (supuesto.causas && supuesto.causas.length > 0) {
+              supuesto.causas.forEach((causa, causaIndex) => {
+                if (!causa.riesgo) errors.push(`Riesgo ${causaIndex + 1} del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+                if (!causa.peligro) errors.push(`Peligro ${causaIndex + 1} del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // Risk Management validation - verificar que hay supuestos con gestión y que tengan causas completas
+    const supuestosGestionar = [];
+    itinerario.forEach((day) => {
+      (day.supuestos || []).forEach((assumption) => {
+        if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+          // Verificar que el supuesto tenga causas con riesgo y peligro
+          const hasValidCausas = assumption.causas && assumption.causas.length > 0 && 
+            assumption.causas.every(causa => causa.riesgo && causa.peligro);
+          
+          if (hasValidCausas) {
+            supuestosGestionar.push(assumption);
+          }
+        }
+      });
+    });
+    if (supuestosGestionar.length === 0) {
+      errors.push('Al menos un supuesto de gestión de riesgo con peligros y riesgos completos');
+    }
+    
+    // Equipment validation - solo si hay equipos agregados
+    if (equipo.length > 0) {
+      const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
+      if (validEquipo.length === 0) {
+        errors.push('Todos los equipos agregados deben tener categoría, item y cantidad');
+      } else {
+        // Verificar campos específicos de cada equipo
+        equipo.forEach((item, index) => {
+          if (!item.categoria) errors.push(`Categoría del equipo ${index + 1}`);
+          if (!item.item) errors.push(`Item del equipo ${index + 1}`);
+          if (!item.cantidad) errors.push(`Cantidad del equipo ${index + 1}`);
+        });
+      }
+    }
+    
+    // Transport validation - solo si hay transportes agregados
+    if (transporte.length > 0) {
+      const validTransporte = transporte.filter(t => t.tipo && t.conductor);
+      if (validTransporte.length === 0) {
+        errors.push('Todos los transportes agregados deben tener tipo y conductor');
+      } else {
+        // Verificar campos específicos de cada transporte
+        transporte.forEach((item, index) => {
+          if (!item.tipo) errors.push(`Tipo del transporte ${index + 1}`);
+          if (!item.conductor) errors.push(`Conductor del transporte ${index + 1}`);
+        });
+      }
+    }
+    
+    return errors;
+  };
+
+  const validationErrors = getValidationErrors();
+  const isFormComplete = validationErrors.length === 0;
+
+  // Emergency contacts management functions
+  const updateEmergencyContact = (index, field, value) => {
+    updateItem('cuerposRescate', index, { [field]: value });
+  };
+
+  const addEmergencyContact = (newContact) => {
+    addItem('cuerposRescate', newContact);
+  };
+
+  const removeEmergencyContact = (index) => {
+    removeItem('cuerposRescate', index);
+  };
+
+  const toggleEmergencyContactInclude = (index, include) => {
+    updateItem('cuerposRescate', index, { incluir: include });
+  };
+
+  // Get included emergency contacts
+  const includedEmergencyContacts = cuerposRescate.filter(contact => contact.incluir);
 
   if (showPrintView) {
     return (
@@ -211,19 +365,68 @@ export default function Step7FinalReview() {
         )}
       </div>
 
+      {/* Emergency Contacts Section */}
+      <div className="space-y-6 mt-8">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Cuerpos de Rescate Oficiales
+          </h3>
+          <button
+            type="button"
+            onClick={() => setShowEmergencyContactsEditor(!showEmergencyContactsEditor)}
+            className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          >
+            {showEmergencyContactsEditor ? 'Ocultar Editor' : 'Editar Contactos'}
+          </button>
+        </div>
+
+        {showEmergencyContactsEditor ? (
+          <EmergencyContactsForm
+            cuerposRescate={cuerposRescate}
+            onUpdate={updateEmergencyContact}
+            onAdd={addEmergencyContact}
+            onRemove={removeEmergencyContact}
+            onToggleInclude={toggleEmergencyContactInclude}
+          />
+        ) : (
+          <div className="bg-red-50 rounded-lg p-4">
+            <h4 className="text-md font-semibold text-red-900 mb-3">
+              CUERPOS DE RESCATE OFICIALES ({includedEmergencyContacts.length} contactos)
+            </h4>
+            <div className="space-y-2">
+              {includedEmergencyContacts.map((contact, index) => (
+                <div key={index} className="text-sm">
+                  <strong>{contact.nombre}:</strong> {contact.telefono}
+                </div>
+              ))}
+              {includedEmergencyContacts.length === 0 && (
+                <p className="text-red-600 italic">
+                  No hay cuerpos de rescate seleccionados. Haga clic en "Editar Contactos" para configurar.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Validation Status */}
       <div className="bg-gray-50 rounded-lg p-4">
         <h4 className="text-md font-semibold text-gray-900 mb-3">
           Estado de Validación
         </h4>
         <div className="space-y-2">
-          {checkFormCompletion() ? (
+          {isFormComplete ? (
             <div className="text-green-600 font-medium">
               ✅ Todos los campos requeridos están completos
             </div>
           ) : (
             <div className="text-red-600 font-medium">
-              ⚠️ Algunos campos requeridos están incompletos
+              ⚠️ Algunos campos requeridos están incompletos:
+              <ul className="list-disc ml-5 mt-2 text-sm text-red-800">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
@@ -233,7 +436,7 @@ export default function Step7FinalReview() {
       <div className="text-center">
         <button
           onClick={() => setShowPrintView(true)}
-          disabled={!checkFormCompletion()}
+          disabled={!isFormComplete}
           className="px-6 py-3 bg-green-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-green-700 flex items-center gap-2 justify-center mx-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V9a2 2 0 012-2h16a2 2 0 012 2v7a2 2 0 01-2 2h-2m-6 0v4m0 0h4m-4 0H8" /></svg>
@@ -275,15 +478,37 @@ export default function Step7FinalReview() {
             </ul>
           </div>
           <div>
-            <p className="font-medium mb-1">Recordatorios importantes:</p>
+            <p className="font-medium mb-1">Recordatorio importante:</p>
             <ul className="space-y-1 ml-2">
-              <li>• El aviso debe ser entregado antes de la salida</li>
-              <li>• Mantenga una copia para el grupo</li>
-              <li>• Reporte su regreso en la fecha/hora indicada</li>
-              <li>• En caso de cambios, comunique al contacto CAU</li>
+              <li>• Complete el itinerario detallado de su expedición</li>
+              <li>• Solo los supuestos marcados aparecen en el aviso</li>
+              <li>• Identifique las dificultades principales de cada tramo</li>
+              <li>• Configure los cuerpos de rescate relevantes para su región</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Cuerpos de rescate:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Edite los contactos según su región o país</li>
+              <li>• Marque solo los cuerpos de rescate relevantes</li>
+              <li>• Agregue contactos locales específicos si es necesario</li>
+              <li>• Verifique que los números estén actualizados</li>
             </ul>
           </div>
         </div>
+      </div>
+
+      {/* Important Reminders */}
+      <div className="mt-8 bg-orange-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-orange-900 mb-3">
+          📋 Recordatorios importantes sobre el uso del aviso:
+        </h4>
+        <ul className="list-disc pl-5 text-orange-900 text-sm space-y-1">
+          <li>El aviso debe ser entregado antes de la salida</li>
+          <li>Mantenga una copia para el grupo</li>
+          <li>Reporte su regreso en la fecha/hora indicada</li>
+          <li>En caso de cambios, comunique al contacto CAU</li>
+        </ul>
       </div>
     </div>
   );

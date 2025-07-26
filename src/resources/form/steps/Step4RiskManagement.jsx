@@ -3,19 +3,16 @@ import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { formOptions } from '../../constants/formOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
-import { useRef } from 'react';
 
 export default function Step4RiskManagement() {
   const { formData, updateItem } = useFormContext();
-  const [expandedSupuesto, setExpandedSupuesto] = React.useState(null);
-  const [expandedCausa, setExpandedCausa] = React.useState({});
-  const supRefs = useRef([]);
 
   // Obtener supuestos a gestionar del itinerario
   const supuestosGestionar = [];
   formData.itinerario.forEach((day, dayIndex) => {
     (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-      if (assumption.accion === 'gestionar') {
+      // Incluir supuestos que tengan accion === 'gestionar' O 'monitoreo_intenso' Y incluir === true
+      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
         supuestosGestionar.push({
           key: `${dayIndex}-${assumptionIndex}`,
           tramo: day.tramo,
@@ -86,7 +83,18 @@ export default function Step4RiskManagement() {
       </div>
       <div className="space-y-4">
         {supuestosGestionar.length === 0 && (
-          <div className="text-gray-500 italic">No hay supuestos críticos para gestionar.</div>
+          <div className="text-center py-8">
+            <div className="text-gray-500 italic mb-2">
+              No hay supuestos críticos para gestionar.
+            </div>
+            <div className="text-sm text-gray-400">
+              Los supuestos aparecerán aquí solo si:
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Su acción requerida es "Gestionar" o "Monitoreo Intenso"</li>
+                <li>Están marcados como "Incluir en aviso"</li>
+              </ul>
+            </div>
+          </div>
         )}
         {supuestosGestionar.map((sup, supIndex) => (
           <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">

@@ -1,16 +1,13 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { formOptions } from '../../constants/formOptions';
 import { difficultyRecommendations } from '../../constants/savedData';
-import AutocompleteInput from '../components/AutocompleteInput';
+import ItineraryDayForm from '../components/ItineraryDayForm';
 
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
-  const [expandedTramo, setExpandedTramo] = React.useState(formData.itinerario.length - 1);
-  const [expandedSupuesto, setExpandedSupuesto] = React.useState({});
 
-  // Excel logic for risk assessment - FIXED LOGIC
+  // Excel logic for risk assessment
   const calculateRiskAction = (probability, impact) => {
     if (!probability || !impact) return '';
     
@@ -35,18 +32,24 @@ export default function Step3ItineraryAssumptions() {
       altitudInicio: '',
       altitudFin: '',
       actividad: '',
-      dificultadesPrincipales: [''], // Start with one empty difficulty
+      dificultadesPrincipales: [''],
       supuestos: []
     };
     addItem('itinerario', newDay);
-    setExpandedTramo(formData.itinerario.length - 1);
+  };
+
+  const updateDay = (dayIndex, field, value) => {
+    const updatedDay = { ...formData.itinerario[dayIndex], [field]: value };
+    updateItem('itinerario', dayIndex, updatedDay);
+  };
+
+  const removeDay = (dayIndex) => {
+    removeItem('itinerario', dayIndex);
   };
 
   // Suggest assumptions based on selected difficulties
   const getSuggestedAssumptions = (selectedDifficulties) => {
     const suggestions = [];
-    
-    // Filter out empty difficulties
     const validDifficulties = selectedDifficulties.filter(d => d && d.trim());
     
     validDifficulties.forEach(difficulty => {
@@ -76,7 +79,6 @@ export default function Step3ItineraryAssumptions() {
     const updatedItinerary = [...formData.itinerario];
     updatedItinerary[itineraryIndex].supuestos.push(newAssumption);
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-    setExpandedSupuesto(ec => ({ ...ec, [itineraryIndex]: updatedItinerary[itineraryIndex].supuestos.length - 1 }));
   };
 
   const addSuggestedAssumptions = (itineraryIndex) => {
@@ -85,51 +87,56 @@ export default function Step3ItineraryAssumptions() {
     if (suggestions.length === 0) return;
     
     const updatedItinerary = [...formData.itinerario];
+    const existingSupuestos = day.supuestos || [];
+    
+    // Solo agregar supuestos que no existan ya
     suggestions.forEach(suggestion => {
-      suggestion.accion = calculateRiskAction(suggestion.probabilidad, suggestion.impacto);
-      updatedItinerary[itineraryIndex].supuestos.push(suggestion);
+      const alreadyExists = existingSupuestos.some(existing => 
+        existing.supuesto === suggestion.supuesto && 
+        existing.tipoSupuesto === suggestion.tipoSupuesto
+      );
+      
+      if (!alreadyExists) {
+        suggestion.accion = calculateRiskAction(suggestion.probabilidad, suggestion.impacto);
+        updatedItinerary[itineraryIndex].supuestos.push(suggestion);
+      }
     });
+    
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-    setExpandedSupuesto(ec => ({ ...ec, [itineraryIndex]: updatedItinerary[itineraryIndex].supuestos.length - 1 }));
   };
 
-  // Handle difficulty addition
   const addDifficulty = (itineraryIndex) => {
     const day = formData.itinerario[itineraryIndex];
     const currentDifficulties = day.dificultadesPrincipales || [];
     const updatedDifficulties = [...currentDifficulties, ''];
-    updateItem('itinerario', itineraryIndex, { ...day, dificultadesPrincipales: updatedDifficulties });
+    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
-  // Handle difficulty removal
   const removeDifficulty = (itineraryIndex, difficultyIndex) => {
     const day = formData.itinerario[itineraryIndex];
     const currentDifficulties = day.dificultadesPrincipales || [];
     const updatedDifficulties = currentDifficulties.filter((_, index) => index !== difficultyIndex);
-    updateItem('itinerario', itineraryIndex, { ...day, dificultadesPrincipales: updatedDifficulties });
+    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
-  // Handle difficulty update
   const updateDifficulty = (itineraryIndex, difficultyIndex, value) => {
     const day = formData.itinerario[itineraryIndex];
-    const currentDifficulties = [...(day.dificultadesPrincipales || [])];
-    currentDifficulties[difficultyIndex] = value;
-    updateItem('itinerario', itineraryIndex, { ...day, dificultadesPrincipales: currentDifficulties });
+    const currentDifficulties = day.dificultadesPrincipales || [];
+    const updatedDifficulties = [...currentDifficulties];
+    updatedDifficulties[difficultyIndex] = value;
+    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
   const updateAssumption = (itineraryIndex, assumptionIndex, field, value) => {
     const updatedItinerary = [...formData.itinerario];
-    const updatedSupuestos = [...updatedItinerary[itineraryIndex].supuestos];
-    updatedSupuestos[assumptionIndex] = { ...updatedSupuestos[assumptionIndex], [field]: value };
+    const assumption = updatedItinerary[itineraryIndex].supuestos[assumptionIndex];
+    assumption[field] = value;
     
-    // Calculate action based on probability and impact
+    // Auto-calculate action if probability or impact changed
     if (field === 'probabilidad' || field === 'impacto') {
-      const prob = field === 'probabilidad' ? value : updatedSupuestos[assumptionIndex].probabilidad;
-      const imp = field === 'impacto' ? value : updatedSupuestos[assumptionIndex].impacto;
-      updatedSupuestos[assumptionIndex].accion = calculateRiskAction(prob, imp);
+      assumption.accion = calculateRiskAction(assumption.probabilidad, assumption.impacto);
     }
     
-    updatedItinerary[itineraryIndex].supuestos = updatedSupuestos;
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
@@ -153,7 +160,7 @@ export default function Step3ItineraryAssumptions() {
       case 'gestionar': return 'Gestionar';
       case 'monitoreo_intenso': return 'Monitoreo Intenso';
       case 'monitoreo_normal': return 'Monitoreo Normal';
-      default: return '';
+      default: return action;
     }
   };
 
@@ -168,257 +175,43 @@ export default function Step3ItineraryAssumptions() {
         </p>
       </div>
 
-
-
       {/* Itinerary Days */}
       <div className="space-y-6">
         {formData.itinerario.map((day, dayIndex) => (
-          <details key={dayIndex} className="border border-yellow-200 rounded-lg bg-yellow-50 mb-4">
-            <summary className="flex items-center gap-4 px-4 py-2 text-yellow-900 font-semibold cursor-pointer">
-              <span>{day.tramo || `Tramo ${dayIndex + 1}`}</span>
-              {day.fecha && <span className="text-xs text-yellow-700">{day.fecha}</span>}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeItem('itinerario', dayIndex);
-                }}
-                className="ml-auto text-red-600 text-xs font-semibold hover:underline hover:font-bold"
-              >
-                Eliminar tramo
-              </button>
-            </summary>
-            <div className="p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <AutocompleteInput
-                  label="Tramo *"
-                  value={day.tramo}
-                  onChange={(value) => updateItem('itinerario', dayIndex, { ...day, tramo: value })}
-                  options={formOptions.tramos}
-                  placeholder="Seleccione o escriba el tramo"
-                  required
-                />
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Fecha *</label>
-                  <input
-                    type="date"
-                    value={day.fecha}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, fecha: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Actividad *</label>
-                  <input
-                    type="text"
-                    value={day.actividad}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, actividad: e.target.value })}
-                    placeholder="Ej: Ascenso al campamento"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div className="md:col-span-2 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-sm font-medium text-gray-700">Principales dificultades</label>
-                    <div className="flex items-center gap-2">
-                      {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d.trim()).length > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => addSuggestedAssumptions(dayIndex)}
-                          className="px-3 py-1 text-xs bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
-                        >
-                          💡 Sugerir Supuestos ({day.dificultadesPrincipales.filter(d => d.trim()).length})
-                        </button>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => addDifficulty(dayIndex)}
-                        className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                      >
-                        + Agregar Dificultad
-                      </button>
-                    </div>
-                  </div>
-                  {/* Difficulties List */}
-                  <div className="space-y-2">
-                    {(day.dificultadesPrincipales || []).map((difficulty, difficultyIndex) => (
-                      <div key={difficultyIndex} className="flex items-center gap-2">
-                        <div className="flex-1">
-                          <AutocompleteInput
-                            value={difficulty}
-                            onChange={(value) => updateDifficulty(dayIndex, difficultyIndex, value)}
-                            options={formOptions.dificultadesPrincipales}
-                            placeholder="Seleccione o escriba una dificultad"
-                            className="text-sm"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeDifficulty(dayIndex, difficultyIndex)}
-                          className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                        >
-                          Eliminar
-                        </button>
-                      </div>
-                    ))}
-                    {(!day.dificultadesPrincipales || day.dificultadesPrincipales.length === 0) && (
-                      <p className="text-sm text-gray-500 italic">
-                        No se han agregado dificultades. Haga clic en "Agregar Dificultad" para comenzar.
-                      </p>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    Agregue las principales dificultades del tramo una por una. El sistema sugerirá supuestos automáticamente basados en su selección.
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Hora Inicio</label>
-                  <input
-                    type="time"
-                    value={day.horaInicio}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaInicio: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Hora Fin</label>
-                  <input
-                    type="time"
-                    value={day.horaFin}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, horaFin: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Altitud Inicio (msnm)</label>
-                  <input
-                    type="number"
-                    value={day.altitudInicio}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudInicio: e.target.value })}
-                    placeholder="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-sm font-medium text-gray-700">Altitud Fin (msnm)</label>
-                  <input
-                    type="number"
-                    value={day.altitudFin}
-                    onChange={(e) => updateItem('itinerario', dayIndex, { ...day, altitudFin: e.target.value })}
-                    placeholder="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-4 mt-6">
-                {(day.supuestos || []).map((sup, supIdx) => (
-                  <div key={supIdx} className="border border-gray-200 rounded bg-blue-50 mb-2 p-4">
-                    <div className="space-y-6">
-                      <div className="mb-4">
-                        <AutocompleteInput
-                          label="Supuesto clave *"
-                          value={sup.supuesto}
-                          onChange={(value) => updateAssumption(dayIndex, supIdx, 'supuesto', value)}
-                          options={formOptions.supuestos}
-                          placeholder="Seleccione o escriba el supuesto clave"
-                          required
-                        />
-                      </div>
-                      <select
-                        value={sup.tipoSupuesto}
-                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'tipoSupuesto', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                      >
-                        <option value="">Seleccionar tipo</option>
-                        {formOptions.tipoSupuestos.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={sup.probabilidad}
-                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'probabilidad', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        required
-                      >
-                        <option value="">Seleccionar probabilidad</option>
-                        {formOptions.probabilidades.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                      <select
-                        value={sup.impacto}
-                        onChange={(e) => updateAssumption(dayIndex, supIdx, 'impacto', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                        required
-                      >
-                        <option value="">Seleccionar impacto</option>
-                        {formOptions.impactos.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="mt-6">
-                      <label className="block text-xs font-medium text-gray-700 mb-2">
-                        Acción Requerida
-                      </label>
-                      <div className={`px-3 py-2 rounded-md border text-sm font-medium ${getActionColor(sup.accion)}`}>
-                        {getActionLabel(sup.accion)}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-                      <button
-                        type="button"
-                        onClick={() => updateAssumption(dayIndex, supIdx, 'incluir', !sup.incluir)}
-                        className={`flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${sup.incluir ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
-                        aria-pressed={sup.incluir}
-                      >
-                        {sup.incluir ? 'Incluir en aviso' : 'No incluir'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeAssumption(dayIndex, supIdx)}
-                        className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
-                      >
-                        Eliminar supuesto
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => addAssumption(dayIndex)}
-                  className="w-full py-2 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm"
-                >
-                  + Agregar Supuesto
-                </button>
-              </div>
-            </div>
-          </details>
+          <ItineraryDayForm
+            key={dayIndex}
+            day={day}
+            dayIndex={dayIndex}
+            onUpdate={updateDay}
+            onRemove={removeDay}
+            onAddAssumption={addAssumption}
+            onRemoveAssumption={removeAssumption}
+            onUpdateAssumption={updateAssumption}
+            onAddDifficulty={addDifficulty}
+            onRemoveDifficulty={removeDifficulty}
+            onUpdateDifficulty={updateDifficulty}
+            onAddSuggestedAssumptions={addSuggestedAssumptions}
+            getActionColor={getActionColor}
+            getActionLabel={getActionLabel}
+            fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
+          />
         ))}
-
-        {/* Add Day Button */}
-        <button
-          type="button"
-          onClick={addItineraryDay}
-          className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
-        >
-          + Agregar Tramo
-        </button>
       </div>
+
+      {/* Add Day Button */}
+      <button
+        type="button"
+        onClick={addItineraryDay}
+        className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors"
+      >
+        + Agregar Tramo
+      </button>
 
       {/* Instructions */}
       <div className="mt-8 bg-yellow-50 rounded-lg p-4">
-                  <h4 className="text-sm font-semibold text-yellow-900 mb-3">
-            🗺️ Consejos para planificar su itinerario:
-          </h4>
+        <h4 className="text-sm font-semibold text-yellow-900 mb-3">
+          🗺️ Consejos para planificar su itinerario:
+        </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-yellow-800">
           <div>
             <p className="font-medium mb-1">Información del tramo:</p>

@@ -18,23 +18,27 @@ const initialFormState = {
   },
   participantes: [],
   itinerario: [],
-  riesgos: [],
   equipo: [],
-  transporte: []
+  transporte: [],
+  cuerposRescate: [
+    { nombre: 'Socorro Andino Santiago', telefono: '+56 9 9680 5512', incluir: true },
+    { nombre: 'Carabineros', telefono: '133', incluir: true },
+    { nombre: 'Bomberos', telefono: '132', incluir: true },
+    { nombre: 'FACH (Fuerza Aérea - Rescate Aéreo)', telefono: '+56 2 2690 1000', incluir: true },
+    { nombre: 'Socorro Andino Magallanes', telefono: '+56 9 6594 4314', incluir: false },
+    { nombre: 'SAMU (Servicio de Atención Médica de Urgencia)', telefono: '131', incluir: false },
+    { nombre: 'PDI (Policía de Investigaciones)', telefono: '134', incluir: false },
+    { nombre: 'Socorro Andino Los Andes', telefono: '+56 9 9442 4294', incluir: false },
+    { nombre: 'Socorro Andino Valparaíso', telefono: '+56 9 8225 7085', incluir: false },
+    { nombre: 'Cuerpo de Socorro Andino Aconcagua', telefono: '+56 9 9164 5890', incluir: false },
+    { nombre: 'CONAF (Emergencias en Parques Nacionales)', telefono: '+56 2 2663 0000', incluir: false },
+    { nombre: 'Armada de Chile (Rescate Marítimo)', telefono: '+56 32 220 8888', incluir: false }
+  ]
 };
 
 // Form reducer
 const formReducer = (state, action) => {
   switch (action.type) {
-    case 'UPDATE_FIELD':
-      return {
-        ...state,
-        [action.section]: {
-          ...state[action.section],
-          [action.field]: action.value
-        }
-      };
-    
     case 'UPDATE_FORM_FIELD':
       return {
         ...state,
@@ -109,7 +113,8 @@ const formReducer = (state, action) => {
         itinerario: Array.isArray(action.data.itinerario) ? action.data.itinerario : [],
         riesgos: Array.isArray(action.data.riesgos) ? action.data.riesgos : [],
         equipo: Array.isArray(action.data.equipo) ? action.data.equipo : [],
-        transporte: Array.isArray(action.data.transporte) ? action.data.transporte : []
+        transporte: Array.isArray(action.data.transporte) ? action.data.transporte : [],
+        cuerposRescate: Array.isArray(action.data.cuerposRescate) ? action.data.cuerposRescate : initialFormState.cuerposRescate
       };
       return loadedData;
     
@@ -194,10 +199,10 @@ export const FormContextProvider = ({ children }) => {
 
   // Check if current step is valid - UPDATED FOR INTEGRATED MEDICAL DATA
   const isStepValid = (step) => {
-    // Ensure arrays exist before checking
     const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
     const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
     const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
+    const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
 
     switch (step) {
       case 1: // Basic Info
@@ -217,20 +222,58 @@ export const FormContextProvider = ({ children }) => {
         return participantes.length > 0 &&
                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
       case 3: // Itinerary & Assumptions
-        const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-        return itinerario.length > 0 && itinerario.every(day => 
-          day.tramo && day.actividad && day.horaInicio && day.horaFin
-        );
+        return itinerario.length > 0 && itinerario.every(day => {
+          const hasRequiredFields = day.tramo && day.actividad && day.horaInicio && day.horaFin;
+          if (!hasRequiredFields) return false;
+          
+          // Verificar que la fecha del tramo esté entre hoy y la fecha de reporte de regreso
+          if (day.fecha) {
+            const today = new Date(new Date().toISOString().split('T')[0]);
+            const tramoDate = new Date(day.fecha);
+            const reporteDate = formData.basicInfo.fechaHoraReporteRegreso ? 
+              new Date(formData.basicInfo.fechaHoraReporteRegreso) : null;
+            
+            // La fecha del tramo debe ser hoy o posterior
+            if (tramoDate < today) return false;
+            
+            // La fecha del tramo no puede ser posterior a la fecha de reporte de regreso
+            if (reporteDate && tramoDate > reporteDate) return false;
+          }
+          
+          return true;
+        });
       case 4: // Risk Management
-        const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
-        return riesgos.length > 0 && riesgos.every(risk => 
-          risk.supuesto && risk.riesgo && risk.peligro
-        );
+        // Verificar que hay al menos un supuesto con acción 'gestionar' o 'monitoreo_intenso' e incluir: true
+        const supuestosGestionar = [];
+        itinerario.forEach((day) => {
+          (day.supuestos || []).forEach((assumption) => {
+            if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+              supuestosGestionar.push(assumption);
+            }
+          });
+        });
+        return supuestosGestionar.length > 0;
       case 5: // Equipment & Transport
-        // Check if there's at least one valid equipment or transport
+        // Solo validar si hay equipos o transportes agregados
         const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
         const validTransporte = transporte.filter(t => t.tipo && t.conductor);
-        return validEquipo.length > 0 || validTransporte.length > 0;
+        
+        // Si no hay equipos ni transportes, el paso es válido (son opcionales)
+        if (equipo.length === 0 && transporte.length === 0) {
+          return true;
+        }
+        
+        // Si hay equipos, todos deben ser válidos
+        if (equipo.length > 0 && validEquipo.length !== equipo.length) {
+          return false;
+        }
+        
+        // Si hay transportes, todos deben ser válidos
+        if (transporte.length > 0 && validTransporte.length !== transporte.length) {
+          return false;
+        }
+        
+        return true;
       case 6: // Final Review (removed medical data step)
         return checkFormCompletion();
       default:
@@ -244,7 +287,6 @@ export const FormContextProvider = ({ children }) => {
     const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
     const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
     const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-    const riesgos = Array.isArray(formData.riesgos) ? formData.riesgos : [];
 
     const basicInfoComplete = formData.basicInfo.contactoCAU &&
                              formData.basicInfo.telefonoContacto &&
@@ -259,19 +301,46 @@ export const FormContextProvider = ({ children }) => {
     const participantsComplete = participantes.length > 0 &&
                                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
 
-    const itineraryComplete = itinerario.length > 0 && itinerario.every(day => 
-      day.tramo && day.actividad && day.horaInicio && day.horaFin
-    );
+    const itineraryComplete = itinerario.length > 0 && itinerario.every(day => {
+      const hasRequiredFields = day.tramo && day.actividad && day.horaInicio && day.horaFin;
+      if (!hasRequiredFields) return false;
+      
+      // Verificar que la fecha del tramo esté entre hoy y la fecha de reporte de regreso
+      if (day.fecha) {
+        const today = new Date(new Date().toISOString().split('T')[0]);
+        const tramoDate = new Date(day.fecha);
+        const reporteDate = formData.basicInfo.fechaHoraReporteRegreso ? 
+          new Date(formData.basicInfo.fechaHoraReporteRegreso) : null;
+        
+        // La fecha del tramo debe ser hoy o posterior
+        if (tramoDate < today) return false;
+        
+        // La fecha del tramo no puede ser posterior a la fecha de reporte de regreso
+        if (reporteDate && tramoDate > reporteDate) return false;
+      }
+      
+      return true;
+    });
 
-    const risksComplete = riesgos.length > 0 && riesgos.every(risk => 
-      risk.supuesto && risk.riesgo && risk.peligro
-    );
+    // Verificar que hay al menos un supuesto con acción 'gestionar' o 'monitoreo_intenso' e incluir: true
+    const supuestosGestionar = [];
+    itinerario.forEach((day) => {
+      (day.supuestos || []).forEach((assumption) => {
+        if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+          supuestosGestionar.push(assumption);
+        }
+      });
+    });
+    const risksComplete = supuestosGestionar.length > 0;
 
     const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
     const validTransporte = transporte.filter(t => t.tipo && t.conductor);
-    const equipmentComplete = validEquipo.length > 0 || validTransporte.length > 0;
+    
+    // Equipment y transporte son opcionales, pero si se agregan deben estar completos
+    const equipmentComplete = equipo.length === 0 || validEquipo.length === equipo.length;
+    const transportComplete = transporte.length === 0 || validTransporte.length === transporte.length;
 
-    return basicInfoComplete && inReachComplete && participantsComplete && itineraryComplete && risksComplete && equipmentComplete;
+    return basicInfoComplete && inReachComplete && participantsComplete && itineraryComplete && risksComplete && equipmentComplete && transportComplete;
   };
 
   const value = {
