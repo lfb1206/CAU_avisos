@@ -136,23 +136,40 @@ export default function Step7FinalReview() {
       });
     }
     
-    // Risk Management validation - verificar que hay supuestos con gestión y que tengan causas completas
+    // Risk Management validation - verificar que todos los supuestos de gestión tengan campos completos
     const supuestosGestionar = [];
-    itinerario.forEach((day) => {
-      (day.supuestos || []).forEach((assumption) => {
+    const supuestosIncompletos = [];
+    
+    itinerario.forEach((day, dayIndex) => {
+      (day.supuestos || []).forEach((assumption, assumptionIndex) => {
         if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
-          // Verificar que el supuesto tenga causas con riesgo y peligro
-          const hasValidCausas = assumption.causas && assumption.causas.length > 0 && 
-            assumption.causas.every(causa => causa.riesgo && causa.peligro);
+          supuestosGestionar.push({
+            dayIndex,
+            assumptionIndex,
+            assumption
+          });
           
-          if (hasValidCausas) {
-            supuestosGestionar.push(assumption);
+          // Verificar que el supuesto tenga causas con riesgo y peligro
+          if (!assumption.causas || assumption.causas.length === 0) {
+            supuestosIncompletos.push(`Supuesto "${assumption.supuesto}" del tramo "${day.tramo}" - Falta agregar causas/peligros`);
+          } else {
+            // Verificar que todas las causas tengan riesgo y peligro
+            assumption.causas.forEach((causa, causaIndex) => {
+              if (!causa.riesgo) {
+                supuestosIncompletos.push(`Riesgo ${causaIndex + 1} del supuesto "${assumption.supuesto}" del tramo "${day.tramo}"`);
+              }
+              if (!causa.peligro) {
+                supuestosIncompletos.push(`Peligro ${causaIndex + 1} del supuesto "${assumption.supuesto}" del tramo "${day.tramo}"`);
+              }
+            });
           }
         }
       });
     });
-    if (supuestosGestionar.length === 0) {
-      errors.push('Al menos un supuesto de gestión de riesgo con peligros y riesgos completos');
+    
+    // Si hay supuestos de gestión, todos deben estar completos
+    if (supuestosGestionar.length > 0) {
+      errors.push(...supuestosIncompletos);
     }
     
     // Equipment validation - solo si hay equipos agregados

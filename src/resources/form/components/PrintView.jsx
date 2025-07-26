@@ -9,7 +9,7 @@ export default function PrintView({ formData, onClose }) {
   const riesgos = [];
   formData.itinerario.forEach((day) => {
     (day.supuestos || []).forEach((assumption) => {
-      if (assumption.accion === 'gestionar' && assumption.incluir === true && assumption.causas) {
+      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true && assumption.causas) {
         assumption.causas.forEach((causa) => {
           if (causa.riesgo && causa.peligro) {
             riesgos.push({

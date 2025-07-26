@@ -243,16 +243,31 @@ export const FormContextProvider = ({ children }) => {
           return true;
         });
       case 4: // Risk Management
-        // Verificar que hay al menos un supuesto con acción 'gestionar' o 'monitoreo_intenso' e incluir: true
+        // Verificar que todos los supuestos con acción 'gestionar' o 'monitoreo_intenso' e incluir: true tengan causas completas
         const supuestosGestionar = [];
+        const supuestosIncompletos = [];
+        
         itinerario.forEach((day) => {
           (day.supuestos || []).forEach((assumption) => {
             if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
               supuestosGestionar.push(assumption);
+              
+              // Verificar que el supuesto tenga causas con riesgo y peligro
+              if (!assumption.causas || assumption.causas.length === 0) {
+                supuestosIncompletos.push(assumption);
+              } else {
+                // Verificar que todas las causas tengan riesgo y peligro
+                const hasIncompleteCausas = assumption.causas.some(causa => !causa.riesgo || !causa.peligro);
+                if (hasIncompleteCausas) {
+                  supuestosIncompletos.push(assumption);
+                }
+              }
             }
           });
         });
-        return supuestosGestionar.length > 0;
+        
+        // Si hay supuestos de gestión, todos deben estar completos
+        const risksComplete = supuestosGestionar.length === 0 || supuestosIncompletos.length === 0;
       case 5: // Equipment & Transport
         // Solo validar si hay equipos o transportes agregados
         const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
@@ -322,16 +337,31 @@ export const FormContextProvider = ({ children }) => {
       return true;
     });
 
-    // Verificar que hay al menos un supuesto con acción 'gestionar' o 'monitoreo_intenso' e incluir: true
+    // Verificar que todos los supuestos con acción 'gestionar' o 'monitoreo_intenso' e incluir: true tengan causas completas
     const supuestosGestionar = [];
+    const supuestosIncompletos = [];
+    
     itinerario.forEach((day) => {
       (day.supuestos || []).forEach((assumption) => {
         if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
           supuestosGestionar.push(assumption);
+          
+          // Verificar que el supuesto tenga causas con riesgo y peligro
+          if (!assumption.causas || assumption.causas.length === 0) {
+            supuestosIncompletos.push(assumption);
+          } else {
+            // Verificar que todas las causas tengan riesgo y peligro
+            const hasIncompleteCausas = assumption.causas.some(causa => !causa.riesgo || !causa.peligro);
+            if (hasIncompleteCausas) {
+              supuestosIncompletos.push(assumption);
+            }
+          }
         }
       });
     });
-    const risksComplete = supuestosGestionar.length > 0;
+    
+    // Si hay supuestos de gestión, todos deben estar completos
+    const risksComplete = supuestosGestionar.length === 0 || supuestosIncompletos.length === 0;
 
     const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
     const validTransporte = transporte.filter(t => t.tipo && t.conductor);

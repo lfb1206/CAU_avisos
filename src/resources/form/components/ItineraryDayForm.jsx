@@ -21,7 +21,7 @@ export default function ItineraryDayForm({
 }) {
   return (
     <details
-      className={`border border-gray-200 rounded-lg p-0 transition-colors ${day.supuestos && day.supuestos.length > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50'}`}
+      className="border border-gray-200 rounded-lg p-0 transition-colors bg-gray-50"
     >
       <summary className="flex items-center gap-2 cursor-pointer px-4 md:px-6 py-3 text-gray-900 font-semibold">
         <div className="flex-1 min-w-0">
