@@ -20,23 +20,44 @@ export default function ItineraryDayForm({
   fechaReporteRegreso
 }) {
   return (
-    <details className="border border-yellow-200 rounded-lg bg-yellow-50 mb-4">
-      <summary className="flex items-center gap-4 px-4 py-2 text-yellow-900 font-semibold cursor-pointer">
-        <span>{day.tramo || `Tramo ${dayIndex + 1}`}</span>
-        {day.fecha && <span className="text-xs text-yellow-700">{day.fecha}</span>}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(dayIndex);
-          }}
-          className="ml-auto text-red-600 text-xs font-semibold hover:underline hover:font-bold"
-        >
-          Eliminar tramo
-        </button>
+    <details
+      className={`border border-gray-200 rounded-lg p-0 transition-colors ${day.supuestos && day.supuestos.length > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50'}`}
+    >
+      <summary className="flex items-center gap-2 cursor-pointer px-4 md:px-6 py-3 text-gray-900 font-semibold">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+            <span className="truncate">{day.tramo || 'Sin tramo'}</span>
+            <span className="hidden sm:inline mx-2">-</span>
+            <span className="truncate">
+              {day.fecha ? 
+                (() => {
+                  const date = new Date(day.fecha + 'T00:00:00');
+                  return date.toLocaleDateString('es-CL', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                  }).replace(/-/g, '/');
+                })()
+                : 'Sin fecha'
+              }
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(dayIndex);
+            }}
+            className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
+          >
+            <span className="hidden sm:inline">Eliminar tramo</span>
+            <span className="sm:hidden">Eliminar</span>
+          </button>
+        </div>
       </summary>
-      
-      <div className="p-4">
+      <div className="p-4 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <AutocompleteInput
             label="Tramo"

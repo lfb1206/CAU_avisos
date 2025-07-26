@@ -20,30 +20,41 @@ export default function EquipmentForm({
     <details
       className={`border border-gray-200 rounded-lg p-0 transition-colors ${equipment.checked ? 'bg-green-50 border-green-200' : 'bg-gray-50'}`}
     >
-      <summary className="flex items-center gap-2 cursor-pointer px-6 py-3 text-gray-900 font-semibold">
-        <span>{equipment.categoria || 'Sin categoría'}</span>
-        <span className="mx-2">/</span>
-        <span>{equipment.item || 'Sin item'}</span>
-        <button
-          type="button"
-          onClick={() => onUpdate(index, 'checked', !equipment.checked)}
-          className={`ml-2 flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${equipment.checked ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
-          aria-pressed={equipment.checked}
-        >
-          {equipment.checked ? 'Se está portando' : 'No se porta'}
-        </button>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove(index);
-          }}
-          className="ml-auto text-red-600 text-xs font-semibold hover:underline hover:font-bold"
-        >
-          Eliminar equipo
-        </button>
+      <summary className="flex items-center gap-2 cursor-pointer px-4 md:px-6 py-3 text-gray-900 font-semibold">
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+            <span className="truncate">{equipment.categoria || 'Sin categoría'}</span>
+            <span className="hidden sm:inline mx-2">/</span>
+            <span className="truncate">{equipment.item || 'Sin item'}</span>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onUpdate(index, 'checked', !equipment.checked);
+            }}
+            className={`flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${equipment.checked ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
+            aria-pressed={equipment.checked}
+          >
+            <span className="hidden sm:inline">{equipment.checked ? 'Se está portando' : 'No se porta'}</span>
+            <span className="sm:hidden">{equipment.checked ? '✓' : '✗'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(index);
+            }}
+            className="text-red-600 text-xs font-semibold hover:underline hover:font-bold flex-shrink-0"
+          >
+            <span className="hidden sm:inline">Eliminar equipo</span>
+            <span className="sm:hidden">Eliminar</span>
+          </button>
+        </div>
       </summary>
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <AutocompleteInput
             label="Categoría"

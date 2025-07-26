@@ -64,11 +64,11 @@ export default function MultiStepForm() {
   const CurrentStepComponent = steps.find(step => step.id === formData.currentStep)?.component;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-4 md:p-6">
       {/* Progress Bar */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
             Aviso de Salida CAU
           </h1>
           <span className="text-sm text-gray-500">
@@ -76,7 +76,8 @@ export default function MultiStepForm() {
           </span>
         </div>
         
-        <div className="flex items-center justify-center space-x-4">
+        {/* Desktop Progress Bar */}
+        <div className="hidden md:flex items-center justify-center space-x-4">
           {steps.map((step, index) => {
             const status = getStepStatus(step.id);
             return (
@@ -96,24 +97,61 @@ export default function MultiStepForm() {
                     {step.optional && <span className="text-xs text-gray-400 ml-1">(Opcional)</span>}
                   </span>
                 </button>
-
               </div>
             );
           })}
         </div>
+
+        {/* Mobile Progress Bar - Simplified */}
+        <div className="md:hidden flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => goToStep(Math.max(1, formData.currentStep - 1))}
+              disabled={formData.currentStep === 1}
+              className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Anterior</span>
+            </button>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">{formData.currentStep}</span>
+            </div>
+            <span className="text-sm font-medium text-blue-600">
+              {steps.find(s => s.id === formData.currentStep)?.name}
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => goToStep(Math.min(steps.length, formData.currentStep + 1))}
+              disabled={formData.currentStep === steps.length || !isStepValid(formData.currentStep)}
+              className="flex items-center space-x-1 text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span>Siguiente</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Current Step Content */}
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="bg-white rounded-lg shadow-lg p-4 md:p-8">
         {CurrentStepComponent && <CurrentStepComponent />}
       </div>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between mt-8">
+      <div className="flex justify-between mt-6 md:mt-8">
         <button
           onClick={() => goToStep(Math.max(1, formData.currentStep - 1))}
           disabled={formData.currentStep === 1}
-          className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 md:px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
         >
           Anterior
         </button>
@@ -121,7 +159,7 @@ export default function MultiStepForm() {
         <button
           onClick={() => goToStep(Math.min(steps.length, formData.currentStep + 1))}
           disabled={formData.currentStep === steps.length || !isStepValid(formData.currentStep)}
-          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-4 md:px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm md:text-base"
         >
           {!isStepValid(formData.currentStep) && formData.currentStep !== steps.length ? 'Complete los campos requeridos' : 'Siguiente'}
         </button>

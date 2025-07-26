@@ -81,6 +81,7 @@ export default function Step4RiskManagement() {
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Riesgos</h2>
         <p className="text-gray-600">Para cada supuesto crítico, agregue y gestione las causas/peligros relevantes.</p>
       </div>
+
       <div className="space-y-4">
         {supuestosGestionar.length === 0 && (
           <div className="text-center py-8">
@@ -98,18 +99,31 @@ export default function Step4RiskManagement() {
         )}
         {supuestosGestionar.map((sup, supIndex) => (
           <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
-            <summary className="flex items-center gap-4 px-4 py-2 text-blue-900 font-semibold cursor-pointer">
-              <span>{sup.supuesto}</span>
+            <summary className="flex items-center justify-between px-4 py-3 cursor-pointer">
+              <div className="flex items-center space-x-3">
+                <span className="font-semibold text-blue-900">{sup.tramo}</span>
+                <span className="text-blue-700">-</span>
+                <span className="text-blue-800">{sup.supuesto}</span>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeSupuesto(sup.key);
+                }}
+                className="text-red-600 hover:text-red-800 text-sm font-medium"
+              >
+                Eliminar supuesto
+              </button>
             </summary>
-            <div className="p-4">
+            <div className="p-4 border-t border-blue-200">
               <div className="space-y-4">
-                {(sup.causas || []).map((causa, causaIdx) => (
-                  <div key={causaIdx} data-causa-item={`${sup.key}-${causaIdx}`} className="border border-gray-200 rounded bg-yellow-50 mb-2 p-4">
+                {sup.causas.map((causa, causaIndex) => (
+                  <div key={causaIndex} className="border border-gray-200 rounded bg-yellow-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>
                     <div className="space-y-4">
                       <AutocompleteInput
                         label="Peligro o causa subyacente"
                         value={causa.peligro}
-                        onChange={v => updateCausa(sup.key, causaIdx, 'peligro', v)}
+                        onChange={v => updateCausa(sup.key, causaIndex, 'peligro', v)}
                         options={formOptions.peligros}
                         placeholder="Seleccione o escriba el peligro"
                         required
@@ -117,7 +131,7 @@ export default function Step4RiskManagement() {
                       <AutocompleteInput
                         label="Riesgo asociado"
                         value={causa.riesgo}
-                        onChange={v => updateCausa(sup.key, causaIdx, 'riesgo', v)}
+                        onChange={v => updateCausa(sup.key, causaIndex, 'riesgo', v)}
                         options={formOptions.riesgos}
                         placeholder="Describa el riesgo"
                         required
@@ -126,7 +140,7 @@ export default function Step4RiskManagement() {
                         type="text"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
                         value={causa.lugar}
-                        onChange={e => updateCausa(sup.key, causaIdx, 'lugar', e.target.value)}
+                        onChange={e => updateCausa(sup.key, causaIndex, 'lugar', e.target.value)}
                         placeholder="Lugar o coordenadas (opcional)"
                       />
                       {/* Acciones de gestión con tooltips */}
@@ -141,7 +155,7 @@ export default function Step4RiskManagement() {
                           </label>
                           <textarea
                             value={causa.accionProbabilidad}
-                            onChange={e => updateCausa(sup.key, causaIdx, 'accionProbabilidad', e.target.value)}
+                            onChange={e => updateCausa(sup.key, causaIndex, 'accionProbabilidad', e.target.value)}
                             rows={2}
                             className="w-full px-2 py-1 border border-gray-300 rounded"
                           />
@@ -156,7 +170,7 @@ export default function Step4RiskManagement() {
                           </label>
                           <textarea
                             value={causa.accionExposicion}
-                            onChange={e => updateCausa(sup.key, causaIdx, 'accionExposicion', e.target.value)}
+                            onChange={e => updateCausa(sup.key, causaIndex, 'accionExposicion', e.target.value)}
                             rows={2}
                             className="w-full px-2 py-1 border border-gray-300 rounded"
                           />
@@ -171,24 +185,18 @@ export default function Step4RiskManagement() {
                           </label>
                           <textarea
                             value={causa.accionConsecuencias}
-                            onChange={e => updateCausa(sup.key, causaIdx, 'accionConsecuencias', e.target.value)}
+                            onChange={e => updateCausa(sup.key, causaIndex, 'accionConsecuencias', e.target.value)}
                             rows={2}
                             className="w-full px-2 py-1 border border-gray-300 rounded"
                           />
                         </div>
                       </div>
-                      {/* Si hay Acción Requerida aquí, dale un margen superior */}
-                      {causa.accionRequerida && (
-                        <div className="mt-2">
-                          {/* Acción Requerida */}
-                        </div>
-                      )}
                     </div>
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
                       <span className="text-xs text-gray-500">{causa.riesgo ? 'Riesgo: ' + causa.riesgo : ''}</span>
                       <button
                         type="button"
-                        onClick={() => removeCausa(sup.key, causaIdx)}
+                        onClick={() => removeCausa(sup.key, causaIndex)}
                         className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
                       >
                         Eliminar peligro
@@ -196,13 +204,45 @@ export default function Step4RiskManagement() {
                     </div>
                   </div>
                 ))}
-                <button onClick={() => addCausa(sup.key)} className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
-                  + Agregar causa/peligro
+                <button
+                  onClick={() => addCausa(sup.key)}
+                  className="w-full py-3 px-4 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:text-blue-700 transition-colors"
+                >
+                  + Agregar Causa/Peligro
                 </button>
               </div>
             </div>
           </details>
         ))}
+      </div>
+
+      {/* Instrucciones al final */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-blue-900 mb-3">
+          Instrucciones para la Gestión de Riesgos
+        </h3>
+        <div className="text-sm text-blue-800 space-y-2">
+          <p>
+            <strong>¿Qué es la Gestión de Riesgos?</strong> Es el proceso de identificar, evaluar y controlar los peligros 
+            que pueden afectar la seguridad de la expedición.
+          </p>
+          <p>
+            <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos marcados como "Gestionar" o "Monitoreo Intenso" 
+            y que estén incluidos en el aviso de salida.
+          </p>
+          <p>
+            <strong>¿Cómo gestionar cada supuesto?</strong> Para cada supuesto crítico, debe:
+          </p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li><strong>Identificar el peligro:</strong> ¿Qué puede salir mal?</li>
+            <li><strong>Evaluar el riesgo:</strong> ¿Qué tan probable es que ocurra?</li>
+            <li><strong>Definir el lugar:</strong> ¿Dónde puede ocurrir?</li>
+            <li><strong>Establecer acciones:</strong> ¿Qué medidas tomar para reducir probabilidad, exposición y consecuencias?</li>
+          </ul>
+          <p className="text-xs text-blue-700 mt-3">
+            <strong>Tip:</strong> Cuanto más específicas sean sus acciones, más efectiva será la gestión del riesgo.
+          </p>
+        </div>
       </div>
     </div>
   );

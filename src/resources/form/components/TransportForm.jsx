@@ -11,7 +11,7 @@ export default function TransportForm({
   getConductorOptions 
 }) {
   return (
-    <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+    <div className="border border-gray-200 rounded-lg p-4 md:p-6 bg-gray-50">
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-lg font-semibold text-gray-900">
           Transporte {index + 1}
