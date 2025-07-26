@@ -67,7 +67,7 @@ export default function Step7FinalReview() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Revisión Final y Generación del Aviso
         </h2>
@@ -75,6 +75,8 @@ export default function Step7FinalReview() {
           Revise toda la información antes de generar el aviso de salida para imprimir
         </p>
       </div>
+
+
 
       {/* Data Summary */}
       <div className="space-y-6">
@@ -239,18 +241,48 @@ export default function Step7FinalReview() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+      <div className="mt-8 bg-indigo-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-indigo-900 mb-3">
+          ✅ Consejos para la revisión final:
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Revise toda la información antes de generar el aviso</li>
-          <li>• Verifique que todos los campos requeridos estén completos</li>
-          <li>• Los datos médicos se muestran integrados con cada participante</li>
-          <li>• Al hacer clic en "Ver Aviso para Imprimir", se abrirá una vista optimizada para impresión</li>
-          <li>• Desde la vista de impresión podrá imprimir directamente usando Ctrl+P</li>
-          <li>• El formato de impresión coincide exactamente con el formato oficial</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-indigo-800">
+          <div>
+            <p className="font-medium mb-1">Antes de generar el documento:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Revise que toda la información esté correcta</li>
+              <li>• Verifique que los participantes estén completos</li>
+              <li>• Confirme que el equipo marcado es el que porta</li>
+              <li>• Asegúrese de que los datos de contacto sean correctos</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Al generar el aviso para imprimir:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Se abrirá una nueva ventana optimizada para impresión</li>
+              <li>• Solo aparecerá el equipo y supuestos marcados</li>
+              <li>• Las imágenes del clima se incluyen automáticamente</li>
+              <li>• Use Ctrl+P o Cmd+P para imprimir desde la nueva ventana</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Información incluida en el documento:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Datos básicos de la actividad y contacto CAU</li>
+              <li>• Lista completa de participantes y datos médicos</li>
+              <li>• Itinerario detallado (si fue completado)</li>
+              <li>• Supuestos de riesgo seleccionados</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Recordatorios importantes:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• El aviso debe ser entregado antes de la salida</li>
+              <li>• Mantenga una copia para el grupo</li>
+              <li>• Reporte su regreso en la fecha/hora indicada</li>
+              <li>• En caso de cambios, comunique al contacto CAU</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

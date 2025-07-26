@@ -76,11 +76,11 @@ export default function MultiStepForm() {
           </span>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-center space-x-4">
           {steps.map((step, index) => {
             const status = getStepStatus(step.id);
             return (
-              <div key={step.id} className="flex-1 flex items-center">
+              <div key={step.id} className="flex items-center">
                 <button
                   onClick={() => goToStep(step.id)}
                   className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
@@ -96,11 +96,7 @@ export default function MultiStepForm() {
                     {step.optional && <span className="text-xs text-gray-400 ml-1">(Opcional)</span>}
                   </span>
                 </button>
-                {index < steps.length - 1 && (
-                  <div className={`flex-1 h-1 mx-2 rounded-full ${
-                    status === 'completed' ? 'bg-green-500' : 'bg-gray-300'
-                  }`}></div>
-                )}
+
               </div>
             );
           })}
@@ -124,10 +120,10 @@ export default function MultiStepForm() {
         
         <button
           onClick={() => goToStep(Math.min(steps.length, formData.currentStep + 1))}
-          disabled={formData.currentStep === steps.length}
+          disabled={formData.currentStep === steps.length || !isStepValid(formData.currentStep)}
           className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Siguiente
+          {!isStepValid(formData.currentStep) && formData.currentStep !== steps.length ? 'Complete los campos requeridos' : 'Siguiente'}
         </button>
       </div>
     </div>

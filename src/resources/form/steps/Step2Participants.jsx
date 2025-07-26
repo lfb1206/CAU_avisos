@@ -108,7 +108,7 @@ export default function Step2Participants() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Participantes de la Expedición
         </h2>
@@ -116,6 +116,8 @@ export default function Step2Participants() {
           Registre la información de todos los participantes incluyendo datos médicos relevantes
         </p>
       </div>
+
+
 
       {/* Participants List */}
       <div className="space-y-6">
@@ -280,22 +282,44 @@ export default function Step2Participants() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+      <div className="mt-8 bg-green-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-green-900 mb-3">
+          👥 Consejos para registrar participantes:
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Registre todos los participantes de la expedición</li>
-          <li>• Al seleccionar un participante guardado, se auto-completarán todos los datos</li>
-          <li>• El RUT se formatea automáticamente (ej: 20.666.498-3)</li>
-          <li>• Complete la información médica relevante para la seguridad</li>
-          <li>• Especifique grupo sanguíneo para emergencias</li>
-          <li>• Identifique alergias que puedan afectar la expedición</li>
-          <li>• Documente enfermedades o condiciones relevantes</li>
-          <li>• Registre medicamentos que se toman regularmente</li>
-          <li>• Incluya condiciones especiales para montañismo</li>
-          <li>• Use las opciones sugeridas o escriba su propio texto</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-green-800">
+          <div>
+            <p className="font-medium mb-1">Datos personales básicos:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Complete nombre completo del participante</li>
+              <li>• Ingrese RUT (se formatea automáticamente)</li>
+              <li>• Proporcione teléfono de contacto</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Contacto de emergencia:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Nombre de contacto de emergencia</li>
+              <li>• Teléfono de contacto de emergencia</li>
+              <li>• Debe ser alguien externo a la expedición</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Información médica:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Grupo sanguíneo (importante para emergencias)</li>
+              <li>• Alergias conocidas (medicamentos, alimentos)</li>
+              <li>• Enfermedades preexistentes relevantes</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Consejos útiles:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Use nombres guardados para auto-completar</li>
+              <li>• Agregue tantos participantes como sea necesario</li>
+              <li>• Verifique que todos los campos requeridos estén completos</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

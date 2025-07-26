@@ -72,7 +72,7 @@ export default function Step5EquipmentTransport() {
             item: item,
             cantidad: '1',
             descripcion: `Recomendado para ${activity}`,
-            checked: true // Default to checked for recommendations
+            checked: false // User must manually check what they're actually carrying
           };
           addItem('equipo', newEquipment);
         });
@@ -82,7 +82,7 @@ export default function Step5EquipmentTransport() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Equipo y Transporte
         </h2>
@@ -90,6 +90,8 @@ export default function Step5EquipmentTransport() {
           Registre el equipo que se porta y el transporte utilizado
         </p>
       </div>
+
+
 
       {/* Equipment Section */}
       <div className="space-y-6">
@@ -353,22 +355,46 @@ export default function Step5EquipmentTransport() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+      <div className="mt-8 bg-purple-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-purple-900 mb-3">
+          🎒 Consejos para registrar equipo y transporte:
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Registre todo el equipo que se porta en la expedición</li>
-          <li>• <strong>Use el checkbox</strong> para marcar qué equipos incluir en el aviso de salida</li>
-          <li>• Los equipos marcados aparecen con fondo verde y se incluyen en el documento final</li>
-          <li>• Use "Cargar Recomendaciones" para agregar equipo sugerido según la actividad</li>
-          <li>• Organice el equipo por categorías para mejor control</li>
-          <li>• Especifique cantidades y descripciones detalladas</li>
-          <li>• Registre todos los medios de transporte utilizados</li>
-          <li>• Incluya información del conductor y detalles del vehículo</li>
-          <li>• Calcule la distancia recorrida</li>
-          <li>• Use las opciones sugeridas o escriba su propio texto</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-purple-800">
+          <div>
+            <p className="font-medium mb-1">Equipo portado:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Use "Cargar Recomendaciones" para su actividad</li>
+              <li>• Marque solo el equipo que realmente porta</li>
+              <li>• Complete categoría, item y cantidad para cada equipo</li>
+              <li>• Solo el equipo marcado aparece en el aviso final</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Información de transporte:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Registre todos los vehículos utilizados</li>
+              <li>• Indique tipo de vehículo y conductor</li>
+              <li>• El conductor puede ser un participante registrado</li>
+              <li>• Complete patente y distancia si está disponible</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Consejos para el equipo:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Las recomendaciones NO se marcan automáticamente</li>
+              <li>• Revise cada item antes de marcarlo como portado</li>
+              <li>• Agregue equipo adicional si es necesario</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Recordatorio importante:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Debe tener al menos un equipo o transporte válido</li>
+              <li>• Verifique que los campos requeridos estén completos</li>
+              <li>• El sistema validará antes de continuar</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -94,7 +94,7 @@ export default function Step1BasicInfo() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Información Básica de la Actividad
         </h2>
@@ -102,6 +102,8 @@ export default function Step1BasicInfo() {
           Complete la información básica del aviso de salida
         </p>
       </div>
+
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Contact Information */}
@@ -371,20 +373,43 @@ export default function Step1BasicInfo() {
 
       {/* Instructions */}
       <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+        <h4 className="text-sm font-semibold text-blue-900 mb-3">
+          💡 Consejos útiles para completar este paso:
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Complete la información de contacto del CAU responsable</li>
-          <li>• Al seleccionar un contacto guardado, se auto-completarán teléfono y email</li>
-          <li>• Especifique la fecha y hora de reporte de regreso</li>
-          <li>• Describa la actividad y el cerro/sector</li>
-          <li>• <strong>Marque si lleva InReach</strong> y complete número y código si aplica</li>
-          <li>• Agregue enlaces al pronóstico del tiempo y la ruta si están disponibles</li>
-          <li>• Puede agregar imágenes del pronóstico del tiempo arrastrando y soltando o seleccionando archivos</li>
-          <li>• <strong>Asigne fecha de obtención</strong> a cada imagen del clima</li>
-          <li>• Use las opciones sugeridas o escriba su propio texto</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
+          <div>
+            <p className="font-medium mb-1">Información de contacto:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Seleccione un contacto CAU guardado para auto-completar datos</li>
+              <li>• Verifique que teléfono y email estén correctos</li>
+              <li>• La fecha de regreso es obligatoria para el aviso</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Detalles de la actividad:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Use las opciones sugeridas o escriba su propia actividad</li>
+              <li>• Especifique el cerro o sector exacto de destino</li>
+              <li>• Los enlaces del pronóstico y ruta son opcionales</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Equipo InReach:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Marque solo si realmente porta un dispositivo InReach</li>
+              <li>• Complete número y código si los tiene disponibles</li>
+              <li>• Esta información es importante para emergencias</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Imágenes del clima:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Arrastre imágenes o use el botón de selección</li>
+              <li>• Asigne la fecha de obtención a cada imagen</li>
+              <li>• Las imágenes aparecerán en el aviso final</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

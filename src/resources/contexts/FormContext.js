@@ -201,9 +201,18 @@ export const FormContextProvider = ({ children }) => {
 
     switch (step) {
       case 1: // Basic Info
-        return formData.basicInfo.contactoCAU &&
-               formData.basicInfo.actividad &&
-               formData.basicInfo.cerroOSector;
+        const basicValid = formData.basicInfo.contactoCAU &&
+                          formData.basicInfo.telefonoContacto &&
+                          formData.basicInfo.emailContacto &&
+                          formData.basicInfo.fechaHoraReporteRegreso &&
+                          formData.basicInfo.actividad &&
+                          formData.basicInfo.cerroOSector;
+        
+        // If InReach is enabled, check those fields too
+        const inReachValid = !formData.basicInfo.llevaInreach || 
+                           (formData.basicInfo.numeroInreach && formData.basicInfo.codigoInreach);
+        
+        return basicValid && inReachValid;
       case 2: // Participants (now includes medical data)
         return participantes.length > 0 &&
                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
@@ -212,7 +221,10 @@ export const FormContextProvider = ({ children }) => {
       case 4: // Risk Management - MADE OPTIONAL
         return true; // Always valid, optional step
       case 5: // Equipment & Transport
-        return equipo.length > 0 || transporte.length > 0;
+        // Check if there's at least one valid equipment or transport
+        const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
+        const validTransporte = transporte.filter(t => t.tipo && t.conductor);
+        return validEquipo.length > 0 || validTransporte.length > 0;
       case 6: // Final Review (removed medical data step)
         return checkFormCompletion();
       default:
@@ -226,12 +238,24 @@ export const FormContextProvider = ({ children }) => {
     const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
     const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
 
-    return formData.basicInfo.contactoCAU &&
-           formData.basicInfo.actividad &&
-           formData.basicInfo.cerroOSector &&
-           participantes.length > 0 &&
-           participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia) &&
-           (equipo.length > 0 || transporte.length > 0);
+    const basicInfoComplete = formData.basicInfo.contactoCAU &&
+                             formData.basicInfo.telefonoContacto &&
+                             formData.basicInfo.emailContacto &&
+                             formData.basicInfo.fechaHoraReporteRegreso &&
+                             formData.basicInfo.actividad &&
+                             formData.basicInfo.cerroOSector;
+
+    const inReachComplete = !formData.basicInfo.llevaInreach || 
+                           (formData.basicInfo.numeroInreach && formData.basicInfo.codigoInreach);
+
+    const participantsComplete = participantes.length > 0 &&
+                               participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
+
+    const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
+    const validTransporte = transporte.filter(t => t.tipo && t.conductor);
+    const equipmentComplete = validEquipo.length > 0 || validTransporte.length > 0;
+
+    return basicInfoComplete && inReachComplete && participantsComplete && equipmentComplete;
   };
 
   const value = {

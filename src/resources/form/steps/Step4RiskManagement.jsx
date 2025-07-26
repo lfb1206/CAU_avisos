@@ -59,7 +59,7 @@ export default function Step4RiskManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Gestión de Riesgos
         </h2>
@@ -67,6 +67,8 @@ export default function Step4RiskManagement() {
           Identifique riesgos, causas subyacentes y establezca acciones de gestión
         </p>
       </div>
+
+
 
       {/* Risk Management List */}
       <div className="space-y-6">
@@ -192,19 +194,44 @@ export default function Step4RiskManagement() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+      <div className="mt-8 bg-red-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-red-900 mb-3">
+          ⚠️ Consejos para gestión detallada de riesgos (Paso Opcional):
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Los riesgos marcados como "Gestionar" del paso anterior se cargan automáticamente</li>
-          <li>• Identifique el riesgo específico y su causa subyacente</li>
-          <li>• Especifique el lugar donde puede ocurrir el riesgo</li>
-          <li>• Defina acciones para aumentar la probabilidad de éxito</li>
-          <li>• Establezca medidas para reducir el impacto si falla</li>
-          <li>• Describa acciones para mitigar las consecuencias</li>
-          <li>• Use las opciones sugeridas o escriba su propio texto</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-red-800">
+          <div>
+            <p className="font-medium mb-1">Riesgos identificados:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Se cargan automáticamente desde el paso anterior</li>
+              <li>• Solo aparecen supuestos marcados como "gestionar"</li>
+              <li>• Puede agregar riesgos adicionales manualmente</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Análisis de causas:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Identifique el riesgo específico del supuesto</li>
+              <li>• Determine el peligro principal involucrado</li>
+              <li>• Especifique el lugar donde puede ocurrir</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Acciones de gestión:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Acciones para reducir la probabilidad</li>
+              <li>• Acciones para reducir la exposición</li>
+              <li>• Acciones para mitigar consecuencias</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Recordatorio importante:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Este paso es opcional pero recomendado</li>
+              <li>• Solo para supuestos de alto riesgo</li>
+              <li>• Puede saltar si no tiene riesgos que gestionar</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

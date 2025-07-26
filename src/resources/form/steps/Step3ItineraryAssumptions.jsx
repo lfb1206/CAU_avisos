@@ -148,7 +148,7 @@ export default function Step3ItineraryAssumptions() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Itinerario y Supuestos Clave
         </h2>
@@ -156,6 +156,8 @@ export default function Step3ItineraryAssumptions() {
           Defina el itinerario detallado y los supuestos clave para cada tramo
         </p>
       </div>
+
+
 
       {/* Itinerary Days */}
       <div className="space-y-6">
@@ -473,18 +475,44 @@ export default function Step3ItineraryAssumptions() {
       </div>
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
-          Instrucciones para este paso:
+      <div className="mt-8 bg-yellow-50 rounded-lg p-4">
+        <h4 className="text-sm font-semibold text-yellow-900 mb-3">
+          🗺️ Consejos para planificar su itinerario (Paso Opcional):
         </h4>
-        <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Defina el itinerario tramo por tramo con horarios y altitudes</li>
-          <li>• Para cada tramo, identifique los supuestos clave para el éxito</li>
-          <li>• Asigne probabilidad e impacto a cada supuesto</li>
-          <li>• El sistema calculará automáticamente la acción requerida</li>
-          <li>• Supuestos marcados como "Gestionar" irán al siguiente paso</li>
-          <li>• Use las opciones sugeridas o escriba su propio texto</li>
-        </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-yellow-800">
+          <div>
+            <p className="font-medium mb-1">Información del tramo:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Defina cada tramo de su ruta</li>
+              <li>• Especifique fechas y horarios estimados</li>
+              <li>• Describa la actividad principal de cada tramo</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Identificar dificultades:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Seleccione las principales dificultades del tramo</li>
+              <li>• Use el botón "Sugerir Supuestos" para obtener recomendaciones</li>
+              <li>• Puede agregar múltiples dificultades por tramo</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Gestión de supuestos:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Revise los supuestos sugeridos automáticamente</li>
+              <li>• Marque solo los supuestos relevantes para incluir</li>
+              <li>• Ajuste probabilidad e impacto según su criterio</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium mb-1">Recordatorio importante:</p>
+            <ul className="space-y-1 ml-2">
+              <li>• Este paso es opcional pero recomendado</li>
+              <li>• Solo los supuestos marcados aparecen en el aviso</li>
+              <li>• Puede saltar este paso si no tiene itinerario detallado</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
