@@ -83,8 +83,12 @@ export default function Step3ItineraryAssumptions() {
 
   const addSuggestedAssumptions = (itineraryIndex) => {
     const day = formData.itinerario[itineraryIndex];
+    
     const suggestions = getSuggestedAssumptions(day.dificultadesPrincipales || []);
-    if (suggestions.length === 0) return;
+    
+    if (suggestions.length === 0) {
+      return;
+    }
     
     const updatedItinerary = [...formData.itinerario];
     const existingSupuestos = day.supuestos || [];

@@ -28,13 +28,13 @@ export default function Step1BasicInfo() {
 
   const handleImageUpload = (newImage) => {
     const currentImages = formData.basicInfo.weatherImages || [];
-    updateWeatherImages([...currentImages, newImage]);
+    handleFieldChange('weatherImages', [...currentImages, newImage]);
   };
 
   const handleImageRemove = (imageId) => {
     const currentImages = formData.basicInfo.weatherImages || [];
     const filtered = currentImages.filter(img => img.id !== imageId);
-    updateWeatherImages(filtered);
+    handleFieldChange('weatherImages', filtered);
   };
 
   const handleImageDateUpdate = (imageId, newDate) => {
@@ -42,7 +42,7 @@ export default function Step1BasicInfo() {
     const updatedImages = currentImages.map(img => 
       img.id === imageId ? { ...img, fechaObtencion: newDate } : img
     );
-    updateWeatherImages(updatedImages);
+    handleFieldChange('weatherImages', updatedImages);
   };
 
   return (
@@ -201,45 +201,45 @@ export default function Step1BasicInfo() {
             onImageDateUpdate={handleImageDateUpdate}
           />
         </div>
-      </div>
 
-      {/* Instructions */}
-      <div className="mt-8 bg-blue-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-blue-900 mb-3">
-          💡 Consejos útiles para completar este paso:
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
-          <div>
-            <p className="font-medium mb-1">Información de contacto:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Seleccione un contacto CAU guardado para auto-completar datos</li>
-              <li>• Verifique que teléfono y email estén correctos</li>
-              <li>• La fecha de regreso es obligatoria para el aviso</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Detalles de la actividad:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Use las opciones sugeridas o escriba su propia actividad</li>
-              <li>• Especifique el cerro o sector exacto de destino</li>
-              <li>• Los enlaces del pronóstico y ruta son opcionales</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Equipo InReach:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Marque solo si realmente porta un dispositivo InReach</li>
-              <li>• Complete número y código si los tiene disponibles</li>
-              <li>• Esta información es importante para emergencias</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Imágenes del clima:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Arrastre imágenes o use el botón de selección</li>
-              <li>• Asigne la fecha de obtención a cada imagen</li>
-              <li>• Las imágenes aparecerán en el aviso final</li>
-            </ul>
+        {/* Instructions */}
+        <div className="mt-8 bg-blue-50 rounded-lg p-4">
+          <h4 className="text-sm font-semibold text-blue-900 mb-3">
+            💡 Consejos útiles para completar este paso:
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
+            <div>
+              <p className="font-medium mb-1">Información de contacto:</p>
+              <ul className="space-y-1 ml-2">
+                <li>• Seleccione un contacto CAU guardado para auto-completar datos</li>
+                <li>• Verifique que teléfono y email estén correctos</li>
+                <li>• La fecha de regreso es obligatoria para el aviso</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Detalles de la actividad:</p>
+              <ul className="space-y-1 ml-2">
+                <li>• Use las opciones sugeridas o escriba su propia actividad</li>
+                <li>• Especifique el cerro o sector exacto de destino</li>
+                <li>• Los enlaces del pronóstico y ruta son opcionales</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Equipo InReach:</p>
+              <ul className="space-y-1 ml-2">
+                <li>• Marque solo si realmente porta un dispositivo InReach</li>
+                <li>• Complete número y código si los tiene disponibles</li>
+                <li>• Esta información es importante para emergencias</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium mb-1">Imágenes del clima:</p>
+              <ul className="space-y-1 ml-2">
+                <li>• Arrastre imágenes o use el botón de selección</li>
+                <li>• Asigne la fecha de obtención a cada imagen</li>
+                <li>• Las imágenes aparecerán en el aviso final</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

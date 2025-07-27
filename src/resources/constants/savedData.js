@@ -429,7 +429,35 @@ export const difficultyRecommendations = {
       impacto: 'moderado'
     }
   ],
+  'Mal tiempo': [
+    {
+      supuesto: 'Cambio climático adverso durante el ascenso',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'significativo'
+    },
+    {
+      supuesto: 'Visibilidad reducida por mal tiempo',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
   'Terreno técnico de escalada': [
+    {
+      supuesto: 'Dificultad técnica mayor a la esperada',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    },
+    {
+      supuesto: 'Falla de anclajes o protecciones',
+      tipoSupuesto: 'equipo',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Terreno técnico': [
     {
       supuesto: 'Dificultad técnica mayor a la esperada',
       tipoSupuesto: 'terreno',
@@ -457,6 +485,20 @@ export const difficultyRecommendations = {
       impacto: 'critico'
     }
   ],
+  'Altitud': [
+    {
+      supuesto: 'Problemas de aclimatación en participantes',
+      tipoSupuesto: 'medico',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    },
+    {
+      supuesto: 'Edema pulmonar o cerebral',
+      tipoSupuesto: 'medico',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
   'Caída de rocas': [
     {
       supuesto: 'Desprendimiento de rocas en zona de paso',
@@ -465,7 +507,51 @@ export const difficultyRecommendations = {
       impacto: 'critico'
     }
   ],
+  'Roca suelta': [
+    {
+      supuesto: 'Desprendimiento de rocas en zona de paso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Desprendimiento de roca': [
+    {
+      supuesto: 'Desprendimiento de rocas en zona de paso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
   'Condiciones de nieve/hielo': [
+    {
+      supuesto: 'Condiciones de nieve/hielo peligrosas',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'critico'
+    },
+    {
+      supuesto: 'Formación de cornisas inestables',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Nieve profunda': [
+    {
+      supuesto: 'Condiciones de nieve/hielo peligrosas',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'critico'
+    },
+    {
+      supuesto: 'Formación de cornisas inestables',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Hielo': [
     {
       supuesto: 'Condiciones de nieve/hielo peligrosas',
       tipoSupuesto: 'clima',
@@ -503,7 +589,31 @@ export const difficultyRecommendations = {
       impacto: 'moderado'
     }
   ],
+  'Vadeo de río': [
+    {
+      supuesto: 'Crecida de río impide el cruce',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Río crecido': [
+    {
+      supuesto: 'Crecida de río impide el cruce',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
   'Orientación y navegación': [
+    {
+      supuesto: 'Pérdida de orientación en mal tiempo',
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Pérdida de orientación': [
     {
       supuesto: 'Pérdida de orientación en mal tiempo',
       tipoSupuesto: 'grupo_humano',
@@ -513,53 +623,61 @@ export const difficultyRecommendations = {
   ],
   'Fatiga y agotamiento': [
     {
-      supuesto: 'Agotamiento excesivo de participantes',
+      supuesto: 'Agotamiento del grupo',
       tipoSupuesto: 'grupo_humano',
       probabilidad: 'algo_probable',
       impacto: 'moderado'
     }
   ],
-  'Equipamiento técnico complejo': [
+  'Agotamiento del grupo': [
     {
-      supuesto: 'Falla de equipo técnico crítico',
+      supuesto: 'Agotamiento del grupo',
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Falta de agua': [
+    {
+      supuesto: 'Falta de agua en el recorrido',
+      tipoSupuesto: 'logistica',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Falla de equipo': [
+    {
+      supuesto: 'Falla de equipo crítico',
       tipoSupuesto: 'equipo',
       probabilidad: 'poco_probable',
       impacto: 'significativo'
     }
   ],
-  'Rescate complicado': [
+  'Lesión de participante': [
     {
-      supuesto: 'Dificultad para evacuar en caso de emergencia',
-      tipoSupuesto: 'logistica',
+      supuesto: 'Lesión de participante durante el recorrido',
+      tipoSupuesto: 'medico',
       probabilidad: 'poco_probable',
-      impacto: 'critico'
-    }
-  ],
-  'Comunicación limitada': [
-    {
-      supuesto: 'Pérdida de comunicación con base',
-      tipoSupuesto: 'comunicacion',
-      probabilidad: 'algo_probable',
-      impacto: 'moderado'
-    }
-  ],
-  'Cambios de temperatura extremos': [
-    {
-      supuesto: 'Hipotermia por cambio brusco de temperatura',
-      tipoSupuesto: 'clima',
-      probabilidad: 'algo_probable',
       impacto: 'significativo'
     }
   ],
-  'Avalanchas': [
+  'Pendiente pronunciada': [
     {
-      supuesto: 'Riesgo de avalancha en zona de paso',
+      supuesto: 'Dificultad técnica mayor a la esperada',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'significativo'
+    }
+  ],
+  'Terreno expuesto': [
+    {
+      supuesto: 'Exposición a caídas en terreno expuesto',
       tipoSupuesto: 'terreno',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     }
   ],
-  'Grietas en glaciares': [
+  'Grietas en glaciar': [
     {
       supuesto: 'Caída en grieta de glaciar',
       tipoSupuesto: 'terreno',
@@ -567,36 +685,84 @@ export const difficultyRecommendations = {
       impacto: 'critico'
     }
   ],
-  'Desprendimientos': [
+  'Caída en grieta': [
     {
-      supuesto: 'Desprendimiento de seracs o cornisas',
+      supuesto: 'Caída en grieta de glaciar',
       tipoSupuesto: 'terreno',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     }
   ],
-  'Mal tiempo prolongado': [
+  'Distancia larga': [
     {
-      supuesto: 'Mal tiempo que impide el avance por días',
-      tipoSupuesto: 'clima',
+      supuesto: 'Retraso en itinerario por distancia',
+      tipoSupuesto: 'logistica',
       probabilidad: 'algo_probable',
-      impacto: 'significativo'
+      impacto: 'moderado'
     }
   ],
-  'Falta de refugios': [
+  'Retraso en itinerario': [
     {
-      supuesto: 'No disponibilidad de refugio en mal tiempo',
+      supuesto: 'Retraso en itinerario por distancia',
       tipoSupuesto: 'logistica',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Carga pesada': [
+    {
+      supuesto: 'Agotamiento por carga pesada',
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Falta de refugio': [
+    {
+      supuesto: 'Exposición a condiciones climáticas sin refugio',
+      tipoSupuesto: 'logistica',
+      probabilidad: 'algo_probable',
+      impacto: 'moderado'
+    }
+  ],
+  'Problemas de comunicación': [
+    {
+      supuesto: 'Falla en comunicación con base',
+      tipoSupuesto: 'comunicacion',
       probabilidad: 'poco_probable',
       impacto: 'significativo'
     }
   ],
-  'Terreno expuesto': [
+  'Condiciones de nieve adversas': [
     {
-      supuesto: 'Exposición prolongada en terreno peligroso',
-      tipoSupuesto: 'terreno',
+      supuesto: 'Condiciones de nieve/hielo peligrosas',
+      tipoSupuesto: 'clima',
       probabilidad: 'algo_probable',
-      impacto: 'significativo'
+      impacto: 'critico'
+    }
+  ],
+  'Condiciones de hielo peligrosas': [
+    {
+      supuesto: 'Condiciones de nieve/hielo peligrosas',
+      tipoSupuesto: 'clima',
+      probabilidad: 'algo_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Avalancha': [
+    {
+      supuesto: 'Riesgo de avalancha en zona de paso',
+      tipoSupuesto: 'terreno',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
+    }
+  ],
+  'Hipotermia': [
+    {
+      supuesto: 'Riesgo de hipotermia en condiciones adversas',
+      tipoSupuesto: 'medico',
+      probabilidad: 'poco_probable',
+      impacto: 'critico'
     }
   ]
 };
