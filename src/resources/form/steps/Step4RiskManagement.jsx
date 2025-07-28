@@ -120,37 +120,18 @@ export default function Step4RiskManagement() {
                 {sup.causas.map((causa, causaIndex) => (
                   <div key={causaIndex} className="border border-gray-200 rounded bg-yellow-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>
                     <div className="space-y-4">
-                      <AutocompleteInput
-                        label="Peligro o causa subyacente"
-                        value={causa.peligro}
-                        onChange={v => updateCausa(sup.key, causaIndex, 'peligro', v)}
-                        options={formOptions.peligros}
-                        placeholder="Seleccione o escriba el peligro"
-                        required
-                      />
-                      <AutocompleteInput
-                        label="Riesgo asociado"
-                        value={causa.riesgo}
-                        onChange={v => updateCausa(sup.key, causaIndex, 'riesgo', v)}
-                        options={formOptions.riesgos}
-                        placeholder="Describa el riesgo"
-                        required
-                      />
-                      <input
-                        type="text"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                        value={causa.lugar}
-                        onChange={e => updateCausa(sup.key, causaIndex, 'lugar', e.target.value)}
-                        placeholder="Lugar o coordenadas (opcional)"
-                      />
-                      {/* Acciones de gestión con tooltips */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {/* 1. Prevención Primaria */}
+                      <div className="border-b border-gray-200 pb-3">
+                        <h4 className="text-sm font-semibold text-gray-800 mb-3">Prevención Primaria</h4>
                         <div>
-                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
                             Probabilidad
                             <span className="relative group">
                               <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones aumentan la probabilidad de éxito?</span>
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                ¿Cómo hago más probable que mi supuesto se cumpla?<br/>
+                                <span className="text-gray-300">Ej: Verificar condiciones climáticas, entrenar técnicas específicas, revisar equipamiento</span>
+                              </span>
                             </span>
                           </label>
                           <textarea
@@ -158,37 +139,122 @@ export default function Step4RiskManagement() {
                             onChange={e => updateCausa(sup.key, causaIndex, 'accionProbabilidad', e.target.value)}
                             rows={2}
                             className="w-full px-2 py-1 border border-gray-300 rounded"
+                            placeholder="¿Qué acciones aumentan la probabilidad de éxito?"
                           />
                         </div>
+                      </div>
+
+                      {/* 2. Identificación del Problema */}
+                      <div className="border-b border-gray-200 pb-3">
+                        <h4 className="text-sm font-semibold text-gray-800 mb-3">Identificación del Problema</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
+                              Peligro o causa subyacente
+                              <span className="relative group">
+                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                  ¿Qué puede salir mal? Identifique la causa raíz del problema<br/>
+                                  <span className="text-gray-300">Ej: Condiciones climáticas adversas, falla de equipamiento, lesión de participante</span>
+                                </span>
+                              </span>
+                            </label>
+                            <AutocompleteInput
+                              value={causa.peligro}
+                              onChange={v => updateCausa(sup.key, causaIndex, 'peligro', v)}
+                              options={formOptions.peligros}
+                              placeholder="Seleccione o escriba el peligro"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
+                              Riesgo asociado
+                              <span className="relative group">
+                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                  ¿Qué consecuencias puede tener si no se cumple el supuesto?<br/>
+                                  <span className="text-gray-300">Ej: Pérdida de orientación, hipotermia, caída en terreno expuesto</span>
+                                </span>
+                              </span>
+                            </label>
+                            <AutocompleteInput
+                              value={causa.riesgo}
+                              onChange={v => updateCausa(sup.key, causaIndex, 'riesgo', v)}
+                              options={formOptions.riesgos}
+                              placeholder="Describa el riesgo"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. Ubicación */}
+                      <div className="border-b border-gray-200 pb-3">
+                        <h4 className="text-sm font-semibold text-gray-800 mb-3">Ubicación</h4>
                         <div>
-                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
-                            Exposición
+                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
+                            Lugar o coordenadas (WGS 84)
                             <span className="relative group">
                               <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones reducen la exposición al peligro?</span>
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                ¿Dónde específicamente puede ocurrir este riesgo?<br/>
+                                <span className="text-gray-300">Ej: Coordenadas GPS, nombre del sector, punto específico del recorrido</span>
+                              </span>
                             </span>
                           </label>
-                          <textarea
-                            value={causa.accionExposicion}
-                            onChange={e => updateCausa(sup.key, causaIndex, 'accionExposicion', e.target.value)}
-                            rows={2}
-                            className="w-full px-2 py-1 border border-gray-300 rounded"
+                          <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            value={causa.lugar}
+                            onChange={e => updateCausa(sup.key, causaIndex, 'lugar', e.target.value)}
+                            placeholder="Ej: -33.4489, -70.6693 o 'Sector Laguna Negra'"
                           />
                         </div>
-                        <div>
-                          <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
-                            Consecuencias
-                            <span className="relative group">
-                              <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity">¿Qué acciones mitigan las consecuencias si ocurre el riesgo?</span>
-                            </span>
-                          </label>
-                          <textarea
-                            value={causa.accionConsecuencias}
-                            onChange={e => updateCausa(sup.key, causaIndex, 'accionConsecuencias', e.target.value)}
-                            rows={2}
-                            className="w-full px-2 py-1 border border-gray-300 rounded"
-                          />
+                      </div>
+
+                      {/* 4. Mitigación */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-800 mb-3">Mitigación</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                              Exposición
+                              <span className="relative group">
+                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                  ¿Cómo disminuyo el impacto si el supuesto no se cumple?<br/>
+                                  <span className="text-gray-300">Ej: Usar equipos de seguridad, establecer puntos de retorno, tener planes alternativos</span>
+                                </span>
+                              </span>
+                            </label>
+                            <textarea
+                              value={causa.accionExposicion}
+                              onChange={e => updateCausa(sup.key, causaIndex, 'accionExposicion', e.target.value)}
+                              rows={2}
+                              className="w-full px-2 py-1 border border-gray-300 rounded"
+                              placeholder="¿Qué acciones reducen la exposición al peligro?"
+                            />
+                          </div>
+                          <div>
+                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                              Consecuencias
+                              <span className="relative group">
+                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                  ¿Qué hago para mitigar los efectos de los riesgos?<br/>
+                                  <span className="text-gray-300">Ej: Llevar equipos de rescate, establecer comunicación de emergencia, entrenar primeros auxilios</span>
+                                </span>
+                              </span>
+                            </label>
+                            <textarea
+                              value={causa.accionConsecuencias}
+                              onChange={e => updateCausa(sup.key, causaIndex, 'accionConsecuencias', e.target.value)}
+                              rows={2}
+                              className="w-full px-2 py-1 border border-gray-300 rounded"
+                              placeholder="¿Qué acciones mitigan las consecuencias si ocurre el riesgo?"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

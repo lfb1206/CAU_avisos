@@ -7,18 +7,25 @@ import ItineraryDayForm from '../components/ItineraryDayForm';
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
 
-  // Excel logic for risk assessment
+  // Lógica para evaluación de supuestos (condiciones que favorecen el éxito)
   const calculateRiskAction = (probability, impact) => {
     if (!probability || !impact) return '';
     
-    const isHighProbability = probability === 'muy_probable' || probability === 'algo_probable';
+    const isLowProbability = probability === 'poco_probable';
     const isHighImpact = impact === 'significativo' || impact === 'critico';
+    const isCriticalImpact = impact === 'critico';
     
-    if (isHighProbability && isHighImpact) {
+    // Si es poco probable que se cumpla pero tiene impacto significativo → GESTIONAR
+    // (porque es probable que no se cumpla y eso sería problemático)
+    if (isLowProbability && isHighImpact) {
       return 'gestionar';
-    } else if (impact === 'critico') {
+    } 
+    // Si tiene impacto crítico → MONITOREO INTENSO
+    else if (isCriticalImpact) {
       return 'monitoreo_intenso';
-    } else {
+    } 
+    // En otros casos → MONITOREO NORMAL
+    else {
       return 'monitoreo_normal';
     }
   };
