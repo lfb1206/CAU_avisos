@@ -447,7 +447,7 @@ export default function PrintView({ formData, onClose }) {
   ];
 
   const transportToShow = transporte.length > 0 ? transporte : [
-    { conductor: '', tipo: '', marca: '', modelo: '', color: '', patente: '' }
+    { conductor: '', tipo: '', marca: '', modelo: '', color: '', patente: '', anioVehiculo: '', capacidad: '', distancia: '', huellaCarbono: '' }
   ];
 
   return (
@@ -737,26 +737,60 @@ export default function PrintView({ formData, onClose }) {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Conductor</th>
                   <th>Tipo</th>
-                  <th>Detalles del Vehículo</th>
-                  <th>Observaciones</th>
+                  <th>Conductor</th>
+                  <th>Detalles</th>
+                  <th>Distancia</th>
+                  <th>Huella de Carbono (kg CO2)</th>
                 </tr>
               </thead>
               <tbody>
-                {transportToShow.map((t, index) => (
-                  <tr key={index}>
-                    <td>{t.conductor || ''}</td>
-                    <td>{t.tipo || ''}</td>
-                    <td>
-                      {t.marca && `${t.marca} `}
-                      {t.modelo && `${t.modelo} `}
-                      {t.color && `${t.color} `}
-                      {t.patente && `(${t.patente})`}
-                    </td>
-                    <td>{t.observaciones || ''}</td>
-                  </tr>
-                ))}
+                {transportToShow.map((t, index) => {
+                  const isAutoParticular = t.tipo === 'auto particular';
+                  const needsVehicleDetails = isAutoParticular || ['bus'].includes(t.tipo?.toLowerCase());
+                  
+                  let detalles = '';
+                  if (needsVehicleDetails) {
+                    const parts = [];
+                    if (t.marca) parts.push(t.marca);
+                    if (t.modelo) parts.push(t.modelo);
+                    if (t.color) parts.push(t.color);
+                    if (t.patente) parts.push(`(${t.patente})`);
+                    if (isAutoParticular && t.anioVehiculo) parts.push(`- ${t.anioVehiculo}`);
+                    if (isAutoParticular && t.capacidad) parts.push(`- ${t.capacidad} pasajeros`);
+                    detalles = parts.join(' ');
+                  } else {
+                    detalles = '-';
+                  }
+
+                  // Calcular huella por persona si hay capacidad
+                  let huellaDisplay = '';
+                  if (t.huellaCarbono) {
+                    const huellaTotal = parseFloat(t.huellaCarbono);
+                    const capacidad = parseInt(t.capacidad);
+                    const tipo = t.tipo?.toLowerCase();
+                    
+                    // Solo calcular por persona para auto particular y bus
+                    if ((tipo === 'auto particular' || tipo === 'bus') && capacidad && capacidad > 1) {
+                      const huellaPorPersona = (huellaTotal / capacidad).toFixed(2);
+                      huellaDisplay = `${t.huellaCarbono} kg CO2 total (${huellaPorPersona} kg CO2/persona)`;
+                    } else if (tipo === 'helicóptero' || tipo === 'barco privado') {
+                      huellaDisplay = `${t.huellaCarbono} kg CO2 total (transporte privado)`;
+                    } else {
+                      huellaDisplay = `${t.huellaCarbono} kg CO2 por viaje individual`;
+                    }
+                  }
+
+                  return (
+                    <tr key={index}>
+                      <td>{t.tipo || ''}</td>
+                      <td>{isAutoParticular ? (t.conductor || '') : '-'}</td>
+                      <td>{detalles}</td>
+                      <td>{t.distancia ? `${t.distancia} km` : ''}</td>
+                      <td>{huellaDisplay}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

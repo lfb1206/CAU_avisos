@@ -11,20 +11,33 @@ export default function Step3ItineraryAssumptions() {
   const calculateRiskAction = (probability, impact) => {
     if (!probability || !impact) return '';
     
-    const isLowProbability = probability === 'poco_probable';
+    // Lógica corregida: 
+    // - Si es MUY IMPROBABLE que se cumpla → mayor riesgo → GESTIONAR
+    // - Si es POCO PROBABLE que se cumpla → riesgo moderado → MONITOREO INTENSO
+    // - Si es ALGO PROBABLE que se cumpla → riesgo bajo → MONITOREO NORMAL
+    // - Si es MUY PROBABLE que se cumpla → riesgo mínimo → MONITOREO NORMAL
+    
+    const isVeryImprobable = probability === 'muy_improbable';
+    const isUnlikely = probability === 'poco_probable';
+    const isSomewhatLikely = probability === 'algo_probable';
+    const isVeryLikely = probability === 'muy_probable';
+    
     const isHighImpact = impact === 'significativo' || impact === 'critico';
     const isCriticalImpact = impact === 'critico';
     
-    // Si es poco probable que se cumpla pero tiene impacto significativo → GESTIONAR
-    // (porque es probable que no se cumpla y eso sería problemático)
-    if (isLowProbability && isHighImpact) {
+    // Si es muy improbable que se cumpla → GESTIONAR (mayor riesgo)
+    if (isVeryImprobable) {
       return 'gestionar';
-    } 
-    // Si tiene impacto crítico → MONITOREO INTENSO
-    else if (isCriticalImpact) {
+    }
+    // Si es poco probable que se cumpla → MONITOREO INTENSO
+    else if (isUnlikely) {
       return 'monitoreo_intenso';
-    } 
-    // En otros casos → MONITOREO NORMAL
+    }
+    // Si es algo probable o muy probable → MONITOREO NORMAL
+    else if (isSomewhatLikely || isVeryLikely) {
+      return 'monitoreo_normal';
+    }
+    // Por defecto
     else {
       return 'monitoreo_normal';
     }

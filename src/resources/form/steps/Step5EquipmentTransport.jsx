@@ -3,12 +3,18 @@ import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { activityEquipmentData, getEquipmentForActivity as getActivityEquipment, getEquipmentForSpecificActivity, getSpecificActivityEquipment } from '../../constants/activityEquipmentData';
 import { getAvailableChecklists, applyChecklistToEquipment } from '../../constants/wikiexploraChecklists';
+import { carbonEmissionFactors } from '../../constants/transportOptions';
 import EquipmentTable from '../components/EquipmentTable';
 import TransportForm from '../components/TransportForm';
 
 export default function Step5EquipmentTransport() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
   const [selectedChecklist, setSelectedChecklist] = useState('');
+
+  // Debug: verificar que los factores estén cargados
+  console.log('carbonEmissionFactors loaded:', carbonEmissionFactors);
+  console.log('transportTypeFactors:', carbonEmissionFactors.transportTypeFactors);
+  console.log('fuelFactors:', carbonEmissionFactors.fuelFactors);
 
   const addEquipment = () => {
     const newEquipment = {
@@ -29,7 +35,12 @@ export default function Step5EquipmentTransport() {
       modelo: '',
       color: '',
       patente: '',
-      distancia: ''
+      distancia: '',
+      tipoCombustible: '',
+      tipoAuto: '',
+      anioVehiculo: '',
+      capacidad: '',
+      huellaCarbono: ''
     };
     addItem('transporte', newTransport);
   };
@@ -40,6 +51,122 @@ export default function Step5EquipmentTransport() {
 
   const updateTransport = (index, field, value) => {
     updateItem('transporte', index, { [field]: value });
+    
+    // Calcular huella de carbono automáticamente cuando cambian los campos relevantes
+    const relevantFields = ['distancia', 'tipo'];
+    const transport = formData.transporte[index];
+    const updatedTransport = { ...transport, [field]: value };
+    
+    if (relevantFields.includes(field)) {
+      const huellaCarbono = calculateCarbonFootprint(updatedTransport);
+      updateItem('transporte', index, { huellaCarbono });
+    } else if (updatedTransport.tipo?.toLowerCase() === 'auto particular' && ['tipoCombustible', 'tipoAuto', 'anioVehiculo', 'capacidad'].includes(field)) {
+      const huellaCarbono = calculateCarbonFootprint(updatedTransport);
+      updateItem('transporte', index, { huellaCarbono });
+    } else if (updatedTransport.tipo?.toLowerCase() === 'bus' && ['capacidad'].includes(field)) {
+      const huellaCarbono = calculateCarbonFootprint(updatedTransport);
+      updateItem('transporte', index, { huellaCarbono });
+    }
+  };
+
+  // Función para calcular huella por persona
+  const calculatePerPersonEmission = (totalEmission, capacity) => {
+    if (!totalEmission || !capacity || capacity <= 1) {
+      return null;
+    }
+    return (parseFloat(totalEmission) / parseInt(capacity)).toFixed(2);
+  };
+
+  // Función para calcular huella de carbono
+  const calculateCarbonFootprint = (transport) => {
+    console.log('calculateCarbonFootprint called with:', transport);
+    
+    if (!transport.distancia || !transport.tipo) {
+      console.log('Missing distancia or tipo');
+      return '';
+    }
+
+    const distancia = parseFloat(transport.distancia);
+    if (isNaN(distancia) || distancia <= 0) {
+      console.log('Invalid distancia:', transport.distancia);
+      return '';
+    }
+
+    const tipoNormalizado = transport.tipo.toLowerCase();
+
+    // Para auto particular, necesitamos combustible y tipo de auto
+    if (tipoNormalizado === 'auto particular') {
+      if (!transport.tipoCombustible) {
+        console.log('Auto particular missing tipoCombustible');
+        return '';
+      }
+
+      const fuelFactor = carbonEmissionFactors.fuelFactors[transport.tipoCombustible] || 0;
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
+      
+      let vehicleFactor = 0;
+      if (transport.tipoAuto) {
+        vehicleFactor = carbonEmissionFactors.vehicleFactors[transport.tipoAuto] || 0;
+      }
+
+      const efficiencyFactor = carbonEmissionFactors.getEfficiencyFactor(transport.anioVehiculo);
+      const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
+      
+      console.log('Auto particular factors:', {
+        distancia,
+        fuelFactor,
+        transportFactor,
+        vehicleFactor,
+        efficiencyFactor,
+        occupancyFactor
+      });
+      
+      // Cálculo: distancia * (factor combustible + factor transporte + factor vehículo) * factor eficiencia * factor ocupación
+      const baseEmission = distancia * (fuelFactor + transportFactor + vehicleFactor);
+      const adjustedEmission = baseEmission * efficiencyFactor * occupancyFactor;
+      
+      console.log('Auto particular calculation:', { baseEmission, adjustedEmission });
+      return adjustedEmission.toFixed(2);
+    }
+
+    // Para bus, solo necesitamos distancia
+    if (tipoNormalizado === 'bus') {
+      console.log('Processing bus calculation');
+      console.log('Bus transport:', transport);
+      console.log('Original tipo:', transport.tipo);
+      console.log('Normalized tipo:', tipoNormalizado);
+      console.log('Available factors:', Object.keys(carbonEmissionFactors.transportTypeFactors));
+      
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
+      const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
+      
+      console.log('Bus factors:', {
+        distancia,
+        transportFactor,
+        occupancyFactor,
+        capacidad: transport.capacidad
+      });
+      
+      const emission = distancia * transportFactor * occupancyFactor;
+      
+      console.log('Bus calculation:', { emission });
+      return emission.toFixed(2);
+    }
+
+    // Para otros tipos de transporte, solo necesitamos el tipo
+    const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
+    const emission = distancia * transportFactor;
+    
+    console.log('Other transport calculation:', {
+      tipo: transport.tipo,
+      tipoNormalizado,
+      distancia,
+      transportFactor,
+      emission,
+      availableFactors: Object.keys(carbonEmissionFactors.transportTypeFactors)
+    });
+    
+    return emission.toFixed(2);
   };
 
   // Get conductor options (participants + external)

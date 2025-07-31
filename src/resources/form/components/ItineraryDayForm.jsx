@@ -270,7 +270,7 @@ export default function ItineraryDayForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   required
                 >
-                  <option value="">Seleccionar probabilidad</option>
+                  <option value="">Seleccionar probabilidad que se cumpla</option>
                   {riskManagementOptions.probabilidades.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -283,7 +283,7 @@ export default function ItineraryDayForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                   required
                 >
-                  <option value="">Seleccionar impacto</option>
+                  <option value="">Seleccionar impacto si no se cumple</option>
                   {riskManagementOptions.impactos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}

@@ -128,7 +128,7 @@ export default function Step4RiskManagement() {
                             Lugar o coordenadas (WGS 84)
                             <span className="relative group">
                               <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                 ¿Dónde específicamente puede ocurrir este riesgo?<br/>
                                 <span className="text-gray-300">Ej: Coordenadas GPS, nombre del sector, punto específico del recorrido</span>
                               </span>
@@ -153,7 +153,7 @@ export default function Step4RiskManagement() {
                               Probabilidad
                               <span className="relative group">
                                 <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                   ¿Qué acciones aumentan la probabilidad de que el supuesto se cumpla?<br/>
                                   <span className="text-gray-300">Ej: Verificar condiciones climáticas, entrenar técnicas específicas, revisar equipamiento</span>
                                 </span>
@@ -172,7 +172,7 @@ export default function Step4RiskManagement() {
                               Exposición
                               <span className="relative group">
                                 <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                   ¿Cómo disminuyo el impacto si el supuesto no se cumple?<br/>
                                   <span className="text-gray-300">Ej: Usar equipos de seguridad, establecer puntos de retorno, tener planes alternativos</span>
                                 </span>
@@ -198,7 +198,7 @@ export default function Step4RiskManagement() {
                               Peligro o causa subyacente
                               <span className="relative group">
                                 <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                   ¿Qué puede salir mal? Identifique la causa raíz del problema<br/>
                                   <span className="text-gray-300">Ej: Condiciones climáticas adversas, falla de equipamiento, lesión de participante</span>
                                 </span>
@@ -217,7 +217,7 @@ export default function Step4RiskManagement() {
                               Riesgo asociado
                               <span className="relative group">
                                 <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                   ¿Qué consecuencias puede tener si no se cumple el supuesto?<br/>
                                   <span className="text-gray-300">Ej: Pérdida de orientación, hipotermia, caída en terreno expuesto</span>
                                 </span>
@@ -242,7 +242,7 @@ export default function Step4RiskManagement() {
                             Consecuencias
                             <span className="relative group">
                               <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
                                 ¿Qué hago para mitigar los efectos de los riesgos?<br/>
                                 <span className="text-gray-300">Ej: Llevar equipos de rescate, establecer comunicación de emergencia, entrenar primeros auxilios</span>
                               </span>

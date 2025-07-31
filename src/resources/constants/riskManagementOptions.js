@@ -63,10 +63,10 @@ export const riskManagementOptions = {
 
   // Probabilidades
   probabilidades: [
-    { value: 'muy_probable', label: 'Muy probable' },
-    { value: 'algo_probable', label: 'Algo probable' },
+    { value: 'muy_improbable', label: 'Muy improbable' },
     { value: 'poco_probable', label: 'Poco probable' },
-    { value: 'muy_improbable', label: 'Muy improbable' }
+    { value: 'algo_probable', label: 'Algo probable' },
+    { value: 'muy_probable', label: 'Muy probable' }
   ],
 
   // Impactos

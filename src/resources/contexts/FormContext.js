@@ -271,7 +271,21 @@ export const FormContextProvider = ({ children }) => {
       case 5: // Equipment & Transport
         // Solo validar si hay equipos o transportes agregados
         const validEquipo = equipo.filter(e => e.categoria && e.item && e.cantidad);
-        const validTransporte = transporte.filter(t => t.tipo && t.conductor);
+        
+        // Validar transportes según el tipo
+        const validTransporte = transporte.filter(t => {
+          if (!t.tipo || !t.distancia) return false;
+          
+          const tipo = t.tipo.toLowerCase();
+          
+          // Para auto particular, requiere conductor
+          if (tipo === 'auto particular') {
+            return t.conductor;
+          }
+          
+          // Para otros tipos, solo requiere distancia
+          return true;
+        });
         
         // Si no hay equipos ni transportes, el paso es válido (son opcionales)
         if (equipo.length === 0 && transporte.length === 0) {
