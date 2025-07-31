@@ -320,6 +320,7 @@ export default function Step7FinalReview() {
                 <div key={index} className="text-sm">
                   <strong>{day.tramo}</strong> - {(day.actividades || []).join(', ')}
                   {day.horaInicio && day.horaFin && ` (${day.horaInicio} - ${day.horaFin})`}
+                  {day.altitudInicio && day.altitudFin && ` [${day.altitudInicio} - ${day.altitudFin} msnm]`}
                   {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d && d.trim()).length > 0 && (
                     <div className="text-xs text-gray-600 mt-1">
                       Dificultades: {day.dificultadesPrincipales.filter(d => d && d.trim()).join(', ')}

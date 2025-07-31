@@ -86,7 +86,9 @@ export default function PrintView({ formData, onClose }) {
           actividad: (day.actividades || []).join(', '),
           dificultades: (day.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', '),
           horaInicio: day.horaInicio,
-          horaFin: day.horaFin
+          horaFin: day.horaFin,
+          altitudInicio: day.altitudInicio,
+          altitudFin: day.altitudFin
         });
       }
     });
@@ -606,6 +608,8 @@ export default function PrintView({ formData, onClose }) {
                     <th>Principales Dificultades</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
+                    <th>Altitud Inicio</th>
+                    <th>Altitud Fin</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -619,6 +623,8 @@ export default function PrintView({ formData, onClose }) {
                       <td>{item.dificultades}</td>
                       <td>{item.horaInicio}</td>
                       <td>{item.horaFin}</td>
+                      <td>{item.altitudInicio ? `${item.altitudInicio} msnm` : ''}</td>
+                      <td>{item.altitudFin ? `${item.altitudFin} msnm` : ''}</td>
                     </tr>
                   ))}
                 </tbody>

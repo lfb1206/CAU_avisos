@@ -9,71 +9,71 @@ export const difficultyAssumptionRecommendations = {
   'Terreno técnico': [
     {
       supuesto: 'Terreno técnico dentro de las capacidades del grupo',
-      tipoSupuesto: 'terreno',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'poco_probable',
       impacto: 'significativo'
     },
     {
       supuesto: 'Equipamiento técnico en buen estado',
-      tipoSupuesto: 'equipamiento',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     }
   ],
   'Pendiente pronunciada': [
     {
       supuesto: 'Pendiente segura para las capacidades del grupo',
-      tipoSupuesto: 'terreno',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Equipamiento de seguridad disponible',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Terreno expuesto': [
     {
       supuesto: 'Terreno estable y seguro para el grupo',
-      tipoSupuesto: 'terreno',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     },
     {
       supuesto: 'Sistemas de aseguramiento disponibles',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
       impacto: 'significativo'
     }
   ],
   'Grietas en glaciar': [
     {
       supuesto: 'Glaciar estable sin grietas peligrosas',
-      tipoSupuesto: 'terreno',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     },
     {
       supuesto: 'Equipamiento de rescate en grietas disponible',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
       impacto: 'significativo'
     }
   ],
   'Distancia larga': [
     {
       supuesto: 'Itinerario realizable en el tiempo planificado',
-      tipoSupuesto: 'logistica',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Condiciones físicas del grupo adecuadas',
       tipoSupuesto: 'grupo_humano',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Carga pesada': [
@@ -81,53 +81,53 @@ export const difficultyAssumptionRecommendations = {
       supuesto: 'Carga adecuada para las capacidades del grupo',
       tipoSupuesto: 'grupo_humano',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Distribución de carga equilibrada',
-      tipoSupuesto: 'logistica',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'itinerario',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Falta de refugio': [
     {
       supuesto: 'Disponibilidad de refugio o campamento adecuado',
-      tipoSupuesto: 'logistica',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Equipamiento de campamento completo',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Problemas de comunicación': [
     {
       supuesto: 'Comunicación efectiva con base durante toda la actividad',
-      tipoSupuesto: 'comunicacion',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'poco_probable',
       impacto: 'significativo'
     },
     {
       supuesto: 'Equipamiento de comunicación funcional',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'moderado'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Avalancha': [
     {
       supuesto: 'Ausencia de riesgo de avalancha en zona de paso',
-      tipoSupuesto: 'terreno',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     },
     {
       supuesto: 'Condiciones de nieve estables',
-      tipoSupuesto: 'clima',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
       impacto: 'significativo'
     }
@@ -135,155 +135,155 @@ export const difficultyAssumptionRecommendations = {
   'Hipotermia': [
     {
       supuesto: 'Temperatura adecuada y equipamiento térmico disponible',
-      tipoSupuesto: 'medico',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'poco_probable',
       impacto: 'critico'
     },
     {
       supuesto: 'Condiciones climáticas favorables',
-      tipoSupuesto: 'clima',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     }
   ],
   'Mal de altura': [
     {
       supuesto: 'Aclimatación adecuada para la altura',
-      tipoSupuesto: 'medico',
+      tipoSupuesto: 'grupo_humano',
       probabilidad: 'algo_probable',
       impacto: 'significativo'
     },
     {
       supuesto: 'Ascenso gradual sin complicaciones',
-      tipoSupuesto: 'logistica',
-      probabilidad: 'probable',
-      impacto: 'moderado'
+      tipoSupuesto: 'itinerario',
+      probabilidad: 'muy_probable',
+      impacto: 'manejable'
     }
   ],
   'Lesión de participante': [
     {
       supuesto: 'Todos los participantes en buen estado de salud',
-      tipoSupuesto: 'medico',
+      tipoSupuesto: 'grupo_humano',
       probabilidad: 'poco_probable',
       impacto: 'significativo'
     },
     {
       supuesto: 'Equipamiento de primeros auxilios disponible',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Condiciones climáticas adversas': [
     {
       supuesto: 'Condiciones climáticas favorables',
-      tipoSupuesto: 'clima',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Equipamiento adecuado para condiciones adversas',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Falta de agua': [
     {
       supuesto: 'Disponibilidad de fuentes de agua',
-      tipoSupuesto: 'logistica',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Sistema de purificación de agua disponible',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Problemas de navegación': [
     {
       supuesto: 'Navegación clara y sin complicaciones',
-      tipoSupuesto: 'navegacion',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Equipamiento de navegación funcional',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Retrasos en itinerario': [
     {
       supuesto: 'Cumplimiento del itinerario planificado',
-      tipoSupuesto: 'tiempo',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     },
     {
       supuesto: 'Flexibilidad en horarios de regreso',
-      tipoSupuesto: 'logistica',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'itinerario',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Problemas de equipamiento': [
     {
       supuesto: 'Funcionamiento correcto de todo el equipamiento',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     },
     {
       supuesto: 'Equipamiento de respaldo disponible',
-      tipoSupuesto: 'equipamiento',
+      tipoSupuesto: 'condiciones',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     }
   ],
   'Problemas de salud': [
     {
       supuesto: 'Salud óptima de todos los participantes',
-      tipoSupuesto: 'medico',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'grupo_humano',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     },
     {
       supuesto: 'Botiquín de primeros auxilios completo',
-      tipoSupuesto: 'equipamiento',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'condiciones',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     }
   ],
   'Problemas de transporte': [
     {
       supuesto: 'Transporte disponible y funcional',
-      tipoSupuesto: 'transporte',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'itinerario',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     },
     {
       supuesto: 'Plan de contingencia para transporte',
-      tipoSupuesto: 'logistica',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     }
   ],
   'Problemas de logística': [
     {
       supuesto: 'Logística organizada y eficiente',
-      tipoSupuesto: 'logistica',
-      probabilidad: 'probable',
-      impacto: 'leve'
+      tipoSupuesto: 'itinerario',
+      probabilidad: 'muy_probable',
+      impacto: 'minimo'
     },
     {
       supuesto: 'Plan de contingencia logístico',
-      tipoSupuesto: 'logistica',
+      tipoSupuesto: 'itinerario',
       probabilidad: 'algo_probable',
-      impacto: 'moderado'
+      impacto: 'manejable'
     }
   ]
 };
