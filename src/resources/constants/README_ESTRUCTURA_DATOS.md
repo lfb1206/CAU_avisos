@@ -1,134 +1,179 @@
-# Estructura de Datos de Autorellenado - CAU Avisos
+# Estructura de Datos del Sistema CAU
 
-## Descripción General
-
-Los datos de autorellenado han sido reorganizados en archivos separados por tipo de funcionalidad para mejorar la mantenibilidad y facilitar la gestión desde el panel de administración.
+Este documento describe la estructura y organización de los datos de autocompletado del sistema CAU.
 
 ## Archivos de Datos
 
-### 1. `contactsData.js`
-**Propósito**: Contactos del Club Andino Universitario
-- **Contenido**: Lista de contactos con teléfono y email
-- **Uso**: Autocompletar información de contacto en formularios
-- **Estructura**: `{ nombre: { telefono, email } }`
+### 1. `peopleData.js`
+**Propósito:** Datos unificados de participantes y contactos CAU.
+**Contenido:** 
+- Lista de personas con información médica completa
+- Identificación automática de CAU contacts por email (@cau.cl)
+- Funciones de utilidad para filtrar y buscar personas
 
-### 2. `participantsData.js`
-**Propósito**: Participantes frecuentes con datos médicos
-- **Contenido**: Información completa de participantes incluyendo datos médicos
-- **Uso**: Autocompletar formularios de participantes
-- **Estructura**: `{ nombre: { rut, telefono, contactoEmergencia, grupoSanguineo, alergias, enfermedades, medicamentos, condicionesEspeciales } }`
+### 2. `basicFormOptions.js`
+**Propósito:** Opciones básicas para el formulario principal.
+**Contenido:**
+- Actividades generales y específicas
+- Contactos CAU
+- Cerros y sectores
+- Tramos de ruta
 
-### 3. `basicFormOptions.js`
-**Propósito**: Opciones básicas para formularios
-- **Contenido**: Listas de actividades, cerros, sectores, tramos
-- **Uso**: Autocompletar campos de selección en formularios
-- **Estructura**: `{ contactoCAU, actividades, actividadesEspecificas, cerrosSectores, tramos }`
+### 3. `activityEquipmentData.js`
+**Propósito:** Mapeo de actividades con equipamiento recomendado.
+**Contenido:**
+- Actividades generales con equipamiento básico
+- Actividades específicas con equipamiento detallado
+- Funciones para obtener recomendaciones de equipo
 
-### 4. `medicalOptions.js`
-**Propósito**: Opciones médicas y de salud
-- **Contenido**: Tipos de sangre, alergias, condiciones médicas, medicamentos
-- **Uso**: Autocompletar información médica de participantes
-- **Estructura**: `{ bloodTypes, allergies, medicalConditions, medications, specialConditions }`
+### 4. `equipmentData.js`
+**Propósito:** Datos de equipamiento organizados por categorías.
+**Contenido:**
+- Categorías de equipamiento
+- Items de equipamiento con estado esencial
+- Funciones de utilidad para gestión de equipamiento
 
-### 5. `transportOptions.js`
-**Propósito**: Opciones de transporte
-- **Contenido**: Tipos de transporte y marcas de vehículos
-- **Uso**: Autocompletar información de transporte
-- **Estructura**: `{ transportTypes, vehicleBrands }`
+### 5. `medicalOptions.js`
+**Propósito:** Opciones médicas para participantes.
+**Contenido:**
+- Tipos de sangre
+- Alergias comunes
+- Condiciones médicas
 
-### 6. `equipmentOptions.js`
-**Propósito**: Opciones de equipamiento
-- **Contenido**: Categorías e items de equipamiento
-- **Uso**: Autocompletar listas de equipamiento
-- **Estructura**: `{ equipmentCategories, equipmentItems }`
+### 6. `transportOptions.js`
+**Propósito:** Opciones de transporte.
+**Contenido:**
+- Tipos de vehículos
+- Marcas de vehículos
 
 ### 7. `riskManagementOptions.js`
-**Propósito**: Opciones de gestión de riesgos
-- **Contenido**: Dificultades, supuestos, probabilidades, impactos, peligros, riesgos
-- **Uso**: Autocompletar información de gestión de riesgos
-- **Estructura**: `{ dificultadesPrincipales, supuestos, tipoSupuestos, probabilidades, impactos, peligros, riesgos }`
+**Propósito:** Opciones para gestión de riesgos.
+**Contenido:**
+- Tipos de supuestos
+- Probabilidades
+- Impactos
+- Dificultades principales
 
-### 8. `activityEquipmentRecommendations.js`
-**Propósito**: Recomendaciones de equipo por actividad
-- **Contenido**: Recomendaciones basadas en tipo de actividad y dificultades
-- **Uso**: Sugerir equipamiento según la actividad
-- **Estructura**: `{ activityRecommendations, terrainRecommendations, weatherRecommendations }`
+### 8. `difficultyAssumptionRecommendations.js`
+**Propósito:** Recomendaciones de supuestos basadas en dificultades.
+**Contenido:**
+- Mapeo de dificultades con supuestos sugeridos
+- Funciones para generar recomendaciones automáticas
 
-### 9. `difficultyAssumptionRecommendations.js`
-**Propósito**: Recomendaciones de supuestos por dificultad
-- **Contenido**: Supuestos recomendados según las dificultades identificadas
-- **Uso**: Sugerir supuestos clave para gestión de riesgos
-- **Estructura**: `{ dificultad: [supuestos] }`
+### 9. `wikiexploraChecklists.js`
+**Propósito:** Checklists de Wikiexplora para diferentes actividades.
+**Contenido:**
+- Checklists detallados por actividad
+- Items imprescindibles y aconsejables
+- Funciones para aplicar checklists
 
-### 10. `wikiexploraChecklists.js`
-**Propósito**: Checklists de equipamiento de Wikiexplora
-- **Contenido**: Checklists específicos por tipo de actividad y condiciones
-- **Uso**: Aplicar checklists completos de equipamiento
-- **Estructura**: `{ tipo: { name, imprescindibles, aconsejables } }`
+### 10. `dataExportUtils.js`
+**Propósito:** Utilidades para exportar e importar datos.
+**Contenido:**
+- Funciones de exportación a JSON
+- Funciones de importación desde JSON
+- Validación de datos
+- Generación de reportes de cambios
+
+### 11. `docFields.js`
+**Propósito:** Definición de campos para documentos.
+**Contenido:**
+- Estructura de campos para formularios dinámicos
+- Validaciones y tipos de campos
+
+### 12. `savedData.js`
+**Propósito:** Datos guardados del sistema (legacy).
+**Contenido:**
+- Datos históricos del sistema
+- Estructuras de datos anteriores
+
+## Estructura de Datos Unificada
+
+### PeopleData
+```javascript
+export const peopleData = {
+  "persona1": {
+    nombre: "Juan Pérez",
+    rut: "12345678-9",
+    email: "juan@cau.cl", // CAU contact si contiene @cau.cl
+    telefono: "+56912345678",
+    contactoEmergencia: "María Pérez",
+    telefonoEmergencia: "+56987654321",
+    grupoSanguineo: "O+",
+    alergias: ["Frutos secos"],
+    enfermedades: ["Ninguna"],
+    medicamentos: ["Ninguno"],
+    condicionesEspeciales: ["Ninguna"]
+  }
+};
+```
+
+### ActivityEquipmentData
+```javascript
+export const activityEquipmentData = {
+  activities: {
+    "Escalada": {
+      basicEquipment: [
+        { item: "Arnés", category: "Seguridad", essential: true },
+        { item: "Cuerda", category: "Seguridad", essential: true }
+      ]
+    }
+  },
+  specificActivities: {
+    "Travesía por glaciar": {
+      parentActivity: "Montañismo",
+      difficulty: "Alta",
+      equipment: [
+        { item: "Piolet", category: "Equipo de Nieve", essential: true },
+        { item: "Crampones", category: "Equipo de Nieve", essential: true }
+      ]
+    }
+  }
+};
+```
+
+## Funciones de Utilidad
+
+### PeopleData
+- `getContacts()` - Obtiene solo contactos CAU
+- `getParticipants()` - Obtiene solo participantes
+- `getAllPeople()` - Obtiene todas las personas
+- `findPerson(rut)` - Busca persona por RUT
+
+### ActivityEquipmentData
+- `getActivityEquipment(activityName)` - Equipo para actividad general
+- `getSpecificActivityEquipment(specificActivityName)` - Equipo para actividad específica
+- `getEquipmentForSpecificActivity(specificActivityName)` - Items de equipo específico
+- `getAllActivities()` - Lista de actividades generales
+- `getAllSpecificActivities()` - Lista de actividades específicas
+
+### EquipmentData
+- `getCategoryById(id)` - Obtiene categoría por ID
+- `getItemsByCategory(categoryId)` - Items de una categoría
+- `getEssentialItems()` - Items marcados como esenciales
 
 ## Panel de Administración
 
-El panel de administración (`/audit`) permite:
+El sistema incluye paneles de administración dedicados:
 
-### Funcionalidades Principales
-- **Revisión de datos**: Ver todos los datos organizados por categorías
-- **Modificación**: Editar, agregar y eliminar entradas
-- **Estadísticas**: Generar estadísticas básicas de los datos
-- **Exportación**: Exportar datos completos o cambios específicos
-- **Backup**: Crear copias de seguridad
+1. **PeopleAdminPanel** - Gestión de participantes y contactos
+2. **ActivitiesAdminPanel** - Gestión de actividades y equipamiento
+3. **EquipmentAdminPanel** - Gestión de categorías e items de equipamiento
+4. **FormsAdminPanel** - Gestión de datos de autocompletado
+5. **ChecklistsAdminPanel** - Visualización de checklists de Wikiexplora
 
-### Tabs Disponibles
-1. **Contactos**: Gestión de contactos CAU
-2. **Participantes**: Gestión de participantes frecuentes
-3. **Opciones Básicas**: Gestión de actividades, cerros, tramos
-4. **Opciones Médicas**: Gestión de datos médicos
-5. **Estadísticas**: Ver estadísticas de los datos
+## Migración de Datos
 
-## Ventajas de la Nueva Estructura
+Los archivos eliminados (`contactsData.js`, `participantsData.js`, `equipmentOptions.js`, `activityEquipmentRecommendations.js`, `formOptions.js`) han sido consolidados en archivos más lógicos:
 
-### 1. Separación de Responsabilidades
-- Cada archivo tiene una responsabilidad específica
-- Facilita el mantenimiento y actualización
-- Reduce la complejidad de cada archivo
+- `contactsData.js` + `participantsData.js` → `peopleData.js`
+- `equipmentOptions.js` → `equipmentData.js`
+- `activityEquipmentRecommendations.js` → `activityEquipmentData.js`
+- `formOptions.js` → `basicFormOptions.js`
 
-### 2. Mejor Organización
-- Datos agrupados lógicamente
-- Fácil localización de información específica
-- Estructura clara y predecible
+## Notas Importantes
 
-### 3. Facilita la Gestión
-- Panel de administración organizado por categorías
-- Modificaciones específicas por tipo de dato
-- Exportación selectiva de datos
-
-### 4. Mantenimiento Simplificado
-- Archivos más pequeños y manejables
-- Cambios aislados por funcionalidad
-- Menor riesgo de conflictos
-
-## Migración de Referencias
-
-Todos los archivos que usaban `autocompleteData.js` han sido actualizados para importar directamente de los archivos específicos:
-
-```javascript
-// Antes
-import { autocompleteData } from '../../constants/autocompleteData';
-
-// Ahora
-import { savedContacts } from '../../constants/contactsData';
-import { basicFormOptions } from '../../constants/basicFormOptions';
-```
-
-## Archivos Eliminados
-
-- `autocompleteData.js`: Consolidado en archivos separados
-- `auditUtils.js`: Funcionalidad de auditoría eliminada
-- `AuditPanel.jsx`: Reemplazado por DataAdminPanel.jsx
-- Documentación de auditoría: Ya no aplica
-
-## Próximos Pasos
-
-1. **Verificar funcionamiento**: Probar que todos los formularios funcionen correctamente
-2. **Explorar panel**: Usar el panel de administración para familiarizarse con las nuevas funcionalidades
-3. **Crear backup**: Generar un backup inicial de los datos
-4. **Personalizar datos**: Modificar los datos según las necesidades específicas del CAU 
+- Los datos se mantienen en memoria durante la sesión
+- Las exportaciones crean archivos JSON con timestamp
+- Los backups incluyen datos originales antes de modificaciones
+- La validación se realiza antes de exportar/importar datos 

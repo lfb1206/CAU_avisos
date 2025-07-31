@@ -380,6 +380,87 @@ function ActivityForm({ activity, onSave, onCancel, parentActivities = [], isNew
           <option value="Alta">Alta</option>
         </select>
       </div>
+      
+      {/* Equipamiento Básico */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Equipamiento Básico</label>
+        <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
+          {(formData.data.basicEquipment || []).map((equipment, index) => (
+            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+              <input
+                type="text"
+                value={equipment.item || ''}
+                onChange={(e) => {
+                  const updatedEquipment = [...(formData.data.basicEquipment || [])];
+                  updatedEquipment[index] = { ...equipment, item: e.target.value };
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, basicEquipment: updatedEquipment }
+                  });
+                }}
+                placeholder="Item de equipamiento"
+                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <input
+                type="text"
+                value={equipment.category || ''}
+                onChange={(e) => {
+                  const updatedEquipment = [...(formData.data.basicEquipment || [])];
+                  updatedEquipment[index] = { ...equipment, category: e.target.value };
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, basicEquipment: updatedEquipment }
+                  });
+                }}
+                placeholder="Categoría"
+                className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={equipment.essential || false}
+                  onChange={(e) => {
+                    const updatedEquipment = [...(formData.data.basicEquipment || [])];
+                    updatedEquipment[index] = { ...equipment, essential: e.target.checked };
+                    setFormData({
+                      ...formData,
+                      data: { ...formData.data, basicEquipment: updatedEquipment }
+                    });
+                  }}
+                  className="mr-1"
+                />
+                <span className="text-xs">Esencial</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const updatedEquipment = (formData.data.basicEquipment || []).filter((_, i) => i !== index);
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, basicEquipment: updatedEquipment }
+                  });
+                }}
+                className="text-red-600 hover:text-red-800 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              const updatedEquipment = [...(formData.data.basicEquipment || []), { item: '', category: '', essential: false }];
+              setFormData({
+                ...formData,
+                data: { ...formData.data, basicEquipment: updatedEquipment }
+              });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
+          >
+            + Agregar Equipamiento
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -427,6 +508,87 @@ function ActivityForm({ activity, onSave, onCancel, parentActivities = [], isNew
           <option value="Media">Media</option>
           <option value="Alta">Alta</option>
         </select>
+      </div>
+      
+      {/* Equipamiento Específico */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Equipamiento Específico</label>
+        <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
+          {(formData.data.equipment || []).map((equipment, index) => (
+            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+              <input
+                type="text"
+                value={equipment.item || ''}
+                onChange={(e) => {
+                  const updatedEquipment = [...(formData.data.equipment || [])];
+                  updatedEquipment[index] = { ...equipment, item: e.target.value };
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, equipment: updatedEquipment }
+                  });
+                }}
+                placeholder="Item de equipamiento"
+                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <input
+                type="text"
+                value={equipment.category || ''}
+                onChange={(e) => {
+                  const updatedEquipment = [...(formData.data.equipment || [])];
+                  updatedEquipment[index] = { ...equipment, category: e.target.value };
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, equipment: updatedEquipment }
+                  });
+                }}
+                placeholder="Categoría"
+                className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
+              />
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={equipment.essential || false}
+                  onChange={(e) => {
+                    const updatedEquipment = [...(formData.data.equipment || [])];
+                    updatedEquipment[index] = { ...equipment, essential: e.target.checked };
+                    setFormData({
+                      ...formData,
+                      data: { ...formData.data, equipment: updatedEquipment }
+                    });
+                  }}
+                  className="mr-1"
+                />
+                <span className="text-xs">Esencial</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const updatedEquipment = (formData.data.equipment || []).filter((_, i) => i !== index);
+                  setFormData({
+                    ...formData,
+                    data: { ...formData.data, equipment: updatedEquipment }
+                  });
+                }}
+                className="text-red-600 hover:text-red-800 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              const updatedEquipment = [...(formData.data.equipment || []), { item: '', category: '', essential: false }];
+              setFormData({
+                ...formData,
+                data: { ...formData.data, equipment: updatedEquipment }
+              });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
+          >
+            + Agregar Equipamiento
+          </button>
+        </div>
       </div>
     </div>
   );

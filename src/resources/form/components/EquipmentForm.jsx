@@ -55,9 +55,9 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <div className="flex items-center space-x-2">
             <span className="text-xs text-gray-600">No se porta</span>
-            <button
-              type="button"
-              onClick={handleToggleChecked}
+          <button
+            type="button"
+            onClick={handleToggleChecked}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 equipment.checked ? 'bg-green-500' : 'bg-gray-300'
               }`}
@@ -67,7 +67,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) 
                   equipment.checked ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
-            </button>
+          </button>
             <span className="text-xs text-gray-600">Se está portando</span>
           </div>
           <button

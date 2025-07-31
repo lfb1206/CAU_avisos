@@ -96,14 +96,51 @@ export default function ItineraryDayForm({
             )}
           </div>
           <div className="space-y-1">
-            <label className="block text-sm font-medium text-gray-700">Actividad *</label>
-            <AutocompleteInput
-              value={day.actividad || ''}
-              onChange={(value) => onUpdate(dayIndex, 'actividad', value)}
-              options={basicFormOptions.actividadesEspecificas}
-              placeholder="Ej: Ascenso al campamento"
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700">Actividades *</label>
+            <div className="space-y-2">
+              {(day.actividades || []).map((actividad, actividadIndex) => (
+                <div key={actividadIndex} className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <AutocompleteInput
+                      value={actividad}
+                      onChange={(value) => {
+                        const updatedActividades = [...(day.actividades || [])];
+                        updatedActividades[actividadIndex] = value;
+                        onUpdate(dayIndex, 'actividades', updatedActividades);
+                      }}
+                      options={basicFormOptions.actividadesEspecificas}
+                      placeholder="Ej: Ascenso al campamento"
+                      required
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updatedActividades = (day.actividades || []).filter((_, index) => index !== actividadIndex);
+                      onUpdate(dayIndex, 'actividades', updatedActividades);
+                    }}
+                    className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updatedActividades = [...(day.actividades || []), ''];
+                  onUpdate(dayIndex, 'actividades', updatedActividades);
+                }}
+                className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+              >
+                + Agregar Actividad
+              </button>
+              {(!day.actividades || day.actividades.length === 0) && (
+                <p className="text-sm text-gray-500 italic">
+                  No se han agregado actividades. Haga clic en "Agregar Actividad" para comenzar.
+                </p>
+              )}
+            </div>
           </div>
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center justify-between">

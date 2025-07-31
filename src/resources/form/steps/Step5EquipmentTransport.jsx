@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { activityEquipmentData } from '../../constants/activityEquipmentData';
+import { activityEquipmentData, getEquipmentForActivity as getActivityEquipment, getEquipmentForSpecificActivity, getSpecificActivityEquipment } from '../../constants/activityEquipmentData';
 import { getAvailableChecklists, applyChecklistToEquipment } from '../../constants/wikiexploraChecklists';
 import EquipmentTable from '../components/EquipmentTable';
 import TransportForm from '../components/TransportForm';
@@ -55,114 +55,109 @@ export default function Step5EquipmentTransport() {
     return [...participants, ...externalDrivers];
   };
 
-  // Función auxiliar para obtener equipo basado en actividad
+  // Función mejorada para obtener equipo basado en actividad
   const getEquipmentForActivity = (actividad) => {
+    if (!actividad) {
+      return [];
+    }
+    
     const suggestions = [];
     
-    // Mapeo básico de actividades a equipo
-    const activityEquipmentMap = {
-      'escalada': [
-        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Obligatorio para escalada' },
-        { categoria: 'Seguridad', item: 'Arnés', cantidad: 1, observaciones: 'Obligatorio para escalada' },
-        { categoria: 'Seguridad', item: 'Cuerda', cantidad: 1, observaciones: 'Cuerda de escalada' },
-        { categoria: 'Seguridad', item: 'Mosquetones', cantidad: 6, observaciones: 'Para asegurar' }
-      ],
-      'trekking': [
-        { categoria: 'Calzado', item: 'Botas de trekking', cantidad: 1, observaciones: 'Impermeables y cómodas' },
-        { categoria: 'Ropa', item: 'Polera técnica', cantidad: 2, observaciones: 'Material transpirable' },
-        { categoria: 'Ropa', item: 'Pantalón de trekking', cantidad: 1, observaciones: 'Impermeable' },
-        { categoria: 'Protección', item: 'Protector solar', cantidad: 1, observaciones: 'SPF 50+' }
-      ],
-      'montañismo': [
-        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para montañismo' },
-        { categoria: 'Seguridad', item: 'Piolet', cantidad: 1, observaciones: 'Para progresión en hielo' },
-        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
-        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
-      ],
-      'campamento': [
-        { categoria: 'Campamento', item: 'Carpa', cantidad: 1, observaciones: 'Según número de personas' },
-        { categoria: 'Campamento', item: 'Saco de dormir', cantidad: 1, observaciones: 'Según temperatura' },
-        { categoria: 'Campamento', item: 'Colchoneta', cantidad: 1, observaciones: 'Aislamiento térmico' },
-        { categoria: 'Campamento', item: 'Cocina de campamento', cantidad: 1, observaciones: 'Para cocinar' }
-      ],
-      'senderismo': [
-        { categoria: 'Calzado', item: 'Botas de senderismo', cantidad: 1, observaciones: 'Cómodas y resistentes' },
-        { categoria: 'Ropa', item: 'Polera técnica', cantidad: 2, observaciones: 'Material transpirable' },
-        { categoria: 'Protección', item: 'Protector solar', cantidad: 1, observaciones: 'SPF 50+' },
-        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
-      ],
-      'ascenso': [
-        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para ascenso' },
-        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
-        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' },
-        { categoria: 'Seguridad', item: 'Piolet', cantidad: 1, observaciones: 'Para progresión en hielo' }
-      ],
-      'descenso': [
-        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para descenso' },
-        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
-        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
-      ],
-      'acampada': [
-        { categoria: 'Campamento', item: 'Carpa', cantidad: 1, observaciones: 'Según número de personas' },
-        { categoria: 'Campamento', item: 'Saco de dormir', cantidad: 1, observaciones: 'Según temperatura' },
-        { categoria: 'Campamento', item: 'Colchoneta', cantidad: 1, observaciones: 'Aislamiento térmico' },
-        { categoria: 'Campamento', item: 'Cocina de campamento', cantidad: 1, observaciones: 'Para cocinar' }
-      ]
-    };
+    // Primero intentar con actividades específicas
+    const specificEquipment = getEquipmentForSpecificActivity(actividad);
     
-    // Buscar coincidencias parciales
-    const actividadLower = actividad.toLowerCase();
-    Object.keys(activityEquipmentMap).forEach(key => {
-      if (actividadLower.includes(key)) {
-        suggestions.push(...activityEquipmentMap[key]);
+    if (specificEquipment && specificEquipment.length > 0) {
+      specificEquipment.forEach(item => {
+        suggestions.push({
+          categoria: item.category,
+          item: item.item,
+          cantidad: 1,
+          observaciones: `Esencial: ${item.essential ? 'Sí' : 'No'} (Sugerido por actividad específica)`
+        });
+      });
+      return suggestions;
+    }
+    
+    // Si no hay equipo específico, buscar en actividades generales
+    const generalEquipment = getActivityEquipment(actividad);
+    
+    if (generalEquipment && ((generalEquipment.basicEquipment && generalEquipment.basicEquipment.length > 0) || (Array.isArray(generalEquipment) && generalEquipment.length > 0))) {
+      
+      let equipmentItems = [];
+      if (generalEquipment.basicEquipment) {
+        equipmentItems = generalEquipment.basicEquipment;
+      } else if (Array.isArray(generalEquipment)) {
+        equipmentItems = generalEquipment;
       }
-    });
+      
+      equipmentItems.forEach(item => {
+        suggestions.push({
+          categoria: item.category,
+          item: item.item,
+          cantidad: 1,
+          observaciones: `Esencial: ${item.essential ? 'Sí' : 'No'} (Sugerido por actividad general)`
+        });
+      });
+      return suggestions;
+    }
     
     return suggestions;
   };
 
-  // Cargar recomendaciones basadas en actividades de los tramos
   const loadActivityRecommendations = () => {
     // Analizar actividades del itinerario para sugerir equipo
     const suggestions = [];
+    const processedActivities = new Set(); // Para evitar duplicados
     
     if (formData.itinerario && formData.itinerario.length > 0) {
       formData.itinerario.forEach((day, dayIndex) => {
-        if (day.actividades) {
+        
+        if (day.actividades && day.actividades.length > 0) {
           day.actividades.forEach(actividad => {
-            // Sugerir equipo basado en la actividad
-            const activitySuggestions = getEquipmentForActivity(actividad);
-            suggestions.push(...activitySuggestions);
+            if (!processedActivities.has(actividad)) {
+              // Sugerir equipo basado en la actividad
+              const activitySuggestions = getEquipmentForActivity(actividad);
+              suggestions.push(...activitySuggestions);
+              processedActivities.add(actividad);
+            }
           });
         }
       });
     }
     
-    // También considerar la actividad general
-    if (formData.basicInfo && formData.basicInfo.actividad) {
+    // También considerar la actividad general SOLO si no hay actividades específicas
+    if (formData.basicInfo && formData.basicInfo.actividad && !processedActivities.has(formData.basicInfo.actividad)) {
       const generalSuggestions = getEquipmentForActivity(formData.basicInfo.actividad);
       suggestions.push(...generalSuggestions);
     }
     
     // Agregar sugerencias sin duplicados
+    let addedCount = 0;
+    const existingItems = new Set(); // Para tracking de items existentes
+    
+    // Primero, registrar items existentes
+    formData.equipo.forEach(equipment => {
+      const key = `${equipment.item.toLowerCase()}-${equipment.categoria.toLowerCase()}`;
+      existingItems.add(key);
+    });
+    
     suggestions.forEach(item => {
-      // Verificar si ya existe un equipo con el mismo item y categoría
-      const existingItem = formData.equipo.find(equipment => 
-        equipment.item.toLowerCase() === item.item.toLowerCase() && 
-        equipment.categoria.toLowerCase() === item.categoria.toLowerCase()
-      );
+      const itemKey = `${item.item.toLowerCase()}-${item.categoria.toLowerCase()}`;
       
-      if (!existingItem) {
+      if (!existingItems.has(itemKey)) {
         const newEquipment = {
           categoria: item.categoria,
           item: item.item,
           cantidad: item.cantidad.toString(),
-          observaciones: `${item.observaciones} (Sugerido por actividad)`,
+          observaciones: item.observaciones,
           checked: false
         };
         addItem('equipo', newEquipment);
+        existingItems.add(itemKey);
+        addedCount++;
       }
     });
+    
   };
 
   // Aplicar checklist de Wikiexplora
@@ -231,12 +226,12 @@ export default function Step5EquipmentTransport() {
                 ))}
               </select>
             </div>
-            
-            {/* Botón para cargar recomendaciones (incluye checklist seleccionado) */}
+
+            {/* Botón único para cargar recomendaciones */}
             <button
               type="button"
               onClick={() => {
-                // Primero cargar recomendaciones de actividades
+                // Siempre cargar recomendaciones de actividades
                 loadActivityRecommendations();
                 // Luego aplicar checklist si está seleccionado
                 if (selectedChecklist) {
@@ -269,78 +264,78 @@ export default function Step5EquipmentTransport() {
               </button>
             )}
           </div>
-        </div>
 
-        {/* Equipment Disclaimer */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4">
-          <h4 className="text-sm font-semibold text-blue-900 mb-2">
-            ℹ️ Importante - Checklist de Equipo
-          </h4>
-          <p className="text-xs sm:text-sm text-blue-800">
-            <strong>Solo el equipo marcado como "Se está portando" aparecerá en el aviso de salida.</strong> 
-            Use los checkboxes para indicar qué equipo realmente se lleva en la expedición. 
-            El equipo no marcado no se incluirá en el documento final.
-          </p>
-        </div>
+          {/* Equipment Disclaimer */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4">
+            <h4 className="text-sm font-semibold text-blue-900 mb-2">
+              ℹ️ Importante - Checklist de Equipo
+            </h4>
+            <p className="text-xs sm:text-sm text-blue-800">
+              <strong>Solo el equipo marcado como "Se está portando" aparecerá en el aviso de salida.</strong> 
+              Use los checkboxes para indicar qué equipo realmente se lleva en la expedición. 
+              El equipo no marcado no se incluirá en el documento final.
+            </p>
+          </div>
 
-        <div className="space-y-4">
-          <EquipmentTable
-            equipment={formData.equipo}
-            onUpdate={updateEquipment}
-            onRemove={(index) => removeItem('equipo', index)}
-            onAdd={addEquipment}
-          />
-        </div>
-      </div>
-
-      {/* Transport Section */}
-      <div className="space-y-6 mt-8">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
-            Transporte
-          </h3>
-        </div>
-        
-        <div className="space-y-4">
-          {formData.transporte.map((transport, index) => (
-            <TransportForm
-              key={index}
-              transport={transport}
-              index={index}
-              onUpdate={updateTransport}
-              onRemove={(index) => removeItem('transporte', index)}
-              getConductorOptions={getConductorOptions}
+          <div className="space-y-4">
+            <EquipmentTable
+              equipment={formData.equipo}
+              onUpdate={updateEquipment}
+              onRemove={(index) => removeItem('equipo', index)}
+              onAdd={addEquipment}
             />
-          ))}
+          </div>
         </div>
 
-        <div className="flex justify-center mt-6">
-          <button
-            type="button"
-            onClick={addTransport}
-            className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm sm:text-base"
-          >
-            + Agregar Transporte
-          </button>
-        </div>
-      </div>
+        {/* Transport Section */}
+        <div className="space-y-6 mt-8">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
+              Transporte
+            </h3>
+          </div>
 
-      {/* Instructions */}
-      <div className="mt-8 bg-purple-50 rounded-lg p-3 sm:p-4">
-        <h4 className="text-sm font-semibold text-purple-900 mb-3">
-          🎒 Consejos para registrar equipo y transporte:
-        </h4>
-        <ul className="list-disc pl-5 text-purple-900 text-xs sm:text-sm space-y-1">
-          <li><strong>Checklists:</strong> Seleccione un checklist específico para agregar equipo recomendado según el tipo de ruta (incluye imprescindibles y aconsejables).</li>
-          <li><strong>Cargar recomendaciones:</strong> Use el botón azul para agregar equipo basado en las actividades de los tramos y la actividad general.</li>
-          <li><strong>Sin duplicados:</strong> Los checklists y recomendaciones se agregan sin sobrescribir el equipo existente.</li>
-          <li><strong>Organización:</strong> El equipo se agrupa automáticamente por categorías con acordeones.</li>
-          <li><strong>Limpiar todo:</strong> Use el botón rojo para eliminar todo el equipo y empezar de nuevo.</li>
-          <li>Agrega cada ítem de equipo con su categoría, nombre y cantidad.</li>
-          <li>Utiliza el campo <b>Observaciones</b> para anotar detalles relevantes.</li>
-          <li>Solo los ítems marcados como <b>Se está portando</b> aparecerán en el aviso de salida.</li>
-          <li>En transporte, registra cada vehículo y conductor relevante.</li>
-        </ul>
+          <div className="space-y-4">
+            {formData.transporte && formData.transporte.map((transport, index) => (
+              <TransportForm
+                key={index}
+                transport={transport}
+                index={index}
+                onUpdate={updateTransport}
+                onRemove={(index) => removeItem('transporte', index)}
+                getConductorOptions={getConductorOptions}
+              />
+            ))}
+
+            <div className="flex justify-center mt-6">
+              <button
+                type="button"
+                onClick={addTransport}
+                className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm sm:text-base"
+              >
+                + Agregar Transporte
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="mt-8 bg-purple-50 rounded-lg p-3 sm:p-4">
+          <h4 className="text-sm font-semibold text-purple-900 mb-3">
+            🎒 Consejos para registrar equipo y transporte:
+          </h4>
+          <ul className="list-disc pl-5 text-purple-900 text-xs sm:text-sm space-y-1">
+            <li><strong>Checklists:</strong> Seleccione un checklist específico para agregar equipo recomendado según el tipo de ruta (incluye imprescindibles y aconsejables).</li>
+            <li><strong>Cargar recomendaciones:</strong> Use el botón azul para agregar equipo basado en las actividades de los tramos y la actividad general.</li>
+            <li><strong>Sin duplicados:</strong> Los checklists y recomendaciones se agregan sin sobrescribir el equipo existente.</li>
+            <li><strong>Organización:</strong> El equipo se agrupa automáticamente por categorías con acordeones.</li>
+            <li><strong>Limpiar todo:</strong> Use el botón rojo para eliminar todo el equipo y empezar de nuevo.</li>
+            <li>Agrega cada ítem de equipo con su categoría, nombre y cantidad.</li>
+            <li>Utiliza el campo <b>Observaciones</b> para anotar detalles relevantes.</li>
+            <li>Solo los ítems marcados como <b>Se está portando</b> aparecerán en el aviso de salida.</li>
+            <li>En transporte, registra cada vehículo y conductor relevante.</li>
+          </ul>
+        </div>
       </div>
     </div>
   );

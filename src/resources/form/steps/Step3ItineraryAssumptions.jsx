@@ -38,7 +38,7 @@ export default function Step3ItineraryAssumptions() {
       horaFin: '',
       altitudInicio: '',
       altitudFin: '',
-      actividad: '',
+      actividades: [], // Cambiado de 'actividad' a 'actividades' como array
       dificultadesPrincipales: [''],
       supuestos: []
     };

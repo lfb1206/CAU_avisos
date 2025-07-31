@@ -223,7 +223,7 @@ export const FormContextProvider = ({ children }) => {
                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
       case 3: // Itinerary & Assumptions
         return itinerario.length > 0 && itinerario.every(day => {
-          const hasRequiredFields = day.tramo && day.actividad && day.horaInicio && day.horaFin;
+          const hasRequiredFields = day.tramo && day.actividades && day.actividades.length > 0 && day.horaInicio && day.horaFin;
           if (!hasRequiredFields) return false;
           
           // Verificar que la fecha del tramo esté entre hoy y la fecha de reporte de regreso
@@ -317,7 +317,7 @@ export const FormContextProvider = ({ children }) => {
                                participantes.every(p => p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
 
     const itineraryComplete = itinerario.length > 0 && itinerario.every(day => {
-      const hasRequiredFields = day.tramo && day.actividad && day.horaInicio && day.horaFin;
+      const hasRequiredFields = day.tramo && day.actividades && day.actividades.length > 0 && day.horaInicio && day.horaFin;
       if (!hasRequiredFields) return false;
       
       // Verificar que la fecha del tramo esté entre hoy y la fecha de reporte de regreso

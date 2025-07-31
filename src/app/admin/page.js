@@ -26,11 +26,18 @@ export default function AdminPage() {
       color: 'bg-purple-500 hover:bg-purple-600'
     },
     {
-      title: 'Panel General',
-      description: 'Panel de administración general (legacy)',
-      href: '/audit',
-      icon: '⚙️',
-      color: 'bg-gray-500 hover:bg-gray-600'
+      title: 'Gestión de Autocompletado',
+      description: 'Administra sugerencias y datos de autocompletado',
+      href: '/admin/forms',
+      icon: '📋',
+      color: 'bg-orange-500 hover:bg-orange-600'
+    },
+    {
+      title: 'Gestión de Checklists',
+      description: 'Administra checklists de Wikiexplora',
+      href: '/admin/checklists',
+      icon: '✅',
+      color: 'bg-teal-500 hover:bg-teal-600'
     }
   ];
 
@@ -77,6 +84,7 @@ export default function AdminPage() {
                 <li>• <strong>Personas:</strong> Contactos CAU y participantes frecuentes</li>
                 <li>• <strong>Actividades:</strong> Actividades generales y específicas con equipamiento</li>
                 <li>• <strong>Equipamiento:</strong> Categorías e items de equipamiento</li>
+                <li>• <strong>Autocompletado:</strong> Sugerencias básicas, riesgos, transporte, médico y supuestos</li>
                 <li>• <strong>Checklists:</strong> Checklists de Wikiexplora</li>
               </ul>
             </div>

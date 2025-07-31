@@ -28,7 +28,7 @@ export default function NavigationBar() {
               Formulario
             </Link>
             <Link 
-              href="/audit" 
+              href="/admin" 
               className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
             >
               Administración

@@ -113,7 +113,7 @@ export default function Step7FinalReview() {
       itinerario.forEach((day, dayIndex) => {
         if (!day.tramo) errors.push(`Tramo ${dayIndex + 1}`);
         if (!day.fecha) errors.push(`Fecha del tramo ${dayIndex + 1}`);
-        if (!day.actividad) errors.push(`Actividad del tramo ${dayIndex + 1}`);
+        if (!day.actividades || day.actividades.length === 0) errors.push(`Actividades del tramo ${dayIndex + 1}`);
         if (!day.horaInicio) errors.push(`Hora inicio del tramo ${dayIndex + 1}`);
         if (!day.horaFin) errors.push(`Hora fin del tramo ${dayIndex + 1}`);
         
@@ -318,7 +318,7 @@ export default function Step7FinalReview() {
             <div className="space-y-2">
               {itinerario.map((day, index) => (
                 <div key={index} className="text-sm">
-                  <strong>{day.tramo}</strong> - {day.actividad}
+                  <strong>{day.tramo}</strong> - {(day.actividades || []).join(', ')}
                   {day.horaInicio && day.horaFin && ` (${day.horaInicio} - ${day.horaFin})`}
                   {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d && d.trim()).length > 0 && (
                     <div className="text-xs text-gray-600 mt-1">

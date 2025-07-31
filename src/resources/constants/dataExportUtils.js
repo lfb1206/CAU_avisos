@@ -5,12 +5,10 @@
 // desde el panel de administración
 // =============================================================================
 
-import { savedContacts } from './contactsData.js';
-import { savedParticipants } from './participantsData.js';
+import { peopleData } from './peopleData.js';
 import { basicFormOptions } from './basicFormOptions.js';
 import { medicalOptions } from './medicalOptions.js';
 import { transportOptions } from './transportOptions.js';
-import { equipmentOptions } from './equipmentOptions.js';
 import { riskManagementOptions } from './riskManagementOptions.js';
 
 /**
@@ -50,11 +48,8 @@ export const exportModifiedData = (modifiedData, dataType) => {
   // Obtener datos originales según el tipo
   let originalData;
   switch(dataType) {
-    case 'savedContacts':
-      originalData = savedContacts;
-      break;
-    case 'savedParticipants':
-      originalData = savedParticipants;
+    case 'peopleData':
+      originalData = peopleData;
       break;
     case 'basicFormOptions':
       originalData = basicFormOptions;
@@ -64,9 +59,6 @@ export const exportModifiedData = (modifiedData, dataType) => {
       break;
     case 'transportOptions':
       originalData = transportOptions;
-      break;
-    case 'equipmentOptions':
-      originalData = equipmentOptions;
       break;
     case 'riskManagementOptions':
       originalData = riskManagementOptions;
@@ -230,12 +222,10 @@ export const exportAllData = (currentData) => {
     version: '1.0.0',
     description: 'Datos completos de autorellenado del sistema CAU',
     data: {
-      savedContacts: currentData.contacts || savedContacts,
-      savedParticipants: currentData.participants || savedParticipants,
+      peopleData: currentData.people || peopleData,
       basicFormOptions: currentData.basicOptions || basicFormOptions,
       medicalOptions: currentData.medicalOptions || medicalOptions,
       transportOptions: currentData.transportOptions || transportOptions,
-      equipmentOptions: currentData.equipmentOptions || equipmentOptions,
       riskManagementOptions: currentData.riskOptions || riskManagementOptions
     }
   };
@@ -265,12 +255,10 @@ export const createBackup = () => {
     type: 'backup',
     description: 'Backup de datos originales antes de modificaciones',
     data: {
-      savedContacts,
-      savedParticipants,
+      peopleData,
       basicFormOptions,
       medicalOptions,
       transportOptions,
-      equipmentOptions,
       riskManagementOptions
     }
   };

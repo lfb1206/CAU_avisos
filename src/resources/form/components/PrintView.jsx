@@ -83,7 +83,7 @@ export default function PrintView({ formData, onClose }) {
         }
         grouped[day.tramo].push({
           fecha: day.fecha,
-          actividad: day.actividad,
+          actividad: (day.actividades || []).join(', '),
           dificultades: (day.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', '),
           horaInicio: day.horaInicio,
           horaFin: day.horaFin

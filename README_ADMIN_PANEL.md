@@ -49,7 +49,7 @@ El sistema de administración de CAU Avisos ha sido reorganizado para proporcion
   - Filtrar items esenciales
   - Exportar por categoría o completos
 
-### ⚙️ Panel General (`/audit`)
+### ⚙️ Panel General (`/admin`)
 - **Propósito**: Panel de administración general (legacy)
 - **Funcionalidades**:
   - Gestión de todos los datos en una sola vista

@@ -165,22 +165,24 @@ export const analyzeActivitiesForEquipment = (itinerario, actividadGeneral) => {
   
   // Analizar actividades específicas de cada tramo
   itinerario.forEach((day, dayIndex) => {
-    if (day.actividad) {
-      const dayActivity = day.actividad.toLowerCase();
-      Object.keys(activityEquipmentMapping).forEach(activityKey => {
-        if (dayActivity.includes(activityKey) && activityKey !== 'basico') {
-          const mapping = activityEquipmentMapping[activityKey];
-          mapping.items.forEach(item => {
-            const key = `${item.item}-${item.categoria}`;
-            if (!suggestedEquipment.has(key)) {
-              suggestedEquipment.set(key, {
-                ...item,
-                categoria: mapping.categoria,
-                source: `tramo ${dayIndex + 1}: ${day.tramo || 'Sin tramo'}`
-              });
-            }
-          });
-        }
+    if (day.actividades && day.actividades.length > 0) {
+      day.actividades.forEach(actividad => {
+        const dayActivity = actividad.toLowerCase();
+        Object.keys(activityEquipmentMapping).forEach(activityKey => {
+          if (dayActivity.includes(activityKey) && activityKey !== 'basico') {
+            const mapping = activityEquipmentMapping[activityKey];
+            mapping.items.forEach(item => {
+              const key = `${item.item}-${item.categoria}`;
+              if (!suggestedEquipment.has(key)) {
+                suggestedEquipment.set(key, {
+                  ...item,
+                  categoria: mapping.categoria,
+                  source: `tramo ${dayIndex + 1}: ${day.tramo || 'Sin tramo'}`
+                });
+              }
+            });
+          }
+        });
       });
     }
   });
