@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { savedData } from '../../constants/savedData';
+import { getParticipants } from '../../constants/peopleData';
 import ParticipantForm from '../components/ParticipantForm';
 
 export default function Step2Participants() {
@@ -44,8 +44,8 @@ export default function Step2Participants() {
     updateItem('participantes', index, { ...participantes[index], nombre: participantName, isDuplicate: false });
     
     // Auto-fill data if it's a saved participant
-    if (savedData.savedParticipants[participantName]) {
-      const saved = savedData.savedParticipants[participantName];
+    if (getParticipants()[participantName]) {
+      const saved = getParticipants()[participantName];
       updateItem('participantes', index, {
         ...saved,
         nombre: participantName,
@@ -55,7 +55,7 @@ export default function Step2Participants() {
   };
 
   const getSavedParticipantNames = () => {
-    return Object.keys(savedData.savedParticipants);
+    return Object.keys(getParticipants());
   };
 
   // Auto-add first participant if none exists

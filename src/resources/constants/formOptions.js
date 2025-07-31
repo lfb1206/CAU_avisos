@@ -385,13 +385,6 @@ export const formOptions = {
     { value: 'grupo_humano', label: 'Grupo humano' },
     { value: 'itinerario', label: 'Itinerario' },
     { value: 'condiciones', label: 'Condiciones' },
-    { value: 'equipo', label: 'Equipo' },
-    { value: 'clima', label: 'Clima' },
-    { value: 'terreno', label: 'Terreno' },
-    { value: 'logistica', label: 'Logística' },
-    { value: 'comunicacion', label: 'Comunicación' },
-    { value: 'seguridad', label: 'Seguridad' },
-    { value: 'medico', label: 'Médico' }
   ],
 
   probabilidades: [

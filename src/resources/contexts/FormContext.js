@@ -21,7 +21,7 @@ const initialFormState = {
   equipo: [],
   transporte: [],
   cuerposRescate: [
-    { nombre: 'Socorro Andino Santiago', telefono: '+56 9 9680 5512', incluir: true },
+    { nombre: 'Socorro Andino Santiago', telefono: '226994764 - 226989094', incluir: true },
     { nombre: 'Carabineros', telefono: '133', incluir: true },
     { nombre: 'Bomberos', telefono: '132', incluir: true },
     { nombre: 'FACH (Fuerza Aérea - Rescate Aéreo)', telefono: '+56 2 2690 1000', incluir: true },

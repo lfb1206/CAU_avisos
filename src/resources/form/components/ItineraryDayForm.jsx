@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { savedData } from '../../constants/savedData';
+import { basicFormOptions } from '../../constants/basicFormOptions';
+import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from './AutocompleteInput';
 
 export default function ItineraryDayForm({ 
@@ -64,7 +65,7 @@ export default function ItineraryDayForm({
             label="Tramo"
             value={day.tramo || ''}
             onChange={(value) => onUpdate(dayIndex, 'tramo', value)}
-            options={savedData.formOptions.tramos}
+            options={basicFormOptions.tramos}
             placeholder="Seleccione o escriba el tramo"
             required
           />
@@ -74,14 +75,14 @@ export default function ItineraryDayForm({
               type="date"
               value={day.fecha || ''}
               onChange={(e) => onUpdate(dayIndex, 'fecha', e.target.value)}
-              min={new Date().toISOString().split('T')[0]}
-              max={fechaReporteRegreso ? new Date(fechaReporteRegreso).toISOString().split('T')[0] : undefined}
+              min={new Date().toLocaleDateString('sv-SE')}
+              max={fechaReporteRegreso ? new Date(fechaReporteRegreso).toLocaleDateString('sv-SE') : undefined}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
             {day.fecha && (
               <>
-                {new Date(day.fecha) < new Date(new Date().toISOString().split('T')[0]) && (
+                {new Date(day.fecha) < new Date(new Date().toLocaleDateString('sv-SE')) && (
                   <p className="text-red-500 text-xs mt-1">
                     La fecha del tramo debe ser hoy o posterior
                   </p>
@@ -99,7 +100,7 @@ export default function ItineraryDayForm({
             <AutocompleteInput
               value={day.actividad || ''}
               onChange={(value) => onUpdate(dayIndex, 'actividad', value)}
-              options={savedData.formOptions.actividades}
+              options={basicFormOptions.actividadesEspecificas}
               placeholder="Ej: Ascenso al campamento"
               required
             />
@@ -135,7 +136,7 @@ export default function ItineraryDayForm({
                     <AutocompleteInput
                       value={difficulty}
                       onChange={(value) => onUpdateDifficulty(dayIndex, difficultyIndex, value)}
-                      options={savedData.formOptions.dificultadesPrincipales || []}
+                      options={riskManagementOptions.dificultadesPrincipales || []}
                       placeholder="Seleccione o escriba una dificultad"
                       className="text-sm"
                     />
@@ -209,7 +210,7 @@ export default function ItineraryDayForm({
                     label="Supuesto clave"
                     value={sup.supuesto || ''}
                     onChange={(value) => onUpdateAssumption(dayIndex, supIdx, 'supuesto', value)}
-                    options={savedData.formOptions.supuestos}
+                    options={riskManagementOptions.supuestos}
                     placeholder="Seleccione o escriba el supuesto clave"
                     required
                   />
@@ -220,7 +221,7 @@ export default function ItineraryDayForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
                   <option value="">Seleccionar tipo</option>
-                  {savedData.formOptions.tipoSupuestos.map(option => (
+                  {riskManagementOptions.tipoSupuestos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -233,7 +234,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar probabilidad</option>
-                  {savedData.formOptions.probabilidades.map(option => (
+                  {riskManagementOptions.probabilidades.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -246,7 +247,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar impacto</option>
-                  {savedData.formOptions.impactos.map(option => (
+                  {riskManagementOptions.impactos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -262,14 +263,24 @@ export default function ItineraryDayForm({
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-                <button
-                  type="button"
-                  onClick={() => onUpdateAssumption(dayIndex, supIdx, 'incluir', !sup.incluir)}
-                  className={`flex items-center px-2 py-0.5 rounded-full text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer ${sup.incluir ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-700'}`}
-                  aria-pressed={sup.incluir}
-                >
-                  {sup.incluir ? 'Incluir en aviso' : 'No incluir'}
-                </button>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-600">No incluir</span>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateAssumption(dayIndex, supIdx, 'incluir', !sup.incluir)}
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      sup.incluir ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                    aria-pressed={sup.incluir}
+                  >
+                    <span
+                      className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                        sup.incluir ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-xs text-gray-600">Incluir en aviso</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => onRemoveAssumption(dayIndex, supIdx)}

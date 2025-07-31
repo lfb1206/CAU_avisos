@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { formOptions } from '../../constants/formOptions';
+import { medicalOptions } from '../../constants/medicalOptions';
 import AutocompleteInput from './AutocompleteInput';
 
 export default function ParticipantForm({ 
@@ -130,7 +130,7 @@ export default function ParticipantForm({
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Seleccionar grupo sanguíneo</option>
-          {formOptions.bloodTypes.map(option => (
+                            {medicalOptions.bloodTypes.map(option => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
@@ -142,7 +142,7 @@ export default function ParticipantForm({
         label="Alergias"
         value={participant.alergias || ''}
         onChange={(value) => onUpdate(index, 'alergias', value)}
-        options={formOptions.allergies}
+                    options={medicalOptions.allergies}
         placeholder="Seleccione o escriba las alergias"
       />
 
@@ -150,7 +150,7 @@ export default function ParticipantForm({
         label="Enfermedades o condiciones"
         value={participant.enfermedades || ''}
         onChange={(value) => onUpdate(index, 'enfermedades', value)}
-        options={formOptions.medicalConditions}
+                    options={medicalOptions.medicalConditions}
         placeholder="Seleccione o escriba las condiciones"
       />
 
@@ -158,7 +158,7 @@ export default function ParticipantForm({
         label="Medicamentos que toma"
         value={participant.medicamentos || ''}
         onChange={(value) => onUpdate(index, 'medicamentos', value)}
-        options={formOptions.medications}
+                    options={medicalOptions.medications}
         placeholder="Seleccione o escriba los medicamentos"
       />
 
@@ -166,7 +166,7 @@ export default function ParticipantForm({
         label="Condiciones especiales"
         value={participant.condicionesEspeciales || ''}
         onChange={(value) => onUpdate(index, 'condicionesEspeciales', value)}
-        options={formOptions.specialConditions}
+                    options={medicalOptions.specialConditions}
         placeholder="Seleccione o escriba las condiciones especiales"
       />
     </div>

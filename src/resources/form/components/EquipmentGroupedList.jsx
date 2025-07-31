@@ -80,19 +80,19 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) 
   };
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="space-y-2">
       {Object.entries(groupedEquipment).map(([category, items]) => (
         <div key={category} className="border border-gray-200 rounded-lg bg-white shadow-sm">
           <button
             type="button"
             onClick={() => toggleCategory(category)}
-            className="w-full flex items-center justify-between p-3 sm:p-4 text-left hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-between p-2 sm:p-3 text-left hover:bg-gray-50 transition-colors"
           >
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <span className="text-lg sm:text-xl flex-shrink-0">{getCategoryIcon(category)}</span>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <span className="text-base sm:text-lg flex-shrink-0">{getCategoryIcon(category)}</span>
               <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">{category}</h3>
-                <p className="text-xs sm:text-sm text-gray-500">
+                <h3 className="font-semibold text-gray-900 text-sm truncate">{category}</h3>
+                <p className="text-xs text-gray-500">
                   {items.length} {items.length === 1 ? 'item' : 'items'}
                 </p>
               </div>

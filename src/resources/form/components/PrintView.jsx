@@ -207,8 +207,8 @@ export default function PrintView({ formData, onClose }) {
             
             body {
               font-family: Arial, sans-serif;
-              font-size: 10px;
-              line-height: 1.2;
+              font-size: 16px;
+              line-height: 1.5;
               color: #000;
               background: white;
             }
@@ -238,7 +238,7 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .title h1 {
-              font-size: 14px;
+              font-size: 18px;
               font-weight: bold;
               margin: 0;
             }
@@ -251,7 +251,8 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .contact-item {
-              margin-bottom: 3px;
+              margin-bottom: 4px;
+              font-size: 13px;
             }
             
             .section {
@@ -259,7 +260,7 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .section h2 {
-              font-size: 10px;
+              font-size: 14px;
               font-weight: bold;
               margin: 0 0 8px 0;
             }
@@ -271,7 +272,7 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .activity-details {
-              font-size: 8px;
+              font-size: 14px;
             }
             
             .detail-row {
@@ -291,7 +292,7 @@ export default function PrintView({ formData, onClose }) {
             .data-table {
               width: 100%;
               border-collapse: collapse;
-              font-size: 7px;
+              font-size: 13px;
               margin-bottom: 10px;
             }
             
@@ -309,7 +310,7 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .medical-table {
-              font-size: 6px;
+              font-size: 12px;
             }
             
             .medical-table th,
@@ -346,7 +347,7 @@ export default function PrintView({ formData, onClose }) {
             .emergency-contacts-box {
               border: 1px solid #000;
               padding: 5px;
-              font-size: 7px;
+              font-size: 13px;
             }
             
             .emergency-contacts p {
@@ -354,7 +355,7 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .responsibility-list {
-              font-size: 9px;
+              font-size: 13px;
               padding-left: 20px;
             }
             
@@ -363,14 +364,14 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .protocol-section h3 {
-              font-size: 9px;
+              font-size: 13px;
               font-weight: bold;
               margin-top: 10px;
               margin-bottom: 5px;
             }
             
             .protocol-list {
-              font-size: 8px;
+              font-size: 12px;
               padding-left: 20px;
             }
             
@@ -381,7 +382,7 @@ export default function PrintView({ formData, onClose }) {
             
             .footer {
               margin-top: 20px;
-              font-size: 8px;
+              font-size: 12px;
             }
             
             @page {
@@ -508,6 +509,16 @@ export default function PrintView({ formData, onClose }) {
               <div className="contact-item">
                 <strong>Fecha y hora de reporte:</strong><br />
                 {formatDate(formData.basicInfo.fechaHoraReporteRegreso)}
+              </div>
+              <div className="contact-item">
+                <strong>Fecha de generación del aviso:</strong><br />
+                {new Date().toLocaleDateString('es-CL', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </div>
             </div>
           </div>
@@ -786,11 +797,8 @@ export default function PrintView({ formData, onClose }) {
                 <tr>
                   <th>Conductor</th>
                   <th>Tipo</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Color</th>
-                  <th>Patente</th>
-                  <th>Puesto CAU (N°)</th>
+                  <th>Detalles del Vehículo</th>
+                  <th>Observaciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -798,11 +806,13 @@ export default function PrintView({ formData, onClose }) {
                   <tr key={index}>
                     <td>{t.conductor || ''}</td>
                     <td>{t.tipo || ''}</td>
-                    <td>{t.marca || ''}</td>
-                    <td>{t.modelo || ''}</td>
-                    <td>{t.color || ''}</td>
-                    <td>{t.patente || ''}</td>
-                    <td></td>
+                    <td>
+                      {t.marca && `${t.marca} `}
+                      {t.modelo && `${t.modelo} `}
+                      {t.color && `${t.color} `}
+                      {t.patente && `(${t.patente})`}
+                    </td>
+                    <td>{t.observaciones || ''}</td>
                   </tr>
                 ))}
               </tbody>

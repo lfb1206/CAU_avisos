@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { formOptions } from '../../constants/formOptions';
+import { transportOptions } from '../../constants/transportOptions';
 import AutocompleteInput from './AutocompleteInput';
 
 export default function TransportForm({ 
@@ -30,7 +30,7 @@ export default function TransportForm({
           label="Tipo"
           value={transport.tipo || ''}
           onChange={(value) => onUpdate(index, 'tipo', value)}
-          options={formOptions.transportTypes.map(t => t.label)}
+          options={transportOptions.transportTypes.map(t => t.label)}
           placeholder="Seleccione o escriba el tipo de transporte"
           required
         />
@@ -48,7 +48,7 @@ export default function TransportForm({
           label="Marca"
           value={transport.marca || ''}
           onChange={(value) => onUpdate(index, 'marca', value)}
-          options={formOptions.vehicleBrands}
+          options={transportOptions.vehicleBrands}
           placeholder="Seleccione o escriba la marca"
         />
 

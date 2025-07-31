@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { formOptions } from '../../constants/formOptions';
-import { savedData } from '../../constants/savedData';
+import { getContacts } from '../../constants/peopleData';
+import { basicFormOptions } from '../../constants/basicFormOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import WeatherImageUpload from '../components/WeatherImageUpload';
 import InReachSection from '../components/InReachSection';
@@ -18,9 +18,9 @@ export default function Step1BasicInfo() {
   const handleContactChange = (value) => {
     handleFieldChange('contactoCAU', value);
     
-    // Autocompletar teléfono y email si el contacto existe en savedData
-    if (value && savedData.savedContacts[value]) {
-      const contactData = savedData.savedContacts[value];
+    // Autocompletar teléfono y email si el contacto existe en getContacts
+    if (value && getContacts()[value]) {
+      const contactData = getContacts()[value];
       handleFieldChange('telefonoContacto', contactData.telefono);
       handleFieldChange('emailContacto', contactData.email);
     }
@@ -69,7 +69,7 @@ export default function Step1BasicInfo() {
             label="Contacto CAU"
             value={formData.basicInfo.contactoCAU || ''}
             onChange={handleContactChange}
-            options={formOptions.contactoCAU}
+            options={basicFormOptions.contactoCAU}
             placeholder="Seleccione o escriba el nombre del contacto CAU"
             required
           />
@@ -96,7 +96,7 @@ export default function Step1BasicInfo() {
             fieldName="fechaHoraReporteRegreso"
             value={formData.basicInfo.fechaHoraReporteRegreso || ''}
             onChange={(value) => handleFieldChange('fechaHoraReporteRegreso', value)}
-            min={new Date().toISOString().slice(0, 16)}
+            min={new Date().toLocaleString('sv-SE').slice(0, 16)}
           />
           {formData.basicInfo.fechaHoraReporteRegreso && 
            new Date(formData.basicInfo.fechaHoraReporteRegreso) <= new Date() && (
@@ -117,7 +117,7 @@ export default function Step1BasicInfo() {
           label="Actividad"
           value={formData.basicInfo.actividad || ''}
           onChange={(value) => handleFieldChange('actividad', value)}
-          options={formOptions.actividades}
+                      options={basicFormOptions.actividades}
           placeholder="Seleccione o escriba el tipo de actividad"
           required
         />
@@ -126,7 +126,7 @@ export default function Step1BasicInfo() {
           label="Cerro o Sector"
           value={formData.basicInfo.cerroOSector || ''}
           onChange={(value) => handleFieldChange('cerroOSector', value)}
-          options={formOptions.cerrosSectores}
+                      options={basicFormOptions.cerrosSectores}
           placeholder="Seleccione o escriba el cerro o sector"
           required
         />
@@ -203,38 +203,38 @@ export default function Step1BasicInfo() {
         </div>
 
         {/* Instructions */}
-        <div className="mt-8 bg-blue-50 rounded-lg p-4">
-          <h4 className="text-sm font-semibold text-blue-900 mb-3">
+        <div className="md:col-span-2 mt-8 bg-blue-50 rounded-lg p-6">
+          <h4 className="text-sm font-semibold text-blue-900 mb-4">
             💡 Consejos útiles para completar este paso:
           </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-blue-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-blue-800">
             <div>
-              <p className="font-medium mb-1">Información de contacto:</p>
-              <ul className="space-y-1 ml-2">
+              <p className="font-medium mb-2">Información de contacto:</p>
+              <ul className="space-y-2 ml-4">
                 <li>• Seleccione un contacto CAU guardado para auto-completar datos</li>
                 <li>• Verifique que teléfono y email estén correctos</li>
                 <li>• La fecha de regreso es obligatoria para el aviso</li>
               </ul>
             </div>
             <div>
-              <p className="font-medium mb-1">Detalles de la actividad:</p>
-              <ul className="space-y-1 ml-2">
+              <p className="font-medium mb-2">Detalles de la actividad:</p>
+              <ul className="space-y-2 ml-4">
                 <li>• Use las opciones sugeridas o escriba su propia actividad</li>
                 <li>• Especifique el cerro o sector exacto de destino</li>
                 <li>• Los enlaces del pronóstico y ruta son opcionales</li>
               </ul>
             </div>
             <div>
-              <p className="font-medium mb-1">Equipo InReach:</p>
-              <ul className="space-y-1 ml-2">
+              <p className="font-medium mb-2">Equipo InReach:</p>
+              <ul className="space-y-2 ml-4">
                 <li>• Marque solo si realmente porta un dispositivo InReach</li>
                 <li>• Complete número y código si los tiene disponibles</li>
                 <li>• Esta información es importante para emergencias</li>
               </ul>
             </div>
             <div>
-              <p className="font-medium mb-1">Imágenes del clima:</p>
-              <ul className="space-y-1 ml-2">
+              <p className="font-medium mb-2">Imágenes del clima:</p>
+              <ul className="space-y-2 ml-4">
                 <li>• Arrastre imágenes o use el botón de selección</li>
                 <li>• Asigne la fecha de obtención a cada imagen</li>
                 <li>• Las imágenes aparecerán en el aviso final</li>

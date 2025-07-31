@@ -1,10 +1,9 @@
 'use client';
 import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { savedData } from '../../constants/savedData';
-import { analyzeActivitiesForEquipment } from '../../constants/activityEquipmentMapping';
+import { activityEquipmentData } from '../../constants/activityEquipmentData';
 import { getAvailableChecklists, applyChecklistToEquipment } from '../../constants/wikiexploraChecklists';
-import EquipmentGroupedList from '../components/EquipmentGroupedList';
+import EquipmentTable from '../components/EquipmentTable';
 import TransportForm from '../components/TransportForm';
 
 export default function Step5EquipmentTransport() {
@@ -56,12 +55,94 @@ export default function Step5EquipmentTransport() {
     return [...participants, ...externalDrivers];
   };
 
+  // Función auxiliar para obtener equipo basado en actividad
+  const getEquipmentForActivity = (actividad) => {
+    const suggestions = [];
+    
+    // Mapeo básico de actividades a equipo
+    const activityEquipmentMap = {
+      'escalada': [
+        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Obligatorio para escalada' },
+        { categoria: 'Seguridad', item: 'Arnés', cantidad: 1, observaciones: 'Obligatorio para escalada' },
+        { categoria: 'Seguridad', item: 'Cuerda', cantidad: 1, observaciones: 'Cuerda de escalada' },
+        { categoria: 'Seguridad', item: 'Mosquetones', cantidad: 6, observaciones: 'Para asegurar' }
+      ],
+      'trekking': [
+        { categoria: 'Calzado', item: 'Botas de trekking', cantidad: 1, observaciones: 'Impermeables y cómodas' },
+        { categoria: 'Ropa', item: 'Polera técnica', cantidad: 2, observaciones: 'Material transpirable' },
+        { categoria: 'Ropa', item: 'Pantalón de trekking', cantidad: 1, observaciones: 'Impermeable' },
+        { categoria: 'Protección', item: 'Protector solar', cantidad: 1, observaciones: 'SPF 50+' }
+      ],
+      'montañismo': [
+        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para montañismo' },
+        { categoria: 'Seguridad', item: 'Piolet', cantidad: 1, observaciones: 'Para progresión en hielo' },
+        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
+        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
+      ],
+      'campamento': [
+        { categoria: 'Campamento', item: 'Carpa', cantidad: 1, observaciones: 'Según número de personas' },
+        { categoria: 'Campamento', item: 'Saco de dormir', cantidad: 1, observaciones: 'Según temperatura' },
+        { categoria: 'Campamento', item: 'Colchoneta', cantidad: 1, observaciones: 'Aislamiento térmico' },
+        { categoria: 'Campamento', item: 'Cocina de campamento', cantidad: 1, observaciones: 'Para cocinar' }
+      ],
+      'senderismo': [
+        { categoria: 'Calzado', item: 'Botas de senderismo', cantidad: 1, observaciones: 'Cómodas y resistentes' },
+        { categoria: 'Ropa', item: 'Polera técnica', cantidad: 2, observaciones: 'Material transpirable' },
+        { categoria: 'Protección', item: 'Protector solar', cantidad: 1, observaciones: 'SPF 50+' },
+        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
+      ],
+      'ascenso': [
+        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para ascenso' },
+        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
+        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' },
+        { categoria: 'Seguridad', item: 'Piolet', cantidad: 1, observaciones: 'Para progresión en hielo' }
+      ],
+      'descenso': [
+        { categoria: 'Seguridad', item: 'Casco', cantidad: 1, observaciones: 'Para descenso' },
+        { categoria: 'Calzado', item: 'Botas de montaña', cantidad: 1, observaciones: 'Impermeables y rígidas' },
+        { categoria: 'Protección', item: 'Gafas de sol', cantidad: 1, observaciones: 'Protección UV' }
+      ],
+      'acampada': [
+        { categoria: 'Campamento', item: 'Carpa', cantidad: 1, observaciones: 'Según número de personas' },
+        { categoria: 'Campamento', item: 'Saco de dormir', cantidad: 1, observaciones: 'Según temperatura' },
+        { categoria: 'Campamento', item: 'Colchoneta', cantidad: 1, observaciones: 'Aislamiento térmico' },
+        { categoria: 'Campamento', item: 'Cocina de campamento', cantidad: 1, observaciones: 'Para cocinar' }
+      ]
+    };
+    
+    // Buscar coincidencias parciales
+    const actividadLower = actividad.toLowerCase();
+    Object.keys(activityEquipmentMap).forEach(key => {
+      if (actividadLower.includes(key)) {
+        suggestions.push(...activityEquipmentMap[key]);
+      }
+    });
+    
+    return suggestions;
+  };
+
   // Cargar recomendaciones basadas en actividades de los tramos
   const loadActivityRecommendations = () => {
-    const suggestions = analyzeActivitiesForEquipment(
-      formData.itinerario, 
-      formData.basicInfo.actividad
-    );
+    // Analizar actividades del itinerario para sugerir equipo
+    const suggestions = [];
+    
+    if (formData.itinerario && formData.itinerario.length > 0) {
+      formData.itinerario.forEach((day, dayIndex) => {
+        if (day.actividades) {
+          day.actividades.forEach(actividad => {
+            // Sugerir equipo basado en la actividad
+            const activitySuggestions = getEquipmentForActivity(actividad);
+            suggestions.push(...activitySuggestions);
+          });
+        }
+      });
+    }
+    
+    // También considerar la actividad general
+    if (formData.basicInfo && formData.basicInfo.actividad) {
+      const generalSuggestions = getEquipmentForActivity(formData.basicInfo.actividad);
+      suggestions.push(...generalSuggestions);
+    }
     
     // Agregar sugerencias sin duplicados
     suggestions.forEach(item => {
@@ -76,7 +157,7 @@ export default function Step5EquipmentTransport() {
           categoria: item.categoria,
           item: item.item,
           cantidad: item.cantidad.toString(),
-          observaciones: `${item.observaciones} (Sugerido por: ${item.source})`,
+          observaciones: `${item.observaciones} (Sugerido por actividad)`,
           checked: false
         };
         addItem('equipo', newEquipment);
@@ -149,20 +230,19 @@ export default function Step5EquipmentTransport() {
                   </option>
                 ))}
               </select>
-              {selectedChecklist && (
-                <button
-                  onClick={applyWikiexploraChecklist}
-                  className="px-3 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600 transition-colors"
-                >
-                  Aplicar
-                </button>
-              )}
             </div>
             
-            {/* Botón para cargar recomendaciones basadas en actividades */}
+            {/* Botón para cargar recomendaciones (incluye checklist seleccionado) */}
             <button
               type="button"
-              onClick={loadActivityRecommendations}
+              onClick={() => {
+                // Primero cargar recomendaciones de actividades
+                loadActivityRecommendations();
+                // Luego aplicar checklist si está seleccionado
+                if (selectedChecklist) {
+                  applyWikiexploraChecklist();
+                }
+              }}
               className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg font-semibold shadow hover:bg-blue-600 transition-colors text-sm w-full sm:w-auto"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -204,21 +284,12 @@ export default function Step5EquipmentTransport() {
         </div>
 
         <div className="space-y-4">
-          <EquipmentGroupedList
+          <EquipmentTable
             equipment={formData.equipo}
             onUpdate={updateEquipment}
             onRemove={(index) => removeItem('equipo', index)}
+            onAdd={addEquipment}
           />
-        </div>
-
-        <div className="flex justify-center mt-6">
-          <button
-            type="button"
-            onClick={addEquipment}
-            className="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors text-sm sm:text-base"
-          >
-            + Agregar Equipo
-          </button>
         </div>
       </div>
 

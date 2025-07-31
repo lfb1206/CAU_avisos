@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { difficultyRecommendations } from '../../constants/savedData';
+import { difficultyAssumptionRecommendations } from '../../constants/difficultyAssumptionRecommendations';
 import ItineraryDayForm from '../components/ItineraryDayForm';
 
 export default function Step3ItineraryAssumptions() {
@@ -60,8 +60,8 @@ export default function Step3ItineraryAssumptions() {
     const validDifficulties = selectedDifficulties.filter(d => d && d.trim());
     
     validDifficulties.forEach(difficulty => {
-      if (difficultyRecommendations[difficulty]) {
-        difficultyRecommendations[difficulty].forEach(recommendation => {
+      if (difficultyAssumptionRecommendations[difficulty]) {
+        difficultyAssumptionRecommendations[difficulty].forEach(recommendation => {
           suggestions.push({
             ...recommendation,
             incluir: false

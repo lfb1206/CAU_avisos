@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useCallback } from 'react';
 import AutocompleteInput from './AutocompleteInput';
-import { savedData } from '../../constants/savedData';
+import { equipmentData } from '../../constants/equipmentData';
 
 export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -53,17 +53,23 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) 
         
         {/* Botones - Apilados en móvil, en línea en desktop */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <button
-            type="button"
-            onClick={handleToggleChecked}
-            className={`flex items-center justify-center px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-colors ${
-              equipment.checked 
-                ? 'bg-green-500 text-white hover:bg-green-600' 
-                : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
-            }`}
-          >
-            {equipment.checked ? '✓ Se está portando' : '✗ No se porta'}
-          </button>
+          <div className="flex items-center space-x-2">
+            <span className="text-xs text-gray-600">No se porta</span>
+            <button
+              type="button"
+              onClick={handleToggleChecked}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                equipment.checked ? 'bg-green-500' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  equipment.checked ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+            <span className="text-xs text-gray-600">Se está portando</span>
+          </div>
           <button
             type="button"
             onClick={handleRemove}
@@ -85,7 +91,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) 
               <AutocompleteInput
                 value={equipment.categoria || ''}
                 onChange={(value) => handleInputChange('categoria', value)}
-                options={savedData.formOptions.categoriasEquipo}
+                options={equipmentData.categories.map(cat => cat.name)}
                 placeholder="Ej: Equipo de Escalada"
               />
             </div>
