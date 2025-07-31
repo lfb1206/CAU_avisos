@@ -49,23 +49,16 @@ export default function PrintView({ formData, onClose }) {
         if (!grouped[item.categoria]) {
           grouped[item.categoria] = [];
         }
-        grouped[item.categoria].push({
-          item: item.item,
-          cantidad: item.cantidad || 1,
-          observaciones: item.observaciones || ''
-        });
+        grouped[item.categoria].push(`${item.item} (${item.cantidad || 1})`);
       }
     });
     
-    // Convertir a array plano con información de rowspan
+    // Convertir a array con categoría e items separados por coma
     const result = [];
     Object.entries(grouped).forEach(([categoria, items]) => {
-      items.forEach((item, index) => {
-        result.push({
-          categoria: index === 0 ? categoria : null,
-          categoriaRowspan: index === 0 ? items.length : 0,
-          ...item
-        });
+      result.push({
+        categoria: categoria,
+        items: items.join(', ')
       });
     });
     
@@ -84,7 +77,6 @@ export default function PrintView({ formData, onClose }) {
         grouped[day.tramo].push({
           fecha: day.fecha,
           actividad: (day.actividades || []).join(', '),
-          dificultades: (day.dificultadesPrincipales || []).filter(d => d && d.trim()).join(', '),
           horaInicio: day.horaInicio,
           horaFin: day.horaFin,
           altitudInicio: day.altitudInicio,
@@ -605,7 +597,6 @@ export default function PrintView({ formData, onClose }) {
                     <th>Tramo</th>
                     <th>Fecha</th>
                     <th>Actividad</th>
-                    <th>Principales Dificultades</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
                     <th>Altitud Inicio</th>
@@ -620,7 +611,6 @@ export default function PrintView({ formData, onClose }) {
                       )}
                       <td>{item.fecha}</td>
                       <td>{item.actividad}</td>
-                      <td>{item.dificultades}</td>
                       <td>{item.horaInicio}</td>
                       <td>{item.horaFin}</td>
                       <td>{item.altitudInicio ? `${item.altitudInicio} msnm` : ''}</td>
@@ -636,91 +626,43 @@ export default function PrintView({ formData, onClose }) {
             )}
           </div>
 
-          {/* Risk Management - Show both assumptions and detailed risks */}
+          {/* Risk Management - Show only detailed risks */}
           <div className="section">
             <h2>GESTIÓN DE RIESGOS</h2>
             
-            {/* Supuestos del Itinerario */}
-            {(() => {
-              const includedAssumptions = getGroupedAssumptionsWithRowspan();
-              
-              return includedAssumptions.length > 0 ? (
-                <div>
-                  <h3 style={{margin: '10px 0', fontSize: '14px', fontWeight: 'bold'}}>Supuestos del Itinerario:</h3>
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Tramo</th>
-                        <th>Supuesto</th>
-                        <th>Tipo</th>
-                        <th>Probabilidad</th>
-                        <th>Impacto</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {includedAssumptions.map((assumption, index) => (
-                        <tr key={index}>
-                          {assumption.tramo && (
-                            <td rowSpan={assumption.tramoRowspan}>{assumption.tramo}</td>
-                          )}
-                          <td>{assumption.supuesto || ''}</td>
-                          <td>{formatValue(assumption.tipo) || ''}</td>
-                          <td>{formatValue(assumption.probabilidad) || ''}</td>
-                          <td>{formatValue(assumption.impacto) || ''}</td>
-                          <td>{formatValue(assumption.accion) || ''}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : null;
-            })()}
-
             {/* Riesgos Detallados */}
             {riesgos.length > 0 && (
-              <div style={{marginTop: '20px'}}>
-                <h3 style={{margin: '10px 0', fontSize: '14px', fontWeight: 'bold'}}>Gestión Detallada de Riesgos:</h3>
-                                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Supuesto</th>
-                        <th>Riesgo</th>
-                        <th>Peligro</th>
-                        <th>Lugar</th>
-                        <th>Acción Probabilidad</th>
-                        <th>Acción Exposición</th>
-                        <th>Acción Consecuencias</th>
+              <div>
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Supuesto</th>
+                      <th>Riesgo</th>
+                      <th>Peligro</th>
+                      <th>Lugar</th>
+                      <th>Acción Probabilidad</th>
+                      <th>Acción Exposición</th>
+                      <th>Acción Consecuencias</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getGroupedRisksWithRowspan().map((risk, index) => (
+                      <tr key={index}>
+                        {risk.supuesto && (
+                          <td rowSpan={risk.supuestoRowspan}>{risk.supuesto}</td>
+                        )}
+                        <td>{risk.riesgo || ''}</td>
+                        <td>{risk.peligro || ''}</td>
+                        <td>{risk.lugar || ''}</td>
+                        <td>{risk.accionProbabilidad || ''}</td>
+                        <td>{risk.accionExposicion || ''}</td>
+                        <td>{risk.accionConsecuencias || ''}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {getGroupedRisksWithRowspan().map((risk, index) => (
-                        <tr key={index}>
-                          {risk.supuesto && (
-                            <td rowSpan={risk.supuestoRowspan}>{risk.supuesto}</td>
-                          )}
-                          <td>{risk.riesgo || ''}</td>
-                          <td>{risk.peligro || ''}</td>
-                          <td>{risk.lugar || ''}</td>
-                          <td>{risk.accionProbabilidad || ''}</td>
-                          <td>{risk.accionExposicion || ''}</td>
-                          <td>{risk.accionConsecuencias || ''}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-
-            {(() => {
-              const includedAssumptions = getGroupedAssumptionsWithRowspan();
-              
-              return includedAssumptions.length === 0 && riesgos.length === 0 ? (
-                <div className="empty-section">
-                  <p className="text-gray-500 italic">No se han especificado riesgos para incluir en el aviso</p>
-                </div>
-              ) : null;
-            })()}
           </div>
 
           {/* Weather Forecast with Images */}
@@ -775,20 +717,14 @@ export default function PrintView({ formData, onClose }) {
               <thead>
                 <tr>
                   <th>Categoría</th>
-                  <th>Item</th>
-                  <th>Cantidad</th>
-                  <th>Observaciones</th>
+                  <th>Items</th>
                 </tr>
               </thead>
               <tbody>
                 {getGroupedEquipmentWithRowspan().map((item, index) => (
                   <tr key={index}>
-                    {item.categoria && (
-                      <td rowSpan={item.categoriaRowspan}>{item.categoria}</td>
-                    )}
-                    <td>{item.item}</td>
-                    <td>{item.cantidad}</td>
-                    <td>{item.observaciones}</td>
+                    <td>{item.categoria}</td>
+                    <td>{item.items}</td>
                   </tr>
                 ))}
               </tbody>
