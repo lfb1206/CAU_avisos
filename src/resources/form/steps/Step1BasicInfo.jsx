@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { getContacts } from '../../constants/peopleData';
+import { getContacts, peopleData } from '../../constants/peopleData';
 import { basicFormOptions } from '../../constants/basicFormOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import WeatherImageUpload from '../components/WeatherImageUpload';
@@ -18,11 +18,17 @@ export default function Step1BasicInfo() {
   const handleContactChange = (value) => {
     handleFieldChange('contactoCAU', value);
     
-    // Autocompletar teléfono y email si el contacto existe en getContacts
-    if (value && getContacts()[value]) {
-      const contactData = getContacts()[value];
+    // Autocompletar todos los datos si el contacto existe en peopleData
+    if (value && peopleData[value]) {
+      const contactData = peopleData[value];
       handleFieldChange('telefonoContacto', contactData.telefono);
       handleFieldChange('emailContacto', contactData.email);
+      // También autocompletar datos médicos si están disponibles
+      if (contactData.grupoSanguineo) handleFieldChange('grupoSanguineo', contactData.grupoSanguineo);
+      if (contactData.alergias) handleFieldChange('alergias', contactData.alergias);
+      if (contactData.enfermedades) handleFieldChange('enfermedades', contactData.enfermedades);
+      if (contactData.medicamentos) handleFieldChange('medicamentos', contactData.medicamentos);
+      if (contactData.condicionesEspeciales) handleFieldChange('condicionesEspeciales', contactData.condicionesEspeciales);
     }
   };
 
@@ -69,7 +75,7 @@ export default function Step1BasicInfo() {
             label="Contacto CAU"
             value={formData.basicInfo.contactoCAU || ''}
             onChange={handleContactChange}
-            options={basicFormOptions.contactoCAU}
+            options={Object.keys(peopleData)}
             placeholder="Seleccione o escriba el nombre del contacto CAU"
             required
           />

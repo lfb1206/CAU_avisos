@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 
 // Initial form state
 const initialFormState = {
@@ -105,13 +105,13 @@ const formReducer = (state, action) => {
       const loadedData = {
         ...initialFormState,
         ...action.data,
+        currentStep: action.data.currentStep || 1, // Preserve current step
         basicInfo: {
           ...initialFormState.basicInfo,
           ...(action.data.basicInfo || {})
         },
         participantes: Array.isArray(action.data.participantes) ? action.data.participantes : [],
         itinerario: Array.isArray(action.data.itinerario) ? action.data.itinerario : [],
-        riesgos: Array.isArray(action.data.riesgos) ? action.data.riesgos : [],
         equipo: Array.isArray(action.data.equipo) ? action.data.equipo : [],
         transporte: Array.isArray(action.data.transporte) ? action.data.transporte : [],
         cuerposRescate: Array.isArray(action.data.cuerposRescate) ? action.data.cuerposRescate : initialFormState.cuerposRescate
@@ -129,33 +129,39 @@ const FormContext = createContext();
 // Provider component
 export const FormContextProvider = ({ children }) => {
   const [formData, dispatch] = useReducer(formReducer, initialFormState);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load data from sessionStorage on mount
+  // Load data from localStorage on mount
   useEffect(() => {
-    const savedData = sessionStorage.getItem('formData');
+    const savedData = localStorage.getItem('formData');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
         // Use the new LOAD_SAVED_DATA action to properly merge data
         dispatch({ type: 'LOAD_SAVED_DATA', data: parsedData });
       } catch (error) {
-        console.error('Error loading form data from sessionStorage:', error);
+        console.error('Error loading form data from localStorage:', error);
       }
     }
+    setIsInitialized(true);
   }, []);
 
-  // Save data to sessionStorage whenever formData changes
+  // Save data to localStorage whenever formData changes (but not during initial load)
   useEffect(() => {
-    // Don't save weather images to sessionStorage as they're too large
+    if (!isInitialized) {
+      return; // Don't save during initial load
+    }
+    
+    // Don't save weather images to localStorage as they're too large
     const dataToSave = {
       ...formData,
       basicInfo: {
         ...formData.basicInfo,
-        weatherImages: [] // Don't save images to sessionStorage
+        weatherImages: [] // Don't save images to localStorage
       }
     };
-    sessionStorage.setItem('formData', JSON.stringify(dataToSave));
-  }, [formData]);
+    localStorage.setItem('formData', JSON.stringify(dataToSave));
+  }, [formData, isInitialized]);
 
   // Context functions
   const updateFormField = (section, field, value) => {
@@ -190,7 +196,7 @@ export const FormContextProvider = ({ children }) => {
 
   const resetForm = () => {
     dispatch({ type: 'RESET_FORM' });
-    sessionStorage.removeItem('formData');
+    localStorage.removeItem('formData');
   };
 
   const updateWeatherImages = (images) => {

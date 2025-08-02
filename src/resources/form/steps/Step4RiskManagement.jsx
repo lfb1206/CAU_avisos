@@ -78,8 +78,8 @@ export default function Step4RiskManagement() {
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Riesgos</h2>
-        <p className="text-gray-600">Para cada supuesto crítico, agregue y gestione las causas/peligros relevantes.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Gestión de Supuestos</h2>
+        <p className="text-gray-600">Para cada supuesto crítico, identifique y gestione los peligros que pueden surgir si no se cumple el supuesto.</p>
       </div>
 
       <div className="space-y-4">
@@ -287,28 +287,37 @@ export default function Step4RiskManagement() {
         <h3 className="text-lg font-semibold text-blue-900 mb-3">
           Instrucciones para la Gestión de Riesgos
         </h3>
-        <div className="text-sm text-blue-800 space-y-2">
-          <p>
-            <strong>¿Qué es la Gestión de Riesgos?</strong> Es el proceso de identificar, evaluar y controlar los peligros 
-            que pueden afectar la seguridad de la expedición.
-          </p>
-          <p>
-            <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos marcados como "Gestionar" o "Monitoreo Intenso" 
-            y que estén incluidos en el aviso de salida.
-          </p>
-          <p>
-            <strong>¿Cómo gestionar cada supuesto?</strong> Para cada supuesto crítico, debe:
-          </p>
-          <ul className="list-disc list-inside ml-4 space-y-1">
-            <li><strong>Identificar el peligro:</strong> ¿Qué puede salir mal?</li>
-            <li><strong>Evaluar el riesgo:</strong> ¿Qué tan probable es que ocurra?</li>
-            <li><strong>Definir el lugar:</strong> ¿Dónde puede ocurrir?</li>
-            <li><strong>Establecer acciones:</strong> ¿Qué medidas tomar para reducir probabilidad, exposición y consecuencias?</li>
-          </ul>
-          <p className="text-xs text-blue-700 mt-3">
-            <strong>Tip:</strong> Cuanto más específicas sean sus acciones, más efectiva será la gestión del riesgo.
-          </p>
-        </div>
+                    <div className="text-sm text-blue-800 space-y-2">
+              <p>
+                <strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros 
+                que pueden surgir cuando los supuestos del itinerario no se cumplen, afectando la seguridad de la expedición.
+              </p>
+              <p>
+                <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos del itinerario que están marcados como 
+                "Gestionar" o "Monitoreo Intenso" y que están incluidos en el aviso de salida.
+              </p>
+              <p>
+                <strong>¿Cómo gestionar cada supuesto crítico?</strong> Para cada supuesto que requiere gestión, debe completar:
+              </p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li><strong>Identificación del Peligro:</strong> ¿Qué puede salir mal si no se cumple el supuesto?</li>
+                <li><strong>Evaluación del Supuesto:</strong> ¿Qué tan probable es que no se cumpla el supuesto?</li>
+                <li><strong>Ubicación del Peligro:</strong> ¿En qué lugar específico puede ocurrir si no se cumple?</li>
+                <li><strong>Acciones de Mitigación:</strong> ¿Qué medidas tomar para asegurar que se cumpla el supuesto?</li>
+              </ul>
+              <p>
+                <strong>Tipos de Acciones:</strong>
+              </p>
+              <ul className="list-disc list-inside ml-4 space-y-1">
+                <li><strong>Prevención Primaria:</strong> Acciones para asegurar que se cumpla el supuesto</li>
+                <li><strong>Control de Exposición:</strong> Medidas para reducir el impacto si no se cumple el supuesto</li>
+                <li><strong>Mitigación de Consecuencias:</strong> Acciones para minimizar los daños si no se cumple el supuesto</li>
+              </ul>
+              <p className="text-xs text-blue-700 mt-3">
+                <strong>Recomendación:</strong> Cuanto más específicas y detalladas sean sus acciones de mitigación, 
+                más efectiva será la gestión del supuesto y mayor será la seguridad de la expedición.
+              </p>
+            </div>
       </div>
     </div>
   );
