@@ -137,6 +137,15 @@ export const FormContextProvider = ({ children }) => {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        
+        // Limpiar URLs de objetos para imágenes cargadas desde localStorage
+        if (parsedData.basicInfo?.weatherImages) {
+          parsedData.basicInfo.weatherImages = parsedData.basicInfo.weatherImages.map(img => ({
+            ...img,
+            url: img.base64 || '' // Usar base64 en lugar de URL de objeto
+          }));
+        }
+        
         // Use the new LOAD_SAVED_DATA action to properly merge data
         dispatch({ type: 'LOAD_SAVED_DATA', data: parsedData });
       } catch (error) {
@@ -152,12 +161,12 @@ export const FormContextProvider = ({ children }) => {
       return; // Don't save during initial load
     }
     
-    // Don't save weather images to localStorage as they're too large
+    // Save weather images to localStorage (now compressed)
     const dataToSave = {
       ...formData,
       basicInfo: {
         ...formData.basicInfo,
-        weatherImages: [] // Don't save images to localStorage
+        weatherImages: formData.basicInfo.weatherImages || [] // Save compressed images
       }
     };
     localStorage.setItem('formData', JSON.stringify(dataToSave));
@@ -249,21 +258,27 @@ export const FormContextProvider = ({ children }) => {
           return true;
         });
       case 4: // Risk Management
-        // Verificar que todos los supuestos con acción 'gestionar' o 'monitoreo_intenso' e incluir: true tengan causas completas
+        // Verificar que todos los supuestos con acción 'gestionar' (automático) o 'monitoreo_intenso' e incluir: true tengan causas completas
         const supuestosGestionar = [];
         const supuestosIncompletos = [];
         
         itinerario.forEach((day) => {
           (day.supuestos || []).forEach((assumption) => {
-            if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+            // Incluir supuestos con acción 'gestionar' (automático) o 'monitoreo_intenso' e incluir: true
+            if (assumption.accion === 'gestionar' || (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true)) {
               supuestosGestionar.push(assumption);
               
-              // Verificar que el supuesto tenga causas con riesgo y peligro
+              // Verificar que el supuesto tenga causas con peligros y riesgos
               if (!assumption.causas || assumption.causas.length === 0) {
                 supuestosIncompletos.push(assumption);
               } else {
-                // Verificar que todas las causas tengan riesgo y peligro
-                const hasIncompleteCausas = assumption.causas.some(causa => !causa.riesgo || !causa.peligro);
+                // Verificar que todas las causas tengan al menos un peligro y un riesgo
+                const hasIncompleteCausas = assumption.causas.some(causa => 
+                  !causa.peligros || causa.peligros.length === 0 || 
+                  !causa.riesgos || causa.riesgos.length === 0 ||
+                  causa.peligros.some(p => !p.trim()) ||
+                  causa.riesgos.some(r => !r.trim())
+                );
                 if (hasIncompleteCausas) {
                   supuestosIncompletos.push(assumption);
                 }

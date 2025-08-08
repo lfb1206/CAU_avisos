@@ -1,6 +1,36 @@
 'use client';
 import React, { useRef } from 'react';
 
+// Función para comprimir imagen
+const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calcular nuevas dimensiones manteniendo aspect ratio
+      let { width, height } = img;
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Dibujar imagen comprimida
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convertir a base64 con calidad reducida
+      const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+      resolve(compressedBase64);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 export default function WeatherImageUpload({ 
   weatherImages = [], 
   onImageUpload, 
@@ -10,24 +40,41 @@ export default function WeatherImageUpload({
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
-  const processFiles = (files) => {
+  const processFiles = async (files) => {
     const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
     
-    validFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
+    for (const file of validFiles) {
+      try {
+        // Comprimir imagen antes de procesar
+        const compressedBase64 = await compressImage(file);
+        
         const newImage = {
           id: Date.now() + Math.random(),
           file: file,
           name: file.name,
           url: URL.createObjectURL(file),
-          base64: e.target.result,
+          base64: compressedBase64, // Usar la versión comprimida
           fechaObtencion: new Date().toISOString().split('T')[0]
         };
         onImageUpload(newImage);
-      };
-      reader.readAsDataURL(file);
-    });
+      } catch (error) {
+        console.error('Error processing image:', error);
+        // Fallback: usar el método original si la compresión falla
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newImage = {
+            id: Date.now() + Math.random(),
+            file: file,
+            name: file.name,
+            url: URL.createObjectURL(file),
+            base64: e.target.result,
+            fechaObtencion: new Date().toISOString().split('T')[0]
+          };
+          onImageUpload(newImage);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
   };
 
   const handleImageUpload = (event) => {
@@ -55,7 +102,8 @@ export default function WeatherImageUpload({
 
   const removeImage = (imageId) => {
     const removed = weatherImages.find(img => img.id === imageId);
-    if (removed) {
+    if (removed && removed.url && !removed.url.startsWith('data:')) {
+      // Solo revocar URL si no es base64 (data:)
       URL.revokeObjectURL(removed.url);
     }
     onImageRemove(imageId);

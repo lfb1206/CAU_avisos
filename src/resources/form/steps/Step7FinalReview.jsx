@@ -98,11 +98,11 @@ export default function Step7FinalReview() {
       errors.push('Al menos un participante');
     } else {
       participantes.forEach((participant, index) => {
-        if (!participant.nombre) errors.push(`Nombre del participante ${index + 1}`);
-        if (!participant.rut) errors.push(`RUT del participante ${index + 1}`);
-        if (!participant.telefono) errors.push(`Teléfono del participante ${index + 1}`);
-        if (!participant.contactoEmergencia) errors.push(`Contacto de emergencia del participante ${index + 1}`);
-        if (!participant.telefonoEmergencia) errors.push(`Teléfono de emergencia del participante ${index + 1}`);
+        if (!participant.nombre) errors.push(`Nombre del participante "${participant.nombre || `#${index + 1}`}"`);
+        if (!participant.rut) errors.push(`RUT del participante "${participant.nombre || `#${index + 1}`}"`);
+        if (!participant.telefono) errors.push(`Teléfono del participante "${participant.nombre || `#${index + 1}`}"`);
+        if (!participant.contactoEmergencia) errors.push(`Contacto de emergencia del participante "${participant.nombre || `#${index + 1}`}"`);
+        if (!participant.telefonoEmergencia) errors.push(`Teléfono de emergencia del participante "${participant.nombre || `#${index + 1}`}"`);
       });
     }
     
@@ -127,8 +127,12 @@ export default function Step7FinalReview() {
             // Validar causas si existen
             if (supuesto.causas && supuesto.causas.length > 0) {
               supuesto.causas.forEach((causa, causaIndex) => {
-                if (!causa.riesgo) errors.push(`Riesgo ${causaIndex + 1} del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
-                if (!causa.peligro) errors.push(`Peligro ${causaIndex + 1} del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+                if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
+                  errors.push(`Riesgos del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                }
+                if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
+                  errors.push(`Peligros del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                }
               });
             }
           });
@@ -142,24 +146,27 @@ export default function Step7FinalReview() {
     
     itinerario.forEach((day, dayIndex) => {
       (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-        if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+        // Incluir supuestos con acción 'gestionar' (automático), 'monitoreo_intenso' o 'monitoreo_normal' e incluir: true
+        if (assumption.accion === 'gestionar' || 
+            (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
+            (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) {
           supuestosGestionar.push({
             dayIndex,
             assumptionIndex,
             assumption
           });
           
-          // Verificar que el supuesto tenga causas con riesgo y peligro
+          // Verificar que el supuesto tenga causas con peligros y riesgos
           if (!assumption.causas || assumption.causas.length === 0) {
-            supuestosIncompletos.push(`Supuesto "${assumption.supuesto}" del tramo "${day.tramo}" - Falta agregar causas/peligros`);
+            supuestosIncompletos.push(`Supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Falta agregar causas/peligros`);
           } else {
-            // Verificar que todas las causas tengan riesgo y peligro
+            // Verificar que todas las causas tengan al menos un peligro y un riesgo
             assumption.causas.forEach((causa, causaIndex) => {
-              if (!causa.riesgo) {
-                supuestosIncompletos.push(`Riesgo ${causaIndex + 1} del supuesto "${assumption.supuesto}" del tramo "${day.tramo}"`);
+              if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
+                supuestosIncompletos.push(`Peligros del supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
               }
-              if (!causa.peligro) {
-                supuestosIncompletos.push(`Peligro ${causaIndex + 1} del supuesto "${assumption.supuesto}" del tramo "${day.tramo}"`);
+              if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
+                supuestosIncompletos.push(`Riesgos del supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
               }
             });
           }
@@ -180,9 +187,9 @@ export default function Step7FinalReview() {
       } else {
         // Verificar campos específicos de cada equipo
         equipo.forEach((item, index) => {
-          if (!item.categoria) errors.push(`Categoría del equipo ${index + 1}`);
-          if (!item.item) errors.push(`Item del equipo ${index + 1}`);
-          if (!item.cantidad) errors.push(`Cantidad del equipo ${index + 1}`);
+          if (!item.categoria) errors.push(`Categoría del equipo "${item.item || `#${index + 1}`}"`);
+          if (!item.item) errors.push(`Item del equipo en categoría "${item.categoria || `#${index + 1}`}"`);
+          if (!item.cantidad) errors.push(`Cantidad del equipo "${item.item || item.categoria || `#${index + 1}`}"`);
         });
       }
     }
@@ -195,8 +202,8 @@ export default function Step7FinalReview() {
       } else {
         // Verificar campos específicos de cada transporte
         transporte.forEach((item, index) => {
-          if (!item.tipo) errors.push(`Tipo del transporte ${index + 1}`);
-          if (!item.conductor) errors.push(`Conductor del transporte ${index + 1}`);
+          if (!item.tipo) errors.push(`Tipo del transporte "${item.conductor || `#${index + 1}`}"`);
+          if (!item.conductor) errors.push(`Conductor del transporte "${item.tipo || `#${index + 1}`}"`);
         });
       }
     }

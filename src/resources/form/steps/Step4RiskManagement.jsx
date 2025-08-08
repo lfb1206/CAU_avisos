@@ -11,8 +11,13 @@ export default function Step4RiskManagement() {
   const supuestosGestionar = [];
   formData.itinerario.forEach((day, dayIndex) => {
     (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-      // Incluir supuestos que tengan accion === 'gestionar' O 'monitoreo_intenso' Y incluir === true
-      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true) {
+      // Incluir supuestos que tengan:
+      // - accion === 'gestionar' (automático) 
+      // - accion === 'monitoreo_intenso' Y incluir === true
+      // - accion === 'monitoreo_normal' Y incluir === true
+      if (assumption.accion === 'gestionar' || 
+          (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
+          (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) {
         supuestosGestionar.push({
           key: `${dayIndex}-${assumptionIndex}`,
           tramo: day.tramo,
@@ -25,25 +30,30 @@ export default function Step4RiskManagement() {
     });
   });
 
-  // Agregar causa/peligro a un supuesto
+  // Agregar causa/peligro a un supuesto (automático)
   const addCausa = (supKey) => {
     const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
     const updatedItinerario = [...formData.itinerario];
     const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
     if (!sup.causas) sup.causas = [];
     sup.causas.push({
-      peligro: '',
-      riesgo: '',
       lugar: '',
       accionProbabilidad: '',
       accionExposicion: '',
-      accionConsecuencias: ''
+      accionConsecuencias: '',
+      peligros: [],
+      riesgos: []
     });
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
-    setTimeout(() => {
-      const el = document.querySelector(`[data-causa-item="${supKey}-${sup.causas.length - 1}"]`);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 100);
+  };
+
+  // Agregar causa automáticamente si no existe
+  const ensureCausaExists = (supKey) => {
+    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    const sup = formData.itinerario[dayIndex].supuestos[assumptionIndex];
+    if (!sup.causas || sup.causas.length === 0) {
+      addCausa(supKey);
+    }
   };
 
   // Actualizar causa/peligro
@@ -91,14 +101,21 @@ export default function Step4RiskManagement() {
             <div className="text-sm text-gray-400">
               Los supuestos aparecerán aquí solo si:
               <ul className="list-disc list-inside mt-1 space-y-1">
-                <li>Su acción requerida es "Gestionar" o "Monitoreo Intenso"</li>
-                <li>Están marcados como "Incluir en aviso"</li>
+                <li>Su acción requerida es "Gestionar" (inclusión automática)</li>
+                <li>Su acción es "Monitoreo Intenso" Y están marcados como "Incluir en aviso"</li>
+                <li>Su acción es "Monitoreo Normal" Y están marcados como "Incluir en aviso"</li>
               </ul>
             </div>
           </div>
         )}
-        {supuestosGestionar.map((sup, supIndex) => (
-          <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
+        {supuestosGestionar.map((sup, supIndex) => {
+          // Asegurar que existe al menos una causa
+          React.useEffect(() => {
+            ensureCausaExists(sup.key);
+          }, [sup.key]);
+          
+          return (
+            <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
             <summary className="flex items-center justify-between px-4 py-3 cursor-pointer">
               <div className="flex items-center space-x-3">
                 <span className="font-semibold text-blue-900">{sup.tramo}</span>
@@ -118,7 +135,7 @@ export default function Step4RiskManagement() {
             <div className="p-4 border-t border-blue-200">
               <div className="space-y-4">
                 {sup.causas.map((causa, causaIndex) => (
-                  <div key={causaIndex} className="border border-gray-200 rounded bg-yellow-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>
+                  <div key={causaIndex} className="bg-blue-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>
                     <div className="space-y-4">
                       {/* 1. Ubicación */}
                       <div className="border-b border-gray-200 pb-3">
@@ -192,44 +209,102 @@ export default function Step4RiskManagement() {
                       {/* 3. Identificación del Problema */}
                       <div className="border-b border-gray-200 pb-3">
                         <h4 className="text-sm font-semibold text-gray-800 mb-3">Identificación del Problema</h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
-                              Peligro o causa subyacente
-                              <span className="relative group">
-                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                                  ¿Qué puede salir mal? Identifique la causa raíz del problema<br/>
-                                  <span className="text-gray-300">Ej: Condiciones climáticas adversas, falla de equipamiento, lesión de participante</span>
-                                </span>
-                              </span>
-                            </label>
-                            <AutocompleteInput
-                              value={causa.peligro}
-                              onChange={v => updateCausa(sup.key, causaIndex, 'peligro', v)}
-                              options={riskManagementOptions.peligros}
-                              placeholder="Seleccione o escriba el peligro"
-                              required
-                            />
+                        
+                        {/* Peligros */}
+                        <div className="space-y-1 mb-4">
+                          <label className="block text-sm font-medium text-gray-700">Peligros o causas subyacentes</label>
+                          <div className="space-y-2">
+                            {(causa.peligros || []).map((peligro, peligroIndex) => (
+                              <div key={peligroIndex} className="flex items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <AutocompleteInput
+                                    value={peligro}
+                                    onChange={(value) => {
+                                      const updatedPeligros = [...(causa.peligros || [])];
+                                      updatedPeligros[peligroIndex] = value;
+                                      updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
+                                    }}
+                                    options={riskManagementOptions.peligros}
+                                    placeholder="Seleccione o escriba el peligro"
+                                    required
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updatedPeligros = (causa.peligros || []).filter((_, index) => index !== peligroIndex);
+                                    updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
+                                  }}
+                                  className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors flex-shrink-0 mt-1"
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedPeligros = [...(causa.peligros || []), ''];
+                                updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
+                              }}
+                              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                            >
+                              + Agregar Peligro
+                            </button>
+                            {(!causa.peligros || causa.peligros.length === 0) && (
+                              <p className="text-sm text-gray-500 italic">
+                                No se han agregado peligros. Haga clic en "Agregar Peligro" para comenzar.
+                              </p>
+                            )}
                           </div>
-                          <div>
-                            <label className="flex items-center gap-1 text-sm font-medium text-gray-700 mb-1">
-                              Riesgo asociado
-                              <span className="relative group">
-                                <span className="w-4 h-4 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs cursor-help">i</span>
-                                <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                                  ¿Qué consecuencias puede tener si no se cumple el supuesto?<br/>
-                                  <span className="text-gray-300">Ej: Pérdida de orientación, hipotermia, caída en terreno expuesto</span>
-                                </span>
-                              </span>
-                            </label>
-                            <AutocompleteInput
-                              value={causa.riesgo}
-                              onChange={v => updateCausa(sup.key, causaIndex, 'riesgo', v)}
-                              options={riskManagementOptions.riesgos}
-                              placeholder="Describa el riesgo"
-                              required
-                            />
+                        </div>
+
+                        {/* Riesgos */}
+                        <div className="space-y-1">
+                          <label className="block text-sm font-medium text-gray-700">Riesgos asociados</label>
+                          <div className="space-y-2">
+                            {(causa.riesgos || []).map((riesgo, riesgoIndex) => (
+                              <div key={riesgoIndex} className="flex items-start gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <AutocompleteInput
+                                    value={riesgo}
+                                    onChange={(value) => {
+                                      const updatedRiesgos = [...(causa.riesgos || [])];
+                                      updatedRiesgos[riesgoIndex] = value;
+                                      updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
+                                    }}
+                                    options={riskManagementOptions.riesgos}
+                                    placeholder="Describa el riesgo"
+                                    required
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const updatedRiesgos = (causa.riesgos || []).filter((_, index) => index !== riesgoIndex);
+                                    updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
+                                  }}
+                                  className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors flex-shrink-0 mt-1"
+                                >
+                                  Eliminar
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updatedRiesgos = [...(causa.riesgos || []), ''];
+                                updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
+                              }}
+                              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+                            >
+                              + Agregar Riesgo
+                            </button>
+                            {(!causa.riesgos || causa.riesgos.length === 0) && (
+                              <p className="text-sm text-gray-500 italic">
+                                No se han agregado riesgos. Haga clic en "Agregar Riesgo" para comenzar.
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -258,66 +333,61 @@ export default function Step4RiskManagement() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
-                      <span className="text-xs text-gray-500">{causa.riesgo ? 'Riesgo: ' + causa.riesgo : ''}</span>
-                      <button
-                        type="button"
-                        onClick={() => removeCausa(sup.key, causaIndex)}
-                        className="text-red-600 text-xs font-semibold hover:underline hover:font-bold"
-                      >
-                        Eliminar peligro
-                      </button>
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <span className="text-xs text-gray-500 break-words">
+                        {causa.riesgos && causa.riesgos.length > 0 ? 
+                          `Riesgos: ${causa.riesgos.filter(r => r.trim()).join(', ')}` : 
+                          'Sin riesgos definidos'
+                        }
+                      </span>
                     </div>
                   </div>
                 ))}
-                <button
-                  onClick={() => addCausa(sup.key)}
-                  className="w-full py-3 px-4 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 hover:border-blue-400 hover:text-blue-700 transition-colors"
-                >
-                  + Agregar Causa/Peligro
-                </button>
+                
+
               </div>
             </div>
           </details>
-        ))}
+          );
+        })}
       </div>
 
       {/* Instrucciones al final */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-blue-900 mb-3">
-          Instrucciones para la Gestión de Riesgos
-        </h3>
-                    <div className="text-sm text-blue-800 space-y-2">
-              <p>
-                <strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros 
-                que pueden surgir cuando los supuestos del itinerario no se cumplen, afectando la seguridad de la expedición.
-              </p>
-              <p>
-                <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos del itinerario que están marcados como 
-                "Gestionar" o "Monitoreo Intenso" y que están incluidos en el aviso de salida.
-              </p>
-              <p>
-                <strong>¿Cómo gestionar cada supuesto crítico?</strong> Para cada supuesto que requiere gestión, debe completar:
-              </p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><strong>Identificación del Peligro:</strong> ¿Qué puede salir mal si no se cumple el supuesto?</li>
-                <li><strong>Evaluación del Supuesto:</strong> ¿Qué tan probable es que no se cumpla el supuesto?</li>
-                <li><strong>Ubicación del Peligro:</strong> ¿En qué lugar específico puede ocurrir si no se cumple?</li>
-                <li><strong>Acciones de Mitigación:</strong> ¿Qué medidas tomar para asegurar que se cumpla el supuesto?</li>
-              </ul>
-              <p>
-                <strong>Tipos de Acciones:</strong>
-              </p>
-              <ul className="list-disc list-inside ml-4 space-y-1">
-                <li><strong>Prevención Primaria:</strong> Acciones para asegurar que se cumpla el supuesto</li>
-                <li><strong>Control de Exposición:</strong> Medidas para reducir el impacto si no se cumple el supuesto</li>
-                <li><strong>Mitigación de Consecuencias:</strong> Acciones para minimizar los daños si no se cumple el supuesto</li>
-              </ul>
-              <p className="text-xs text-blue-700 mt-3">
-                <strong>Recomendación:</strong> Cuanto más específicas y detalladas sean sus acciones de mitigación, 
-                más efectiva será la gestión del supuesto y mayor será la seguridad de la expedición.
-              </p>
-            </div>
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            Instrucciones para la Gestión de Supuestos
+          </h3>
+        <div className="text-sm text-blue-800 space-y-2">
+          <p>
+            <strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros 
+            que pueden surgir cuando los supuestos del itinerario no se cumplen, afectando la seguridad de la expedición.
+          </p>
+          <p>
+            <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos del itinerario que están marcados como 
+            "Gestionar" o "Monitoreo Intenso" y que están incluidos en el aviso de salida.
+          </p>
+          <p>
+            <strong>¿Cómo gestionar cada supuesto crítico?</strong> Para cada supuesto que requiere gestión, debe completar:
+          </p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li><strong>Identificación del Peligro:</strong> ¿Qué puede salir mal si no se cumple el supuesto?</li>
+            <li><strong>Evaluación del Supuesto:</strong> ¿Qué tan probable es que no se cumpla el supuesto?</li>
+            <li><strong>Ubicación del Peligro:</strong> ¿En qué lugar específico puede ocurrir si no se cumple?</li>
+            <li><strong>Acciones de Mitigación:</strong> ¿Qué medidas tomar para asegurar que se cumpla el supuesto?</li>
+          </ul>
+          <p>
+            <strong>Tipos de Acciones:</strong>
+          </p>
+          <ul className="list-disc list-inside ml-4 space-y-1">
+            <li><strong>Prevención Primaria:</strong> Acciones para asegurar que se cumpla el supuesto</li>
+            <li><strong>Control de Exposición:</strong> Medidas para reducir el impacto si no se cumple el supuesto</li>
+            <li><strong>Mitigación de Consecuencias:</strong> Acciones para minimizar los daños si no se cumple el supuesto</li>
+          </ul>
+          <p className="text-xs text-blue-700 mt-3">
+            <strong>Recomendación:</strong> Cuanto más específicas y detalladas sean sus acciones de mitigación, 
+            más efectiva será la gestión del supuesto y mayor será la seguridad de la expedición.
+          </p>
+        </div>
       </div>
     </div>
   );

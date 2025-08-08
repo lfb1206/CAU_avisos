@@ -28,6 +28,9 @@ export default function ItineraryDayForm({
       <summary className="flex items-center gap-2 cursor-pointer px-4 md:px-6 py-3 text-gray-900 font-semibold">
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">
+              Tramo {dayIndex + 1}
+            </span>
             <span className="truncate">{day.tramo || 'Sin tramo'}</span>
             <span className="hidden sm:inline mx-2">-</span>
             <span className="truncate">
@@ -309,6 +312,7 @@ export default function ItineraryDayForm({
                       sup.incluir ? 'bg-green-500' : 'bg-gray-300'
                     }`}
                     aria-pressed={sup.incluir}
+                    disabled={sup.accion === 'gestionar'}
                   >
                     <span
                       className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
@@ -316,7 +320,9 @@ export default function ItineraryDayForm({
                       }`}
                     />
                   </button>
-                  <span className="text-xs text-gray-600">Incluir en aviso</span>
+                  <span className={`text-xs ${sup.accion === 'gestionar' ? 'text-green-600 font-medium' : 'text-gray-600'}`}>
+                    {sup.accion === 'gestionar' ? 'Incluir en aviso (automático)' : 'Incluir en aviso'}
+                  </span>
                 </div>
                 <button
                   type="button"

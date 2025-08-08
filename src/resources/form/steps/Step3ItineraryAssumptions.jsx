@@ -11,33 +11,23 @@ export default function Step3ItineraryAssumptions() {
   const calculateRiskAction = (probability, impact) => {
     if (!probability || !impact) return '';
     
-    // Lógica corregida: 
-    // - Si es MUY IMPROBABLE que se cumpla → mayor riesgo → GESTIONAR
-    // - Si es POCO PROBABLE que se cumpla → riesgo moderado → MONITOREO INTENSO
-    // - Si es ALGO PROBABLE que se cumpla → riesgo bajo → MONITOREO NORMAL
-    // - Si es MUY PROBABLE que se cumpla → riesgo mínimo → MONITOREO NORMAL
+    // Nueva lógica basada en la fórmula: 
+    // =IF(ISBLANK(M2);"";(IF(AND(OR(Probabilidad=Muy improbable;Probabilidad=Poco probable);OR(Impacto=significativo;Impacto=critico));"Gestionar";IF(Impacto=critico;"monitoreo intenso";"monitoreo normal"))))
     
     const isVeryImprobable = probability === 'muy_improbable';
     const isUnlikely = probability === 'poco_probable';
-    const isSomewhatLikely = probability === 'algo_probable';
-    const isVeryLikely = probability === 'muy_probable';
-    
-    const isHighImpact = impact === 'significativo' || impact === 'critico';
+    const isSignificantImpact = impact === 'significativo';
     const isCriticalImpact = impact === 'critico';
     
-    // Si es muy improbable que se cumpla → GESTIONAR (mayor riesgo)
-    if (isVeryImprobable) {
+    // Si (probabilidad = muy improbable O poco probable) Y (impacto = significativo O crítico) → GESTIONAR
+    if ((isVeryImprobable || isUnlikely) && (isSignificantImpact || isCriticalImpact)) {
       return 'gestionar';
     }
-    // Si es poco probable que se cumpla → MONITOREO INTENSO
-    else if (isUnlikely) {
+    // Si impacto = crítico → MONITOREO INTENSO
+    else if (isCriticalImpact) {
       return 'monitoreo_intenso';
     }
-    // Si es algo probable o muy probable → MONITOREO NORMAL
-    else if (isSomewhatLikely || isVeryLikely) {
-      return 'monitoreo_normal';
-    }
-    // Por defecto
+    // Por defecto → MONITOREO NORMAL
     else {
       return 'monitoreo_normal';
     }
@@ -122,6 +112,12 @@ export default function Step3ItineraryAssumptions() {
       
       if (!alreadyExists) {
         suggestion.accion = calculateRiskAction(suggestion.probabilidad, suggestion.impacto);
+        
+        // Auto-include in aviso if action is 'gestionar'
+        if (suggestion.accion === 'gestionar') {
+          suggestion.incluir = true;
+        }
+        
         updatedItinerary[itineraryIndex].supuestos.push(suggestion);
       }
     });
@@ -159,6 +155,11 @@ export default function Step3ItineraryAssumptions() {
     // Auto-calculate action if probability or impact changed
     if (field === 'probabilidad' || field === 'impacto') {
       assumption.accion = calculateRiskAction(assumption.probabilidad, assumption.impacto);
+      
+      // Auto-include in aviso if action is 'gestionar'
+      if (assumption.accion === 'gestionar') {
+        assumption.incluir = true;
+      }
     }
     
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
@@ -257,7 +258,8 @@ export default function Step3ItineraryAssumptions() {
             <p className="font-medium mb-1">Gestión de supuestos:</p>
             <ul className="space-y-1 ml-2">
               <li>• Revise los supuestos sugeridos automáticamente</li>
-              <li>• Marque solo los supuestos relevantes para incluir</li>
+              <li>• Los supuestos con acción "Gestionar" se incluyen automáticamente</li>
+              <li>• Marque manualmente otros supuestos relevantes para incluir</li>
               <li>• Ajuste probabilidad e impacto según su criterio</li>
             </ul>
           </div>

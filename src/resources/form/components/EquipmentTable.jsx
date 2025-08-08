@@ -41,7 +41,7 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd })
           <p className="text-sm">Haga clic en "Agregar Equipo" para comenzar</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div>
           <table className="w-full bg-white border border-gray-200 rounded-lg">
             <thead className="bg-gray-50">
               <tr>
@@ -82,7 +82,7 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd })
                       />
                     </button>
                   </td>
-                  <td className="px-3 py-2 border-b">
+                  <td className="px-3 py-2 border-b relative">
                     <AutocompleteInput
                       value={item.categoria || ''}
                       onChange={(value) => handleInputChange(index, 'categoria', value)}

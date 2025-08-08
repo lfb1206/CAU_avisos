@@ -11,15 +11,37 @@ export default function PrintView({ formData, onClose }) {
     (day.supuestos || []).forEach((assumption) => {
       if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true && assumption.causas) {
         assumption.causas.forEach((causa) => {
-          if (causa.riesgo && causa.peligro) {
-            riesgos.push({
-              supuesto: assumption.supuesto,
-              riesgo: causa.riesgo,
-              peligro: causa.peligro,
-              lugar: causa.lugar || '',
-              accionProbabilidad: causa.accionProbabilidad || '',
-              accionExposicion: causa.accionExposicion || '',
-              accionConsecuencias: causa.accionConsecuencias || ''
+          // Procesar peligros (fuente del riesgo)
+          if (causa.peligros && causa.peligros.length > 0) {
+            causa.peligros.forEach((peligro) => {
+              if (peligro && peligro.trim()) {
+                riesgos.push({
+                  supuesto: assumption.supuesto,
+                  riesgo: 'Peligro presente',
+                  peligro: peligro,
+                  lugar: causa.lugar || '',
+                  accionProbabilidad: causa.accionProbabilidad || '',
+                  accionExposicion: causa.accionExposicion || '',
+                  accionConsecuencias: causa.accionConsecuencias || ''
+                });
+              }
+            });
+          }
+          
+          // Procesar riesgos (lo que nos puede pasar)
+          if (causa.riesgos && causa.riesgos.length > 0) {
+            causa.riesgos.forEach((riesgo) => {
+              if (riesgo && riesgo.trim()) {
+                riesgos.push({
+                  supuesto: assumption.supuesto,
+                  riesgo: riesgo,
+                  peligro: 'Consecuencia del peligro',
+                  lugar: causa.lugar || '',
+                  accionProbabilidad: causa.accionProbabilidad || '',
+                  accionExposicion: causa.accionExposicion || '',
+                  accionConsecuencias: causa.accionConsecuencias || ''
+                });
+              }
             });
           }
         });
@@ -107,7 +129,8 @@ export default function PrintView({ formData, onClose }) {
     itinerario.forEach(day => {
       if (day.supuestos) {
         day.supuestos.forEach(assumption => {
-          if (assumption.incluir) {
+          // Incluir supuestos con acción 'gestionar' (automático) o marcados como incluir: true
+          if (assumption.accion === 'gestionar' || assumption.incluir) {
             const key = day.tramo;
             if (!grouped[key]) {
               grouped[key] = [];
@@ -143,18 +166,36 @@ export default function PrintView({ formData, onClose }) {
   const getGroupedRisksWithRowspan = () => {
     const grouped = {};
     
-    riesgos.forEach(risk => {
-      const key = risk.supuesto;
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key].push({
-        riesgo: risk.riesgo,
-        peligro: risk.peligro,
-        lugar: risk.lugar,
-        accionProbabilidad: risk.accionProbabilidad,
-        accionExposicion: risk.accionExposicion,
-        accionConsecuencias: risk.accionConsecuencias
+    // Procesar supuestos de gestión de riesgos
+    formData.itinerario.forEach((day) => {
+      (day.supuestos || []).forEach((assumption) => {
+        if ((assumption.accion === 'gestionar' || 
+             (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
+             (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) && 
+            assumption.causas && assumption.causas.length > 0) {
+          
+          const key = assumption.supuesto;
+          if (!grouped[key]) {
+            grouped[key] = [];
+          }
+          
+          // Procesar cada causa del supuesto
+          assumption.causas.forEach((causa) => {
+            // Combinar peligros y riesgos en una sola columna
+            const peligros = (causa.peligros || []).filter(p => p.trim()).join(' / ');
+            const riesgos = (causa.riesgos || []).filter(r => r.trim()).join(' / ');
+            const riesgosRelevantes = [peligros, riesgos].filter(s => s).join(' / ');
+            
+            grouped[key].push({
+              supuesto: key,
+              riesgosRelevantes: riesgosRelevantes,
+              lugar: causa.lugar || '',
+              accionProbabilidad: causa.accionProbabilidad || '',
+              accionExposicion: causa.accionExposicion || '',
+              accionConsecuencias: causa.accionConsecuencias || ''
+            });
+          });
+        }
       });
     });
     
@@ -636,28 +677,24 @@ export default function PrintView({ formData, onClose }) {
                 <table className="data-table">
                   <thead>
                     <tr>
-                      <th>Supuesto</th>
-                      <th>Riesgo</th>
-                      <th>Peligro</th>
-                      <th>Lugar</th>
-                      <th>Acción Probabilidad</th>
-                      <th>Acción Exposición</th>
-                      <th>Acción Consecuencias</th>
+                      <th>Supuesto clave</th>
+                      <th>Riesgos relevantes (si no se cumple el supuesto, amenazan a la seguridad y/o a los objetivos)</th>
+                      <th>Lugar o coordenadas (WGS 84)</th>
+                      <th>Acciones de mitigación de riesgos ANTES</th>
+                      <th>Acciones de mitigación de riesgos DURANTE</th>
                     </tr>
                   </thead>
                   <tbody>
                     {getGroupedRisksWithRowspan().map((risk, index) => (
-                      <tr key={index}>
-                        {risk.supuesto && (
-                          <td rowSpan={risk.supuestoRowspan}>{risk.supuesto}</td>
-                        )}
-                        <td>{risk.riesgo || ''}</td>
-                        <td>{risk.peligro || ''}</td>
-                        <td>{risk.lugar || ''}</td>
-                        <td>{risk.accionProbabilidad || ''}</td>
-                        <td>{risk.accionExposicion || ''}</td>
-                        <td>{risk.accionConsecuencias || ''}</td>
-                      </tr>
+                                              <tr key={index}>
+                          {risk.supuesto && (
+                            <td rowSpan={risk.supuestoRowspan} style={{ fontWeight: 'bold' }}>{risk.supuesto}</td>
+                          )}
+                          <td>{risk.riesgosRelevantes || ''}</td>
+                          <td>{risk.lugar || ''}</td>
+                          <td>{risk.accionProbabilidad && risk.accionExposicion ? `${risk.accionProbabilidad} / ${risk.accionExposicion}` : (risk.accionProbabilidad || risk.accionExposicion || '')}</td>
+                          <td>{risk.accionConsecuencias || ''}</td>
+                        </tr>
                     ))}
                   </tbody>
                 </table>
