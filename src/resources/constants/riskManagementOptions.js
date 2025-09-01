@@ -91,7 +91,7 @@ export const riskManagementOptions = {
     'Nieve',
     'Niebla',
     'Visibilidad reducida',
-    'Altura significativa',
+    'Altitud significativa',
     'Ascenso rápido',
     'Carga pesada',
     'Distancia larga',

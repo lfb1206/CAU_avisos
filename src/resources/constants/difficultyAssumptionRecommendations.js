@@ -160,20 +160,6 @@ export const difficultyAssumptionRecommendations = {
       impacto: 'manejable'
     }
   ],
-  'Lesión de participante': [
-    {
-      supuesto: 'Todos los participantes en buen estado de salud',
-      tipoSupuesto: 'grupo_humano',
-      probabilidad: 'poco_probable',
-      impacto: 'significativo'
-    },
-    {
-      supuesto: 'Equipamiento de primeros auxilios disponible',
-      tipoSupuesto: 'condiciones',
-      probabilidad: 'muy_probable',
-      impacto: 'minimo'
-    }
-  ],
   'Condiciones climáticas adversas': [
     {
       supuesto: 'Condiciones climáticas favorables',

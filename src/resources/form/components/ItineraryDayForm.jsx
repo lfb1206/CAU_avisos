@@ -244,6 +244,9 @@ export default function ItineraryDayForm({
         <div className="space-y-4 mt-6">
           {(day.supuestos || []).map((sup, supIdx) => (
             <div key={supIdx} className="border border-gray-200 rounded bg-blue-50 mb-2 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-blue-800">Supuesto {supIdx + 1}</h4>
+              </div>
               <div className="space-y-6">
                 <div className="mb-4">
                   <AutocompleteInput

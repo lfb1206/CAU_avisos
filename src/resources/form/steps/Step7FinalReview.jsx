@@ -120,18 +120,18 @@ export default function Step7FinalReview() {
         // Validar supuestos si existen
         if (day.supuestos && day.supuestos.length > 0) {
           day.supuestos.forEach((supuesto, supuestoIndex) => {
-            if (!supuesto.supuesto) errors.push(`Supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
-            if (!supuesto.tipoSupuesto) errors.push(`Tipo de supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
-            if (!supuesto.accion) errors.push(`Acción del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1}`);
+            if (!supuesto.supuesto) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta texto del supuesto`);
+            if (!supuesto.tipoSupuesto) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta tipo de supuesto`);
+            if (!supuesto.accion) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta acción`);
             
             // Validar causas si existen
             if (supuesto.causas && supuesto.causas.length > 0) {
               supuesto.causas.forEach((causa, causaIndex) => {
                 if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
-                  errors.push(`Riesgos del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                  errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan riesgos`);
                 }
                 if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
-                  errors.push(`Peligros del supuesto ${supuestoIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                  errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan peligros`);
                 }
               });
             }
@@ -158,15 +158,15 @@ export default function Step7FinalReview() {
           
           // Verificar que el supuesto tenga causas con peligros y riesgos
           if (!assumption.causas || assumption.causas.length === 0) {
-            supuestosIncompletos.push(`Supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Falta agregar causas/peligros`);
+            supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1}: Falta agregar causas/peligros`);
           } else {
             // Verificar que todas las causas tengan al menos un peligro y un riesgo
             assumption.causas.forEach((causa, causaIndex) => {
               if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
-                supuestosIncompletos.push(`Peligros del supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1} - Causa ${causaIndex + 1}: Faltan peligros`);
               }
               if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
-                supuestosIncompletos.push(`Riesgos del supuesto ${assumptionIndex + 1} del tramo ${dayIndex + 1} - Causa ${causaIndex + 1}`);
+                supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1} - Causa ${causaIndex + 1}: Faltan riesgos`);
               }
             });
           }
@@ -343,7 +343,7 @@ export default function Step7FinalReview() {
         {riesgos.length > 0 && (
           <div className="bg-red-50 rounded-lg p-4">
             <h4 className="text-md font-semibold text-red-900 mb-3">
-              Gestión de Riesgos ({riesgos.length} riesgos)
+              Gestión de Riesgos ({riesgos.length} supuestos)
             </h4>
             <div className="space-y-2">
               {riesgos.map((risk, index) => (

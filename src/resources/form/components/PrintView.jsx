@@ -181,10 +181,30 @@ export default function PrintView({ formData, onClose }) {
           
           // Procesar cada causa del supuesto
           assumption.causas.forEach((causa) => {
-            // Combinar peligros y riesgos en una sola columna
-            const peligros = (causa.peligros || []).filter(p => p.trim()).join(' / ');
-            const riesgos = (causa.riesgos || []).filter(r => r.trim()).join(' / ');
-            const riesgosRelevantes = [peligros, riesgos].filter(s => s).join(' / ');
+            // Combinar peligros y riesgos en formato "riesgo 1 / peligro 1, riesgo 2 / peligro 2"
+            const peligros = (causa.peligros || []).filter(p => p.trim());
+            const riesgos = (causa.riesgos || []).filter(r => r.trim());
+            
+            let riesgosRelevantes = '';
+            if (peligros.length > 0 && riesgos.length > 0) {
+              // Si hay ambos, combinar en pares
+              const maxLength = Math.max(peligros.length, riesgos.length);
+              const combinados = [];
+              for (let i = 0; i < maxLength; i++) {
+                const riesgo = riesgos[i] || '';
+                const peligro = peligros[i] || '';
+                if (riesgo || peligro) {
+                  combinados.push(`${riesgo} / ${peligro}`);
+                }
+              }
+              riesgosRelevantes = combinados.join(', ');
+            } else if (peligros.length > 0) {
+              // Solo peligros
+              riesgosRelevantes = peligros.join(', ');
+            } else if (riesgos.length > 0) {
+              // Solo riesgos
+              riesgosRelevantes = riesgos.join(', ');
+            }
             
             grouped[key].push({
               supuesto: key,
@@ -279,10 +299,10 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .contact-box {
-              width: 55mm;
+              width: 45mm;
               border: 1px solid #000;
-              padding: 5px;
-              font-size: 7px;
+              padding: 4px;
+              font-size: 6px;
             }
             
             .contact-item {
@@ -460,11 +480,18 @@ export default function PrintView({ formData, onClose }) {
   const formatDate = (dateString) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleString('es-CL', {
-      year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit'
+    });
+  };
+
+  const formatItineraryDate = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: '2-digit'
     });
   };
 
@@ -528,29 +555,27 @@ export default function PrintView({ formData, onClose }) {
             <div className="title">
               <h1>AVISO DE ACTIVIDAD DE MONTAÑA</h1>
             </div>
-            <div className="contact-box">
+                        <div className="contact-box">
               <div className="contact-item">
                 <strong>Contacto CAU:</strong><br />
-                {formData.basicInfo.contactoCAU || ''}
-              </div>
-              <div className="contact-item">
-                <strong>Teléfono contacto:</strong><br />
-                {formData.basicInfo.telefonoContacto || ''}
-              </div>
-              <div className="contact-item">
-                <strong>Email contacto:</strong><br />
+                {formData.basicInfo.contactoCAU || ''}<br />
+                {formData.basicInfo.telefonoContacto || ''}<br />
                 {formData.basicInfo.emailContacto || ''}
               </div>
               <div className="contact-item">
-                <strong>Fecha y hora de reporte:</strong><br />
-                {formatDate(formData.basicInfo.fechaHoraReporteRegreso)}
+                <strong>Reporte:</strong><br />
+                {new Date(formData.basicInfo.fechaHoraReporteRegreso).toLocaleDateString('es-CL', { 
+                  day: '2-digit',
+                  month: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </div>
               <div className="contact-item">
-                <strong>Fecha de generación del aviso:</strong><br />
+                <strong>Generación:</strong><br />
                 {new Date().toLocaleDateString('es-CL', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
+                  day: '2-digit',
+                  month: '2-digit',
                   hour: '2-digit',
                   minute: '2-digit'
                 })}
@@ -640,8 +665,8 @@ export default function PrintView({ formData, onClose }) {
                     <th>Actividad</th>
                     <th>Hora Inicio</th>
                     <th>Hora Fin</th>
-                    <th>Altitud Inicio</th>
-                    <th>Altitud Fin</th>
+                    <th>Altitud Inicio (msnm)</th>
+                    <th>Altitud Fin (msnm)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -650,12 +675,12 @@ export default function PrintView({ formData, onClose }) {
                       {item.tramo && (
                         <td rowSpan={item.tramoRowspan}>{item.tramo}</td>
                       )}
-                      <td>{item.fecha}</td>
+                      <td>{formatItineraryDate(item.fecha)}</td>
                       <td>{item.actividad}</td>
                       <td>{item.horaInicio}</td>
                       <td>{item.horaFin}</td>
-                      <td>{item.altitudInicio ? `${item.altitudInicio} msnm` : ''}</td>
-                      <td>{item.altitudFin ? `${item.altitudFin} msnm` : ''}</td>
+                      <td>{item.altitudInicio || ''}</td>
+                      <td>{item.altitudFin || ''}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -680,8 +705,7 @@ export default function PrintView({ formData, onClose }) {
                       <th>Supuesto clave</th>
                       <th>Riesgos relevantes (si no se cumple el supuesto, amenazan a la seguridad y/o a los objetivos)</th>
                       <th>Lugar o coordenadas (WGS 84)</th>
-                      <th>Acciones de mitigación de riesgos ANTES</th>
-                      <th>Acciones de mitigación de riesgos DURANTE</th>
+                      <th>Acciones de mitigación de riesgos</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -692,8 +716,7 @@ export default function PrintView({ formData, onClose }) {
                           )}
                           <td>{risk.riesgosRelevantes || ''}</td>
                           <td>{risk.lugar || ''}</td>
-                          <td>{risk.accionProbabilidad && risk.accionExposicion ? `${risk.accionProbabilidad} / ${risk.accionExposicion}` : (risk.accionProbabilidad || risk.accionExposicion || '')}</td>
-                          <td>{risk.accionConsecuencias || ''}</td>
+                          <td>{[risk.accionProbabilidad, risk.accionExposicion, risk.accionConsecuencias].filter(action => action && action.trim()).join(' / ') || ''}</td>
                         </tr>
                     ))}
                   </tbody>
@@ -732,7 +755,7 @@ export default function PrintView({ formData, onClose }) {
                         {image.name && <p style={{ margin: '0 0 2px 0' }}>{image.name}</p>}
                         {image.fechaObtencion && (
                           <p style={{ margin: '0', fontWeight: 'bold' }}>
-                            Fecha: {new Date(image.fechaObtencion).toLocaleDateString('es-CL')}
+                            Fecha: {new Date(image.fechaObtencion).toLocaleDateString('es-CL', { month: '2-digit', day: '2-digit' })}
                           </p>
                         )}
                       </div>
@@ -941,7 +964,7 @@ export default function PrintView({ formData, onClose }) {
           </div>
 
           <div className="footer">
-            <span>{new Date().toLocaleDateString('es-CL')}</span>
+            <span>{new Date().toLocaleDateString('es-CL', { month: '2-digit', day: '2-digit' })}</span>
           </div>
         </div>
       </div>
@@ -994,10 +1017,10 @@ export default function PrintView({ formData, onClose }) {
         }
 
         .contact-box {
-          width: 55mm;
+          width: 45mm;
           border: 1px solid #000;
-          padding: 5px;
-          font-size: 7px;
+          padding: 4px;
+          font-size: 6px;
           flex-shrink: 0;
         }
 
