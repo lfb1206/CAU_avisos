@@ -108,7 +108,8 @@ export const riskManagementOptions = {
     'Lesiones preexistentes',
     'Enfermedades preexistentes',
     'Problemas de salud',
-    'Avalancha'
+    'Avalancha',
+    'Terreno irregular oculto'
   ],
 
   // Riesgos (consecuencias - lo que nos puede pasar)

@@ -118,6 +118,9 @@ export default function Step4RiskManagement() {
             <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
             <summary className="flex items-center justify-between px-4 py-3 cursor-pointer">
               <div className="flex items-center space-x-3">
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">
+                  Tramo {sup.indexItinerario + 1}
+                </span>
                 <span className="font-semibold text-blue-900">{sup.tramo}</span>
                 <span className="text-blue-700">-</span>
                 <span className="text-blue-800">{sup.supuesto}</span>
@@ -133,6 +136,9 @@ export default function Step4RiskManagement() {
               </button>
             </summary>
             <div className="p-4 border-t border-blue-200">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-blue-800">Supuesto {sup.indexSupuesto + 1}</h4>
+              </div>
               <div className="space-y-4">
                 {sup.causas.map((causa, causaIndex) => (
                   <div key={causaIndex} className="bg-blue-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>

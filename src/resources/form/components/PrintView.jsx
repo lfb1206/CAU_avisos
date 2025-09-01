@@ -563,7 +563,7 @@ export default function PrintView({ formData, onClose }) {
                 {formData.basicInfo.emailContacto || ''}
               </div>
               <div className="contact-item">
-                <strong>Reporte:</strong><br />
+                <strong>Reporte de regreso:</strong><br />
                 {new Date(formData.basicInfo.fechaHoraReporteRegreso).toLocaleDateString('es-CL', { 
                   day: '2-digit',
                   month: '2-digit',
