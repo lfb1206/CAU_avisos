@@ -42,7 +42,7 @@ export default function ParticipantForm({
       </div>
 
       <div className="md:col-span-2 space-y-1">
-        <label className="block text-sm font-medium text-gray-700">Nombre completo</label>
+        <label className="block text-sm font-medium text-gray-700">Nombre completo *</label>
         {participant.isDuplicate && (
           <p className="text-red-500 text-xs bg-white px-2 py-1 rounded shadow z-10 mb-1">Ya existe un participante con ese nombre.</p>
         )}

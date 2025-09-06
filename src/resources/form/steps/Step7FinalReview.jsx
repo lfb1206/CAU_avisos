@@ -117,67 +117,48 @@ export default function Step7FinalReview() {
         if (!day.horaInicio) errors.push(`Hora inicio del tramo ${dayIndex + 1}`);
         if (!day.horaFin) errors.push(`Hora fin del tramo ${dayIndex + 1}`);
         
-        // Validar supuestos si existen
+        // Validar supuestos si existen - solo los que se incluyen en el aviso
         if (day.supuestos && day.supuestos.length > 0) {
           day.supuestos.forEach((supuesto, supuestoIndex) => {
-            if (!supuesto.supuesto) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta texto del supuesto`);
-            if (!supuesto.tipoSupuesto) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta tipo de supuesto`);
-            if (!supuesto.accion) errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta acción`);
-            
-            // Validar causas si existen
-            if (supuesto.causas && supuesto.causas.length > 0) {
-              supuesto.causas.forEach((causa, causaIndex) => {
-                if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
-                  errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan riesgos`);
-                }
-                if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
-                  errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan peligros`);
-                }
-              });
+            // Solo validar supuestos que se van a incluir en el aviso de salida
+            if (supuesto.accion === 'gestionar' || 
+                (supuesto.accion === 'monitoreo_intenso' && supuesto.incluir === true) ||
+                (supuesto.accion === 'monitoreo_normal' && supuesto.incluir === true)) {
+              
+              // Validar que tenga causas (requerido para supuestos de gestión)
+              if (!supuesto.causas || supuesto.causas.length === 0) {
+                errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1}: Falta agregar causas/peligros`);
+              } else {
+                // Validar cada causa - solo campos obligatorios para el aviso
+                supuesto.causas.forEach((causa, causaIndex) => {
+                  if (!causa.lugar || !causa.lugar.trim()) {
+                    errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Falta lugar o coordenadas`);
+                  }
+                  if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
+                    errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan riesgos`);
+                  }
+                  if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
+                    errors.push(`Tramo ${dayIndex + 1} - Supuesto ${supuestoIndex + 1} - Causa ${causaIndex + 1}: Faltan peligros`);
+                  }
+                });
+              }
             }
           });
         }
       });
     }
     
-    // Risk Management validation - verificar que todos los supuestos de gestión tengan campos completos
+    // Contar supuestos de gestión para el resumen
     const supuestosGestionar = [];
-    const supuestosIncompletos = [];
-    
     itinerario.forEach((day, dayIndex) => {
       (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-        // Incluir supuestos con acción 'gestionar' (automático), 'monitoreo_intenso' o 'monitoreo_normal' e incluir: true
         if (assumption.accion === 'gestionar' || 
             (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
             (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) {
-          supuestosGestionar.push({
-            dayIndex,
-            assumptionIndex,
-            assumption
-          });
-          
-          // Verificar que el supuesto tenga causas con peligros y riesgos
-          if (!assumption.causas || assumption.causas.length === 0) {
-            supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1}: Falta agregar causas/peligros`);
-          } else {
-            // Verificar que todas las causas tengan al menos un peligro y un riesgo
-            assumption.causas.forEach((causa, causaIndex) => {
-              if (!causa.peligros || causa.peligros.length === 0 || causa.peligros.every(p => !p.trim())) {
-                supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1} - Causa ${causaIndex + 1}: Faltan peligros`);
-              }
-              if (!causa.riesgos || causa.riesgos.length === 0 || causa.riesgos.every(r => !r.trim())) {
-                supuestosIncompletos.push(`Tramo ${dayIndex + 1} - Supuesto ${assumptionIndex + 1} - Causa ${causaIndex + 1}: Faltan riesgos`);
-              }
-            });
-          }
+          supuestosGestionar.push(assumption);
         }
       });
     });
-    
-    // Si hay supuestos de gestión, todos deben estar completos
-    if (supuestosGestionar.length > 0) {
-      errors.push(...supuestosIncompletos);
-    }
     
     // Equipment validation - solo si hay equipos agregados
     if (equipo.length > 0) {

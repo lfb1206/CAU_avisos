@@ -167,16 +167,22 @@ export default function PrintView({ formData, onClose }) {
     const grouped = {};
     
     // Procesar supuestos de gestión de riesgos
-    formData.itinerario.forEach((day) => {
-      (day.supuestos || []).forEach((assumption) => {
+    formData.itinerario.forEach((day, dayIndex) => {
+      (day.supuestos || []).forEach((assumption, assumptionIndex) => {
         if ((assumption.accion === 'gestionar' || 
              (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
              (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) && 
             assumption.causas && assumption.causas.length > 0) {
           
-          const key = assumption.supuesto;
-          if (!grouped[key]) {
-            grouped[key] = [];
+          // Usar una clave única que incluya el índice del supuesto para evitar conflictos
+          const uniqueKey = `${assumption.supuesto}_${dayIndex}_${assumptionIndex}`;
+          const displayKey = assumption.supuesto; // Para mostrar en la tabla
+          
+          if (!grouped[uniqueKey]) {
+            grouped[uniqueKey] = {
+              displayKey: displayKey,
+              items: []
+            };
           }
           
           // Procesar cada causa del supuesto
@@ -206,8 +212,8 @@ export default function PrintView({ formData, onClose }) {
               riesgosRelevantes = riesgos.join(', ');
             }
             
-            grouped[key].push({
-              supuesto: key,
+            grouped[uniqueKey].items.push({
+              supuesto: displayKey,
               riesgosRelevantes: riesgosRelevantes,
               lugar: causa.lugar || '',
               accionProbabilidad: causa.accionProbabilidad || '',
@@ -221,11 +227,11 @@ export default function PrintView({ formData, onClose }) {
     
     // Convertir a array plano con información de rowspan
     const result = [];
-    Object.entries(grouped).forEach(([supuesto, items]) => {
-      items.forEach((item, index) => {
+    Object.entries(grouped).forEach(([uniqueKey, group]) => {
+      group.items.forEach((item, index) => {
         result.push({
-          supuesto: index === 0 ? supuesto : null,
-          supuestoRowspan: index === 0 ? items.length : 0,
+          supuesto: index === 0 ? group.displayKey : null,
+          supuestoRowspan: index === 0 ? group.items.length : 0,
           ...item
         });
       });
@@ -383,8 +389,9 @@ export default function PrintView({ formData, onClose }) {
             }
             
             .weather-image img {
-              max-width: 100%;
-              max-height: 200px;
+              max-width: 180mm;
+              width: auto;
+              height: auto;
               object-fit: contain;
               border: 1px solid #ddd;
               display: block;
@@ -736,8 +743,9 @@ export default function PrintView({ formData, onClose }) {
                       src={image.base64 || image.url || image} 
                       alt={`Pronóstico del tiempo ${index + 1}`}
                       style={{
-                        maxWidth: '100%',
-                        maxHeight: '200px',
+                        maxWidth: '180mm',
+                        width: 'auto',
+                        height: 'auto',
                         objectFit: 'contain',
                         border: '1px solid #ddd',
                         marginBottom: '10px',
@@ -1096,8 +1104,9 @@ export default function PrintView({ formData, onClose }) {
         }
 
         .weather-image img {
-          max-width: 100%;
-          max-height: 150px;
+          max-width: 180mm;
+          width: auto;
+          height: auto;
           object-fit: contain;
           border: 1px solid #ddd;
         }
