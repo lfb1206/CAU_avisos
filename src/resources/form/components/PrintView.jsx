@@ -5,6 +5,23 @@ export default function PrintView({ formData, onClose }) {
   const printRef = useRef();
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
+  
+  // Estado para manejar tamaños de imágenes
+  const [imageSizes, setImageSizes] = React.useState({});
+  const [hoveredImage, setHoveredImage] = React.useState(null);
+  
+  // Función para obtener el tamaño de una imagen
+  const getImageSize = (index) => {
+    return imageSizes[index] || 150; // Tamaño por defecto: 150px
+  };
+  
+  // Función para actualizar el tamaño de una imagen
+  const updateImageSize = (index, newSize) => {
+    setImageSizes(prev => ({
+      ...prev,
+      [index]: Math.max(50, Math.min(680, newSize)) // Limitar entre 50px y 680px (ancho máximo del documento)
+    }));
+  };
   // Obtener riesgos de los supuestos del itinerario que están incluidos
   const riesgos = [];
   formData.itinerario.forEach((day) => {
@@ -252,7 +269,23 @@ export default function PrintView({ formData, onClose }) {
   const handlePrint = () => {
     // Create a new window/iframe for printing
     const printWindow = window.open('', '_blank', 'width=800,height=600');
-    const printContent = printRef.current.innerHTML;
+    
+    // Crear contenido de impresión con tamaños personalizados de imágenes
+    const printContent = printRef.current.cloneNode(true);
+    
+    // Actualizar tamaños de imágenes en el contenido de impresión
+    const images = printContent.querySelectorAll('.weather-image-container img');
+    images.forEach((img, index) => {
+      const size = getImageSize(index);
+      img.style.width = `${size}px`;
+      img.style.height = 'auto';
+    });
+    
+    // Remover controles de redimensionamiento del contenido de impresión
+    const controls = printContent.querySelectorAll('.image-controls');
+    controls.forEach(control => control.remove());
+    
+    const finalPrintContent = printContent.innerHTML;
     
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -388,9 +421,7 @@ export default function PrintView({ formData, onClose }) {
               page-break-inside: avoid;
             }
             
-            .weather-image img {
-              max-width: 180mm;
-              width: auto;
+            .weather-image-container img {
               height: auto;
               object-fit: contain;
               border: 1px solid #ddd;
@@ -467,7 +498,7 @@ export default function PrintView({ formData, onClose }) {
         </head>
         <body>
           <div class="print-content">
-            ${printContent}
+            ${finalPrintContent}
           </div>
         </body>
       </html>
@@ -738,18 +769,23 @@ export default function PrintView({ formData, onClose }) {
             {weatherImages.length > 0 ? (
               <div className="weather-images">
                 {weatherImages.map((image, index) => (
-                  <div key={index} className="weather-image">
+                  <div 
+                    key={index} 
+                    className="weather-image-container"
+                    onMouseEnter={() => setHoveredImage(index)}
+                    onMouseLeave={() => setHoveredImage(null)}
+                    style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}
+                  >
                     <img 
                       src={image.base64 || image.url || image} 
                       alt={`Pronóstico del tiempo ${index + 1}`}
                       style={{
-                        maxWidth: '180mm',
-                        width: 'auto',
+                        width: `${getImageSize(index)}px`,
                         height: 'auto',
                         objectFit: 'contain',
                         border: '1px solid #ddd',
-                        marginBottom: '10px',
-                        display: 'block'
+                        display: 'block',
+                        transition: 'all 0.2s ease'
                       }}
                       onError={(e) => {
                         e.target.style.display = 'none';
@@ -758,6 +794,130 @@ export default function PrintView({ formData, onClose }) {
                         // Image loaded successfully
                       }}
                     />
+                    
+                    {/* Controles de redimensionamiento (estilo PowerPoint) */}
+                    {hoveredImage === index && (
+                      <div className="image-controls" style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        right: '-10px',
+                        background: 'white',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        padding: '8px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        zIndex: 10,
+                        minWidth: '200px'
+                      }}>
+                        <div style={{ marginBottom: '8px', fontSize: '12px', fontWeight: 'bold' }}>
+                          Tamaño de imagen
+                        </div>
+                        
+                        {/* Slider para ajustar tamaño */}
+                        <div style={{ marginBottom: '8px' }}>
+                          <input
+                            type="range"
+                            min="50"
+                            max="680"
+                            value={getImageSize(index)}
+                            onChange={(e) => updateImageSize(index, parseInt(e.target.value))}
+                            style={{ width: '100%' }}
+                          />
+                          <div style={{ fontSize: '10px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
+                            {getImageSize(index)}px
+                          </div>
+                        </div>
+                        
+                        {/* Botones de tamaño rápido */}
+                        <div style={{ display: 'flex', gap: '2px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => updateImageSize(index, 100)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 100 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 100 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            S
+                          </button>
+                          <button
+                            onClick={() => updateImageSize(index, 150)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 150 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 150 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            M
+                          </button>
+                          <button
+                            onClick={() => updateImageSize(index, 200)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 200 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 200 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            L
+                          </button>
+                          <button
+                            onClick={() => updateImageSize(index, 300)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 300 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 300 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            XL
+                          </button>
+                          <button
+                            onClick={() => updateImageSize(index, 450)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 450 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 450 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            XXL
+                          </button>
+                          <button
+                            onClick={() => updateImageSize(index, 680)}
+                            style={{
+                              padding: '2px 4px',
+                              fontSize: '9px',
+                              border: '1px solid #ccc',
+                              borderRadius: '2px',
+                              background: getImageSize(index) === 680 ? '#007bff' : 'white',
+                              color: getImageSize(index) === 680 ? 'white' : 'black',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            MAX
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    
                     {(image.name || image.fechaObtencion) && (
                       <div style={{ fontSize: '6px', color: '#666', textAlign: 'center', marginTop: '2px' }}>
                         {image.name && <p style={{ margin: '0 0 2px 0' }}>{image.name}</p>}
@@ -1103,9 +1263,7 @@ export default function PrintView({ formData, onClose }) {
           margin-bottom: 10px;
         }
 
-        .weather-image img {
-          max-width: 180mm;
-          width: auto;
+        .weather-image-container img {
           height: auto;
           object-fit: contain;
           border: 1px solid #ddd;
