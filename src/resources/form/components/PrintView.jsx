@@ -9,6 +9,7 @@ export default function PrintView({ formData, onClose }) {
   // Estado para manejar tamaños de imágenes
   const [imageSizes, setImageSizes] = React.useState({});
   const [hoveredImage, setHoveredImage] = React.useState(null);
+  const [imageNaturalWidths, setImageNaturalWidths] = React.useState({});
   
   // Función para obtener el tamaño de una imagen
   const getImageSize = (index) => {
@@ -785,13 +786,22 @@ export default function PrintView({ formData, onClose }) {
                         objectFit: 'contain',
                         border: '1px solid #ddd',
                         display: 'block',
-                        transition: 'all 0.2s ease'
+                        transition: 'all 0.2s ease',
+                        imageRendering: 'high-quality'
+                      }}
+                      onLoad={(e) => {
+                        // Store natural width to track upscaling
+                        const naturalWidth = e.target.naturalWidth;
+                        setImageNaturalWidths(prev => ({
+                          ...prev,
+                          [index]: naturalWidth
+                        }));
+                        if (naturalWidth < getImageSize(index)) {
+                          console.log(`Image ${index + 1} natural width: ${naturalWidth}px, requested: ${getImageSize(index)}px - may appear pixelated`);
+                        }
                       }}
                       onError={(e) => {
                         e.target.style.display = 'none';
-                      }}
-                      onLoad={(e) => {
-                        // Image loaded successfully
                       }}
                     />
                     
@@ -811,6 +821,16 @@ export default function PrintView({ formData, onClose }) {
                       }}>
                         <div style={{ marginBottom: '8px', fontSize: '12px', fontWeight: 'bold' }}>
                           Tamaño de imagen
+                          {imageNaturalWidths[index] && getImageSize(index) > imageNaturalWidths[index] && (
+                            <span style={{ 
+                              color: '#ff6b6b', 
+                              fontSize: '10px', 
+                              marginLeft: '8px',
+                              fontWeight: 'normal'
+                            }}>
+                              ⚠️ Puede verse pixelada
+                            </span>
+                          )}
                         </div>
                         
                         {/* Slider para ajustar tamaño */}

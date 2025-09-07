@@ -1,8 +1,8 @@
 'use client';
 import React, { useRef } from 'react';
 
-// Función para comprimir imagen
-const compressImage = (file, maxWidth = 800, quality = 0.7) => {
+// Función para comprimir imagen (mejorada para mantener calidad)
+const compressImage = (file, maxWidth = 2000, quality = 0.95) => {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -11,6 +11,8 @@ const compressImage = (file, maxWidth = 800, quality = 0.7) => {
     img.onload = () => {
       // Calcular nuevas dimensiones manteniendo aspect ratio
       let { width, height } = img;
+      
+      // Solo redimensionar si es muy grande (más de 2000px)
       if (width > maxWidth) {
         height = (height * maxWidth) / width;
         width = maxWidth;
@@ -19,11 +21,16 @@ const compressImage = (file, maxWidth = 800, quality = 0.7) => {
       canvas.width = width;
       canvas.height = height;
       
-      // Dibujar imagen comprimida
+      // Configurar contexto para mejor calidad
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      
+      // Dibujar imagen con alta calidad
       ctx.drawImage(img, 0, 0, width, height);
       
-      // Convertir a base64 con calidad reducida
-      const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+      // Usar PNG para mejor calidad (sin pérdida) o JPEG con alta calidad
+      const format = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      const compressedBase64 = canvas.toDataURL(format, quality);
       resolve(compressedBase64);
     };
     
