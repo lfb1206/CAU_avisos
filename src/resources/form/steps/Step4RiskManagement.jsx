@@ -1,11 +1,49 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 export default function Step4RiskManagement() {
   const { formData, updateItem } = useFormContext();
+  
+  // Estado para el modal de confirmación
+  const [modalState, setModalState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    type: 'danger'
+  });
+
+  // Funciones para manejar el modal
+  const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
+    setModalState({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+      type
+    });
+  };
+
+  const closeModal = () => {
+    setModalState({
+      isOpen: false,
+      title: '',
+      message: '',
+      onConfirm: null,
+      type: 'danger'
+    });
+  };
+
+  const handleConfirm = () => {
+    if (modalState.onConfirm) {
+      modalState.onConfirm();
+    }
+    closeModal();
+  };
 
   // Obtener supuestos a gestionar del itinerario
   const supuestosGestionar = [];
@@ -29,6 +67,13 @@ export default function Step4RiskManagement() {
       }
     });
   });
+
+  // Asegurar que todos los supuestos tengan al menos una causa
+  React.useEffect(() => {
+    supuestosGestionar.forEach(sup => {
+      ensureCausaExists(sup.key);
+    });
+  }, [supuestosGestionar.length]); // Solo cuando cambie el número de supuestos
 
   // Agregar causa/peligro a un supuesto (automático)
   const addCausa = (supKey) => {
@@ -58,30 +103,116 @@ export default function Step4RiskManagement() {
 
   // Actualizar causa/peligro
   const updateCausa = (supKey, causaIndex, field, value) => {
-    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-    const updatedItinerario = [...formData.itinerario];
-    const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
-    if (!sup.causas) sup.causas = [];
-    sup.causas[causaIndex][field] = value;
-    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    try {
+      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+      
+      // Validar que los índices sean válidos
+      if (isNaN(dayIndex) || isNaN(assumptionIndex) || isNaN(causaIndex)) {
+        console.error('Índices inválidos para actualizar causa:', supKey, causaIndex);
+        return;
+      }
+      
+      // Validar que el día existe
+      if (!formData.itinerario[dayIndex]) {
+        console.error('Día de itinerario no encontrado:', dayIndex);
+        return;
+      }
+      
+      // Validar que el supuesto existe
+      if (!formData.itinerario[dayIndex].supuestos || 
+          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
+        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
+        return;
+      }
+      
+      const updatedItinerario = [...formData.itinerario];
+      const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+      if (!sup.causas) sup.causas = [];
+      
+      // Validar que la causa existe
+      if (!sup.causas[causaIndex]) {
+        console.error('Causa no encontrada:', dayIndex, assumptionIndex, causaIndex);
+        return;
+      }
+      
+      sup.causas[causaIndex][field] = value;
+      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    } catch (error) {
+      console.error('Error al actualizar causa:', error);
+    }
   };
 
   // Eliminar causa/peligro
   const removeCausa = (supKey, causaIndex) => {
-    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-    const updatedItinerario = [...formData.itinerario];
-    const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
-    if (!sup.causas) sup.causas = [];
-    sup.causas.splice(causaIndex, 1);
-    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    try {
+      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+      
+      // Validar que los índices sean válidos
+      if (isNaN(dayIndex) || isNaN(assumptionIndex) || isNaN(causaIndex)) {
+        console.error('Índices inválidos para eliminar causa:', supKey, causaIndex);
+        return;
+      }
+      
+      // Validar que el día existe
+      if (!formData.itinerario[dayIndex]) {
+        console.error('Día de itinerario no encontrado:', dayIndex);
+        return;
+      }
+      
+      // Validar que el supuesto existe
+      if (!formData.itinerario[dayIndex].supuestos || 
+          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
+        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
+        return;
+      }
+      
+      const updatedItinerario = [...formData.itinerario];
+      const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+      if (!sup.causas) sup.causas = [];
+      
+      // Validar que la causa existe
+      if (!sup.causas[causaIndex]) {
+        console.error('Causa no encontrada:', dayIndex, assumptionIndex, causaIndex);
+        return;
+      }
+      
+      sup.causas.splice(causaIndex, 1);
+      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    } catch (error) {
+      console.error('Error al eliminar causa:', error);
+    }
   };
 
   // Eliminar supuesto completo
   const removeSupuesto = (supKey) => {
-    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-    const updatedItinerario = [...formData.itinerario];
-    updatedItinerario[dayIndex].supuestos.splice(assumptionIndex, 1);
-    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    try {
+      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+      
+      // Validar que los índices sean válidos
+      if (isNaN(dayIndex) || isNaN(assumptionIndex)) {
+        console.error('Índices inválidos para eliminar supuesto:', supKey);
+        return;
+      }
+      
+      // Validar que el día existe
+      if (!formData.itinerario[dayIndex]) {
+        console.error('Día de itinerario no encontrado:', dayIndex);
+        return;
+      }
+      
+      // Validar que el supuesto existe
+      if (!formData.itinerario[dayIndex].supuestos || 
+          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
+        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
+        return;
+      }
+      
+      const updatedItinerario = [...formData.itinerario];
+      updatedItinerario[dayIndex].supuestos.splice(assumptionIndex, 1);
+      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
+    } catch (error) {
+      console.error('Error al eliminar supuesto:', error);
+    }
   };
 
   // UI
@@ -109,11 +240,6 @@ export default function Step4RiskManagement() {
           </div>
         )}
         {supuestosGestionar.map((sup, supIndex) => {
-          // Asegurar que existe al menos una causa
-          React.useEffect(() => {
-            ensureCausaExists(sup.key);
-          }, [sup.key]);
-          
           return (
             <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
             <summary className="flex items-center justify-between px-4 py-3 cursor-pointer">
@@ -128,7 +254,12 @@ export default function Step4RiskManagement() {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  removeSupuesto(sup.key);
+                  showConfirmationModal(
+                    'Eliminar Supuesto',
+                    `¿Estás seguro de que quieres eliminar el supuesto "${sup.supuesto}" del tramo "${sup.tramo}"? Esta acción no se puede deshacer.`,
+                    () => removeSupuesto(sup.key),
+                    'danger'
+                  );
                 }}
                 className="text-red-600 hover:text-red-800 text-sm font-medium"
               >
@@ -238,8 +369,15 @@ export default function Step4RiskManagement() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    const updatedPeligros = (causa.peligros || []).filter((_, index) => index !== peligroIndex);
-                                    updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
+                                    showConfirmationModal(
+                                      'Eliminar Peligro',
+                                      `¿Estás seguro de que quieres eliminar el peligro "${peligro}"?`,
+                                      () => {
+                                        const updatedPeligros = (causa.peligros || []).filter((_, index) => index !== peligroIndex);
+                                        updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
+                                      },
+                                      'warning'
+                                    );
                                   }}
                                   className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors flex-shrink-0 mt-1"
                                 >
@@ -287,8 +425,15 @@ export default function Step4RiskManagement() {
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    const updatedRiesgos = (causa.riesgos || []).filter((_, index) => index !== riesgoIndex);
-                                    updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
+                                    showConfirmationModal(
+                                      'Eliminar Riesgo',
+                                      `¿Estás seguro de que quieres eliminar el riesgo "${riesgo}"?`,
+                                      () => {
+                                        const updatedRiesgos = (causa.riesgos || []).filter((_, index) => index !== riesgoIndex);
+                                        updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
+                                      },
+                                      'warning'
+                                    );
                                   }}
                                   className="px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors flex-shrink-0 mt-1"
                                 >
@@ -395,6 +540,18 @@ export default function Step4RiskManagement() {
           </p>
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      <ConfirmationModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        onConfirm={handleConfirm}
+        title={modalState.title}
+        message={modalState.message}
+        type={modalState.type}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </div>
   );
 } 
