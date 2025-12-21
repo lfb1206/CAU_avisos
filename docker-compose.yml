@@ -1,0 +1,36 @@
+services:
+  next-app:
+    container_name: cau-nextjs-docker
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+
+    env_file:
+      - .env.local
+    volumes:
+      - .:/src
+      - /src/node_modules
+    ports:
+      - 3000:3000
+    depends_on:
+      - cau_next_db
+
+  cau_next_db:
+    container_name: cau-nextjs-docker-db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "cau_next_db"
+      PGDATA: /var/lib/postgresql/18/docker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data/nextdb/postgres/:/var/lib/postgresql
+    user: 1000:1000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+

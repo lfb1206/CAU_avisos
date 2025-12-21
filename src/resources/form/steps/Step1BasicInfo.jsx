@@ -1,7 +1,8 @@
 'use client';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { getContacts, peopleData } from '../../constants/peopleData';
+import { getContacts } from '../../constants/peopleData';
+import { getAllPeople } from '@/app/lib/actions';
 import { basicFormOptions } from '../../constants/basicFormOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import WeatherImageUpload from '../components/WeatherImageUpload';
@@ -10,7 +11,21 @@ import DynamicFormField from '../components/DynamicFormField';
 
 export default function Step1BasicInfo() {
   const { formData, updateFormField } = useFormContext();
+  const [peopleData, setPeopleData] = useState({});
 
+   useEffect(() => {
+    async function fetchData() {
+      try {
+        const peopleDataValue = await getAllPeople();
+        setPeopleData(peopleDataValue);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+      }
+    }
+    fetchData();
+  }, []); // Empty dependency array runs once on mount
+  
   const handleFieldChange = (field, value) => {
     updateFormField('basicInfo', field, value);
   };
@@ -68,6 +83,11 @@ export default function Step1BasicInfo() {
           <h3 className="text-lg font-semibold text-gray-900 mb-4 border-b pb-2">
             Información de Contacto CAU
           </h3>
+          { Object.keys(peopleData).length === 0 && 
+          <h4 className="text-sm font-semibold">
+            Inicie sesión como socio para autocompletar datos. 
+          </h4>
+          }
         </div>
 
         <div>

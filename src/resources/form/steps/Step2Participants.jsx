@@ -1,11 +1,29 @@
 'use client';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+
 import { useFormContext } from '../../contexts/FormContext';
-import { getParticipants, peopleData } from '../../constants/peopleData';
+import { getParticipants } from '../../constants/peopleData';
+import { getAllPeople } from '@/app/lib/actions';
 import ParticipantForm from '../components/ParticipantForm';
 
 export default function Step2Participants() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+
+    const [peopleData, setPeopleData] = useState({});
+  
+     useEffect(() => {
+      async function fetchData() {
+        try {
+          const peopleDataValue = await getAllPeople();
+          setPeopleData(peopleDataValue);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+        }
+      }
+      fetchData();
+    }, []); // Empty dependency array runs once on mount
+  
 
   // Ensure participantes is always an array
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
@@ -74,6 +92,11 @@ export default function Step2Participants() {
         <p className="text-gray-600">
           Registre la información de todos los participantes incluyendo datos médicos relevantes
         </p>
+        { Object.keys(peopleData).length === 0 && 
+        <h4 className="text-sm font-semibold">
+          Inicie sesión como socio para autocompletar datos. 
+        </h4>
+        }
       </div>
 
       {/* Participants List */}
