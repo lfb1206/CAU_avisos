@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ── Profiles (extends Supabase auth.users via trigger) ────────────────────────
+
+model Profile {
+  id         String   @id @db.Uuid
+  name       String
+  email      String   @unique
+  rut        String?
+  phone      String?
+  role       UserRole @default(member)
+  avatar_url String?
+  created_at DateTime @default(now())
+
+  avisos             Aviso[]
+  course_enrollments CourseEnrollment[]
+  instructed_courses Course[]           @relation("instructor")
+
+  @@map("profiles")
+}
+
+enum UserRole {
+  admin
+  member
+}
+
+// ── Avisos (exit notices) ─────────────────────────────────────────────────────
+
+model Aviso {
+  id           Int         @id @default(autoincrement())
+  created_by   String      @db.Uuid
+  title        String      @default("")
+  status       AvisoStatus @default(draft)
+  form_data    Json        @default("{}")
+  submitted_at DateTime?
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+
+  profile Profile @relation(fields: [created_by], references: [id], onDelete: Cascade)
+
+  @@map("avisos")
+}
+
+enum AvisoStatus {
+  draft
+  submitted
+  archived
+}
+
+// ── People (club member directory) ───────────────────────────────────────────
+
+model Person {
+  id         Int      @id @default(autoincrement())
+  name       String
+  rut        String?
+  phone      String?
+  email      String?
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+
+  @@map("people")
+}
+
+// ── Activities ────────────────────────────────────────────────────────────────
+
+model Activity {
+  id                       Int      @id @default(autoincrement())
+  name                     String   @unique
+  equipment_recommendations Json?
+  created_at               DateTime @default(now())
+
+  @@map("activities")
+}
+
+// ── Equipment ─────────────────────────────────────────────────────────────────
+
+model EquipmentItem {
+  id       Int     @id @default(autoincrement())
+  category String
+  name     String
+  active   Boolean @default(true)
+
+  @@map("equipment_items")
+}
+
+// ── Basic form autocomplete options ──────────────────────────────────────────
+
+model BasicFormOption {
+  id    Int    @id @default(autoincrement())
+  type  String
+  value String
+
+  @@unique([type, value])
+  @@map("basic_form_options")
+}
+
+// ── Risk management options ───────────────────────────────────────────────────
+
+model RiskOption {
+  id          Int     @id @default(autoincrement())
+  key         String
+  label       String
+  type        String
+  probability String?
+  impact      String?
+
+  @@map("risk_options")
+}
+
+// ── Courses ───────────────────────────────────────────────────────────────────
+
+model Course {
+  id                      Int          @id @default(autoincrement())
+  name                    String
+  description             String       @default("")
+  instructor_id           String?      @db.Uuid
+  start_date              DateTime?
+  end_date                DateTime?
+  capacity                Int          @default(20)
+  status                  CourseStatus @default(upcoming)
+  location                String?
+  price                   Decimal?     @db.Decimal(10, 2)
+  order_index             Int
+  prerequisite_course_ids Int[]        @default([])
+  branch                  CourseBranch
+  level                   CourseLevel
+
+  instructor  Profile?           @relation("instructor", fields: [instructor_id], references: [id])
+  enrollments CourseEnrollment[]
+
+  @@map("courses")
+}
+
+enum CourseStatus {
+  upcoming
+  active
+  completed
+  cancelled
+}
+
+enum CourseBranch {
+  base
+  nieve_hielo
+  roca
+}
+
+enum CourseLevel {
+  introductorio
+  intermedio
+  intermedio_avanzado
+  avanzado
+}
+
+// ── Course enrollments ────────────────────────────────────────────────────────
+
+model CourseEnrollment {
+  id          Int              @id @default(autoincrement())
+  course_id   Int
+  user_id     String           @db.Uuid
+  status      EnrollmentStatus @default(enrolled)
+  enrolled_at DateTime         @default(now())
+
+  course  Course  @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([course_id, user_id])
+  @@map("course_enrollments")
+}
+
+enum EnrollmentStatus {
+  enrolled
+  waitlisted
+  completed
+  cancelled
+}
