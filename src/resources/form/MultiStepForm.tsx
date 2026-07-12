@@ -16,8 +16,9 @@ import Step5EquipmentTransport from './steps/Step5EquipmentTransport';
 import Step6FinalReview from './steps/Step7FinalReview'; // file named Step7 for historical reasons
 
 export default function MultiStepForm() {
-  const { formData, goToStep, isStepValid, resetForm } = useFormContext();
+  const { formData, goToStep, isStepValid, resetForm, saveToApi, isSaving } = useFormContext();
   const [hasSavedData, setHasSavedData] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ text: string; ok: boolean } | null>(null);
 
   const steps: Step[] = [
     { id: 1, name: 'Información Básica', component: Step1BasicInfo },
@@ -27,6 +28,12 @@ export default function MultiStepForm() {
     { id: 5, name: 'Equipo y Transporte', component: Step5EquipmentTransport },
     { id: 6, name: 'Revisión Final', component: Step6FinalReview }
   ];
+
+  const handleSave = async () => {
+    const result = await saveToApi();
+    setSaveMessage({ text: result.error ?? 'Guardado en la nube ✓', ok: result.success });
+    setTimeout(() => setSaveMessage(null), 3000);
+  };
 
   const handleClearData = () => {
     if (window.confirm('¿Estás seguro de que quieres limpiar toda la información guardada? Esta acción no se puede deshacer.')) {
@@ -99,6 +106,13 @@ export default function MultiStepForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6">
+      {/* Save toast */}
+      {saveMessage && (
+        <div className={`fixed top-4 right-4 z-50 px-4 py-2 rounded-lg shadow-lg text-white text-sm flex items-center gap-2 ${saveMessage.ok ? 'bg-green-600' : 'bg-red-600'}`}>
+          {saveMessage.text}
+        </div>
+      )}
+
       {/* Auto-save Info */}
       {!hasSavedData && formData.currentStep === 1 && (
         <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -127,7 +141,18 @@ export default function MultiStepForm() {
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center space-x-1"
+              title="Guardar en la nube"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              <span>{isSaving ? 'Guardando...' : 'Guardar'}</span>
+            </button>
             <button
               onClick={handleClearData}
               className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors flex items-center space-x-1"

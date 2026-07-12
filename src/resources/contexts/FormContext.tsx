@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
 import { LOCALSTORAGE_KEY, ASSUMPTION_ACTIONS } from '@/resources/constants/formConstants';
 import type {
   FormState,
@@ -12,6 +12,7 @@ import type {
 
 const initialFormState: FormState = {
   currentStep: 1,
+  avisoId: null,
   basicInfo: {
     contactoCAU: '',
     telefonoContacto: '',
@@ -85,6 +86,9 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 
     case 'SET_STEP':
       return { ...state, currentStep: action.step };
+
+    case 'SET_AVISO_ID':
+      return { ...state, avisoId: action.avisoId };
 
     case 'RESET_FORM':
       return initialFormState;
@@ -169,6 +173,7 @@ const FormContext = createContext<FormContextValue | null>(null);
 export const FormContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [formData, dispatch] = useReducer(formReducer, initialFormState);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem(LOCALSTORAGE_KEY);
@@ -227,6 +232,41 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
 
   const updateWeatherImages = (images: WeatherImage[]) =>
     dispatch({ type: 'UPDATE_WEATHER_IMAGES', images });
+
+  const saveToApi = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+    setIsSaving(true);
+    try {
+      const basicInfo = formData.basicInfo;
+      const autoTitle = basicInfo.cerroOSector
+        ? `${basicInfo.cerroOSector}${basicInfo.actividad ? ` — ${basicInfo.actividad}` : ''}`
+        : 'Aviso sin título';
+
+      if (formData.avisoId) {
+        const res = await fetch(`/api/avisos/${formData.avisoId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: autoTitle, form_data: formData }),
+        });
+        if (res.status === 401) return { success: false, error: 'Inicia sesión para guardar en la nube.' };
+        if (!res.ok) return { success: false, error: 'Error al actualizar el aviso.' };
+      } else {
+        const res = await fetch('/api/avisos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: autoTitle, form_data: formData }),
+        });
+        if (res.status === 401) return { success: false, error: 'Inicia sesión para guardar en la nube.' };
+        if (!res.ok) return { success: false, error: 'Error al crear el aviso.' };
+        const aviso = await res.json() as { id: number };
+        dispatch({ type: 'SET_AVISO_ID', avisoId: aviso.id });
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Error de conexión. Datos guardados localmente.' };
+    } finally {
+      setIsSaving(false);
+    }
+  }, [formData]);
 
   const isStepValid = (step: number): boolean => {
     const participantes = formData.participantes ?? [];
@@ -324,6 +364,8 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
     updateWeatherImages,
     isStepValid,
     checkFormCompletion,
+    saveToApi,
+    isSaving,
   };
 
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

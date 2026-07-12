@@ -1,629 +1,229 @@
 'use client';
-import React, { useState } from 'react';
-import { activityEquipmentData, getAllActivities, getAllSpecificActivities } from '../../constants/activityEquipmentData';
-import { exportDataToJSON } from '../../constants/dataExportUtils';
+import React, { useState, useEffect, useCallback } from 'react';
+
+interface Activity {
+  id: number;
+  name: string;
+  equipment_recommendations: Record<string, unknown> | null;
+}
+
+type ActivityDraft = Omit<Activity, 'id'>;
+
+const emptyDraft = (): ActivityDraft => ({ name: '', equipment_recommendations: null });
 
 export default function ActivitiesAdminPanel() {
-  const [activeTab, setActiveTab] = useState('activities');
-  const [activities, setActivities] = useState(activityEquipmentData.activities);
-  const [specificActivities, setSpecificActivities] = useState(activityEquipmentData.specificActivities);
-  const [editMode, setEditMode] = useState(false);
-  const [editingActivity, setEditingActivity] = useState(null);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newActivity, setNewActivity] = useState({ type: 'activity' });
+  const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const handleExportActivities = () => {
-    const data = {
-      activities: activities,
-      timestamp: new Date().toISOString(),
-      description: 'Actividades generales exportadas'
-    };
-    exportDataToJSON(data, 'activities_export.json');
-  };
-
-  const handleExportSpecificActivities = () => {
-    const data = {
-      specificActivities: specificActivities,
-      timestamp: new Date().toISOString(),
-      description: 'Actividades específicas exportadas'
-    };
-    exportDataToJSON(data, 'specific_activities_export.json');
-  };
-
-  const handleExportAll = () => {
-    const data = {
-      activityEquipmentData: {
-        activities: activities,
-        specificActivities: specificActivities
-      },
-      timestamp: new Date().toISOString(),
-      description: 'Todos los datos de actividades exportados'
-    };
-    exportDataToJSON(data, 'activities_data_export.json');
-  };
-
-  const handleEditActivity = (activityType, activityName, activityData) => {
-    setEditingActivity({ type: activityType, name: activityName, data: activityData });
-    setEditMode(true);
-  };
-
-  const handleSaveActivity = (updatedActivity) => {
-    if (updatedActivity.type === 'activity') {
-      setActivities(prev => ({
-        ...prev,
-        [updatedActivity.name]: updatedActivity.data
-      }));
-    } else {
-      setSpecificActivities(prev => ({
-        ...prev,
-        [updatedActivity.name]: updatedActivity.data
-      }));
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/activities');
+      if (res.status === 403) { setError('Se requieren permisos de administrador.'); return; }
+      if (!res.ok) { setError('Error al cargar actividades.'); return; }
+      setActivities(await res.json());
+    } catch {
+      setError('Error de conexión.');
+    } finally {
+      setLoading(false);
     }
-    setEditMode(false);
-    setEditingActivity(null);
-  };
+  }, []);
 
-  const handleDeleteActivity = (activityType, activityName) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar la actividad "${activityName}"?`)) {
-      if (activityType === 'activity') {
-        setActivities(prev => {
-          const newActivities = { ...prev };
-          delete newActivities[activityName];
-          return newActivities;
-        });
-      } else {
-        setSpecificActivities(prev => {
-          const newSpecificActivities = { ...prev };
-          delete newSpecificActivities[activityName];
-          return newSpecificActivities;
-        });
-      }
+  useEffect(() => { load(); }, [load]);
+
+  const handleSave = async (draft: ActivityDraft, id?: number) => {
+    setSaving(true);
+    try {
+      const res = await fetch(id ? `/api/admin/activities/${id}` : '/api/admin/activities', {
+        method: id ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draft),
+      });
+      if (!res.ok) { alert('Error al guardar. Intenta nuevamente.'); return; }
+      await load();
+      setEditingActivity(null);
+      setShowAddForm(false);
+    } finally {
+      setSaving(false);
     }
   };
 
-  const handleAddActivity = (activityData) => {
-    if (activityData.type === 'activity') {
-      setActivities(prev => ({
-        ...prev,
-        [activityData.name]: activityData.data
-      }));
-    } else {
-      setSpecificActivities(prev => ({
-        ...prev,
-        [activityData.name]: activityData.data
-      }));
-    }
-    setShowAddForm(false);
-    setNewActivity({ type: 'activity' });
+  const handleDelete = async (activity: Activity) => {
+    if (!confirm(`¿Eliminar la actividad "${activity.name}"?`)) return;
+    await fetch(`/api/admin/activities/${activity.id}`, { method: 'DELETE' });
+    await load();
   };
 
-  const renderActivitiesTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Actividades Generales</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Agregar Actividad
-          </button>
-          <button
-            onClick={handleExportActivities}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Actividades
-          </button>
-        </div>
-      </div>
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify({ activities, timestamp: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'activities_export.json'; a.click();
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(activities).map(([name, activity]) => (
-          <div key={name} className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="font-semibold text-gray-900">{name}</h4>
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => handleEditActivity('activity', name, activity)}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDeleteActivity('activity', name)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-            <div className="space-y-1 text-sm text-gray-600">
-              <p><strong>Categoría:</strong> {activity.category}</p>
-              <p><strong>Dificultad:</strong> {activity.difficulty}</p>
-              <p><strong>Equipamiento básico:</strong> {activity.basicEquipment.length} items</p>
-              <p><strong>Condiciones climáticas:</strong> {Object.keys(activity.weatherEquipment).length} tipos</p>
-            </div>
-            <div className="mt-3">
-              <h5 className="font-medium text-sm text-gray-700 mb-2">Equipamiento Básico:</h5>
-              <div className="space-y-1">
-                {activity.basicEquipment.slice(0, 3).map((item, index) => (
-                  <div key={index} className="text-xs text-gray-500">
-                    • {item.item} ({item.category})
-                  </div>
-                ))}
-                {activity.basicEquipment.length > 3 && (
-                  <div className="text-xs text-gray-400">
-                    +{activity.basicEquipment.length - 3} más...
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+  const filtered = activities.filter((a) =>
+    !searchQuery || a.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderSpecificActivitiesTab = () => (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Actividades Específicas</h3>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Agregar Actividad Específica
-          </button>
-          <button
-            onClick={handleExportSpecificActivities}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Actividades Específicas
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.entries(specificActivities).map(([name, activity]) => (
-          <div key={name} className="bg-white p-4 rounded-lg border shadow-sm">
-            <div className="flex justify-between items-start mb-3">
-              <h4 className="font-semibold text-gray-900">{name}</h4>
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => handleEditActivity('specificActivity', name, activity)}
-                  className="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDeleteActivity('specificActivity', name)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-            <div className="space-y-1 text-sm text-gray-600">
-              <p><strong>Actividad padre:</strong> {activity.parentActivity}</p>
-              <p><strong>Dificultad:</strong> {activity.difficulty}</p>
-              <p><strong>Equipamiento:</strong> {activity.equipment.length} items</p>
-            </div>
-            <div className="mt-3">
-              <h5 className="font-medium text-sm text-gray-700 mb-2">Equipamiento:</h5>
-              <div className="space-y-1">
-                {activity.equipment.slice(0, 3).map((item, index) => (
-                  <div key={index} className="text-xs text-gray-500">
-                    • {item.item} ({item.category})
-                  </div>
-                ))}
-                {activity.equipment.length > 3 && (
-                  <div className="text-xs text-gray-400">
-                    +{activity.equipment.length - 3} más...
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+  if (loading) return <div className="p-8 text-center text-gray-500">Cargando actividades...</div>;
+  if (error) return (
+    <div className="p-8 text-center">
+      <p className="text-red-600 mb-4">{error}</p>
+      <button onClick={load} className="text-blue-600 hover:underline text-sm">Reintentar</button>
     </div>
   );
-
-  const renderEditModal = () => {
-    if (!editMode || !editingActivity) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 className="text-lg font-semibold mb-4">
-            Editar {editingActivity.type === 'activity' ? 'Actividad General' : 'Actividad Específica'}
-          </h3>
-          <ActivityForm
-            activity={editingActivity}
-            onSave={handleSaveActivity}
-            onCancel={() => {
-              setEditMode(false);
-              setEditingActivity(null);
-            }}
-            parentActivities={Object.keys(activities)}
-          />
-        </div>
-      </div>
-    );
-  };
-
-  const renderAddModal = () => {
-    if (!showAddForm) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-          <h3 className="text-lg font-semibold mb-4">
-            Agregar {newActivity.type === 'activity' ? 'Actividad General' : 'Actividad Específica'}
-          </h3>
-          <ActivityForm
-            activity={{ type: newActivity.type, name: '', data: {} }}
-            onSave={handleAddActivity}
-            onCancel={() => setShowAddForm(false)}
-            parentActivities={Object.keys(activities)}
-            isNew={true}
-          />
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestión de Actividades</h1>
-        <p className="text-gray-600">Administra actividades y su equipamiento recomendado</p>
+        <p className="text-gray-600">{activities.length} actividades en total</p>
       </div>
 
-      <div className="mb-6 flex space-x-4">
-        <button
-          onClick={handleExportAll}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium"
-        >
-          Exportar Todos los Datos
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <input
+          type="text"
+          placeholder="Buscar actividad..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1 min-w-48 border border-gray-300 rounded-md px-3 py-2 text-sm"
+        />
+        <button onClick={() => setShowAddForm(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm">
+          Agregar actividad
+        </button>
+        <button onClick={handleExport} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm">
+          Exportar JSON
         </button>
       </div>
 
-      <nav className="flex space-x-8 border-b border-gray-200 mb-6">
-        <button
-          onClick={() => setActiveTab('activities')}
-          className={`py-2 px-1 border-b-2 font-medium text-sm ${
-            activeTab === 'activities'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
-        >
-          Actividades Generales
-        </button>
-        <button
-          onClick={() => setActiveTab('specificActivities')}
-          className={`py-2 px-1 border-b-2 font-medium text-sm ${
-            activeTab === 'specificActivities'
-              ? 'border-blue-500 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-          }`}
-        >
-          Actividades Específicas
-        </button>
-      </nav>
-
-      <div className="bg-white rounded-lg shadow">
-        {activeTab === 'activities' && renderActivitiesTab()}
-        {activeTab === 'specificActivities' && renderSpecificActivitiesTab()}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Actividad</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Recomendaciones equipo</th>
+              <th className="px-4 py-3" />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {filtered.length === 0 && (
+              <tr><td colSpan={3} className="text-center py-8 text-gray-400">Sin resultados</td></tr>
+            )}
+            {filtered.map((a) => (
+              <tr key={a.id} className="hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-900">{a.name}</td>
+                <td className="px-4 py-3 text-gray-500 text-xs">
+                  {a.equipment_recommendations
+                    ? `${Object.keys(a.equipment_recommendations).length} entradas`
+                    : '—'}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <button onClick={() => setEditingActivity(a)} className="text-blue-600 hover:text-blue-800 mr-3 text-xs">Editar</button>
+                  <button onClick={() => handleDelete(a)} className="text-red-600 hover:text-red-800 text-xs">Eliminar</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {renderEditModal()}
-      {renderAddModal()}
+      {(editingActivity || showAddForm) && (
+        <ActivityModal
+          activity={editingActivity ?? undefined}
+          saving={saving}
+          onSave={(draft) => handleSave(draft, editingActivity?.id)}
+          onClose={() => { setEditingActivity(null); setShowAddForm(false); }}
+        />
+      )}
     </div>
   );
 }
 
-// Componente para editar/agregar actividad
-function ActivityForm({ activity, onSave, onCancel, parentActivities = [], isNew = false }) {
-  const [formData, setFormData] = useState({
-    name: isNew ? '' : activity.name,
-    type: activity.type,
-    data: isNew ? {} : activity.data
-  });
+function ActivityModal({
+  activity,
+  saving,
+  onSave,
+  onClose,
+}: {
+  activity?: Activity;
+  saving: boolean;
+  onSave: (draft: ActivityDraft) => void;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState<ActivityDraft>(
+    activity
+      ? { name: activity.name, equipment_recommendations: activity.equipment_recommendations }
+      : emptyDraft()
+  );
+  const [jsonText, setJsonText] = useState(
+    activity?.equipment_recommendations ? JSON.stringify(activity.equipment_recommendations, null, 2) : ''
+  );
+  const [jsonError, setJsonError] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
+  const handleJsonChange = (text: string) => {
+    setJsonText(text);
+    if (!text.trim()) {
+      setJsonError('');
+      setDraft((prev) => ({ ...prev, equipment_recommendations: null }));
+      return;
+    }
+    try {
+      const parsed = JSON.parse(text);
+      setJsonError('');
+      setDraft((prev) => ({ ...prev, equipment_recommendations: parsed }));
+    } catch {
+      setJsonError('JSON inválido');
+    }
   };
 
-  const renderGeneralActivityForm = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Nombre de la Actividad</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Categoría</label>
-        <input
-          type="text"
-          value={formData.data.category || ''}
-          onChange={(e) => setFormData({
-            ...formData,
-            data: { ...formData.data, category: e.target.value }
-          })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Dificultad</label>
-        <select
-          value={formData.data.difficulty || ''}
-          onChange={(e) => setFormData({
-            ...formData,
-            data: { ...formData.data, difficulty: e.target.value }
-          })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-        >
-          <option value="">Seleccionar</option>
-          <option value="Baja">Baja</option>
-          <option value="Baja a Media">Baja a Media</option>
-          <option value="Media">Media</option>
-          <option value="Media a Alta">Media a Alta</option>
-          <option value="Alta">Alta</option>
-        </select>
-      </div>
-      
-      {/* Equipamiento Básico */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Equipamiento Básico</label>
-        <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
-          {(formData.data.basicEquipment || []).map((equipment, index) => (
-            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-              <input
-                type="text"
-                value={equipment.item || ''}
-                onChange={(e) => {
-                  const updatedEquipment = [...(formData.data.basicEquipment || [])];
-                  updatedEquipment[index] = { ...equipment, item: e.target.value };
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, basicEquipment: updatedEquipment }
-                  });
-                }}
-                placeholder="Item de equipamiento"
-                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <input
-                type="text"
-                value={equipment.category || ''}
-                onChange={(e) => {
-                  const updatedEquipment = [...(formData.data.basicEquipment || [])];
-                  updatedEquipment[index] = { ...equipment, category: e.target.value };
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, basicEquipment: updatedEquipment }
-                  });
-                }}
-                placeholder="Categoría"
-                className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={equipment.essential || false}
-                  onChange={(e) => {
-                    const updatedEquipment = [...(formData.data.basicEquipment || [])];
-                    updatedEquipment[index] = { ...equipment, essential: e.target.checked };
-                    setFormData({
-                      ...formData,
-                      data: { ...formData.data, basicEquipment: updatedEquipment }
-                    });
-                  }}
-                  className="mr-1"
-                />
-                <span className="text-xs">Esencial</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  const updatedEquipment = (formData.data.basicEquipment || []).filter((_, i) => i !== index);
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, basicEquipment: updatedEquipment }
-                  });
-                }}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              const updatedEquipment = [...(formData.data.basicEquipment || []), { item: '', category: '', essential: false }];
-              setFormData({
-                ...formData,
-                data: { ...formData.data, basicEquipment: updatedEquipment }
-              });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-          >
-            + Agregar Equipamiento
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSpecificActivityForm = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Nombre de la Actividad Específica</label>
-        <input
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          required
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Actividad Padre</label>
-        <select
-          value={formData.data.parentActivity || ''}
-          onChange={(e) => setFormData({
-            ...formData,
-            data: { ...formData.data, parentActivity: e.target.value }
-          })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          required
-        >
-          <option value="">Seleccionar actividad padre</option>
-          {parentActivities.map(activity => (
-            <option key={activity} value={activity}>{activity}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Dificultad</label>
-        <select
-          value={formData.data.difficulty || ''}
-          onChange={(e) => setFormData({
-            ...formData,
-            data: { ...formData.data, difficulty: e.target.value }
-          })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-        >
-          <option value="">Seleccionar</option>
-          <option value="Baja">Baja</option>
-          <option value="Media">Media</option>
-          <option value="Alta">Alta</option>
-        </select>
-      </div>
-      
-      {/* Equipamiento Específico */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Equipamiento Específico</label>
-        <div className="space-y-2 max-h-40 overflow-y-auto border border-gray-300 rounded-md p-2">
-          {(formData.data.equipment || []).map((equipment, index) => (
-            <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-              <input
-                type="text"
-                value={equipment.item || ''}
-                onChange={(e) => {
-                  const updatedEquipment = [...(formData.data.equipment || [])];
-                  updatedEquipment[index] = { ...equipment, item: e.target.value };
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, equipment: updatedEquipment }
-                  });
-                }}
-                placeholder="Item de equipamiento"
-                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <input
-                type="text"
-                value={equipment.category || ''}
-                onChange={(e) => {
-                  const updatedEquipment = [...(formData.data.equipment || [])];
-                  updatedEquipment[index] = { ...equipment, category: e.target.value };
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, equipment: updatedEquipment }
-                  });
-                }}
-                placeholder="Categoría"
-                className="w-24 px-2 py-1 border border-gray-300 rounded text-sm"
-              />
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={equipment.essential || false}
-                  onChange={(e) => {
-                    const updatedEquipment = [...(formData.data.equipment || [])];
-                    updatedEquipment[index] = { ...equipment, essential: e.target.checked };
-                    setFormData({
-                      ...formData,
-                      data: { ...formData.data, equipment: updatedEquipment }
-                    });
-                  }}
-                  className="mr-1"
-                />
-                <span className="text-xs">Esencial</span>
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  const updatedEquipment = (formData.data.equipment || []).filter((_, i) => i !== index);
-                  setFormData({
-                    ...formData,
-                    data: { ...formData.data, equipment: updatedEquipment }
-                  });
-                }}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          <button
-            type="button"
-            onClick={() => {
-              const updatedEquipment = [...(formData.data.equipment || []), { item: '', category: '', essential: false }];
-              setFormData({
-                ...formData,
-                data: { ...formData.data, equipment: updatedEquipment }
-              });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50"
-          >
-            + Agregar Equipamiento
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Tipo de Actividad</label>
-        <select
-          value={formData.type}
-          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-          className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-lg w-full shadow-xl">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold">{activity ? 'Editar actividad' : 'Agregar actividad'}</h3>
+        </div>
+        <form
+          onSubmit={(e) => { e.preventDefault(); if (!jsonError) onSave(draft); }}
+          className="p-6 space-y-4"
         >
-          <option value="activity">Actividad General</option>
-          <option value="specificActivity">Actividad Específica</option>
-        </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input
+              required
+              value={draft.name}
+              onChange={(e) => setDraft((prev) => ({ ...prev, name: e.target.value }))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Recomendaciones de equipo (JSON)
+            </label>
+            <textarea
+              value={jsonText}
+              onChange={(e) => handleJsonChange(e.target.value)}
+              rows={6}
+              placeholder={'{\n  "basico": ["Cuerda", "Arnés"],\n  "invierno": ["Crampones"]\n}'}
+              className={`w-full border rounded-md px-3 py-2 text-xs font-mono ${jsonError ? 'border-red-400' : 'border-gray-300'}`}
+            />
+            {jsonError && <p className="text-red-500 text-xs mt-1">{jsonError}</p>}
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+              Cancelar
+            </button>
+            <button type="submit" disabled={saving || !!jsonError}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-60">
+              {saving ? 'Guardando...' : (activity ? 'Guardar' : 'Agregar')}
+            </button>
+          </div>
+        </form>
       </div>
-
-      {formData.type === 'activity' ? renderGeneralActivityForm() : renderSpecificActivityForm()}
-
-      <div className="flex justify-end space-x-3 pt-4">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          {isNew ? 'Agregar' : 'Guardar'}
-        </button>
-      </div>
-    </form>
+    </div>
   );
-} 
+}

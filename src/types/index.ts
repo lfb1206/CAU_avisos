@@ -104,6 +104,7 @@ export interface RescueBody {
 
 export interface FormState {
   currentStep: number;
+  avisoId: number | null;
   basicInfo: BasicInfo;
   participantes: Participant[];
   itinerario: ItineraryDay[];
@@ -120,6 +121,7 @@ export type FormAction =
   | { type: 'REMOVE_ITEM'; section: string; index: number }
   | { type: 'UPDATE_ITEM'; section: string; index: number; field?: string; value?: unknown; updates?: Record<string, unknown> }
   | { type: 'SET_STEP'; step: number }
+  | { type: 'SET_AVISO_ID'; avisoId: number }
   | { type: 'RESET_FORM' }
   | { type: 'UPDATE_WEATHER_IMAGES'; images: WeatherImage[] }
   | { type: 'LOAD_SAVED_DATA'; data: Partial<FormState> };
@@ -137,6 +139,8 @@ export interface FormContextValue {
   updateWeatherImages: (images: WeatherImage[]) => void;
   isStepValid: (step: number) => boolean;
   checkFormCompletion: () => boolean;
+  saveToApi: () => Promise<{ success: boolean; error?: string }>;
+  isSaving: boolean;
 }
 
 // ── People data ───────────────────────────────────────────────────────────────
