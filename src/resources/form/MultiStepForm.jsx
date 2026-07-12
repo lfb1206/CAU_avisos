@@ -6,7 +6,7 @@ import Step2Participants from './steps/Step2Participants';
 import Step3ItineraryAssumptions from './steps/Step3ItineraryAssumptions';
 import Step4RiskManagement from './steps/Step4RiskManagement';
 import Step5EquipmentTransport from './steps/Step5EquipmentTransport';
-import Step6FinalReview from './steps/Step7FinalReview';
+import Step6FinalReview from './steps/Step7FinalReview'; // file named Step7 for historical reasons
 
 export default function MultiStepForm() {
   const { formData, goToStep, isStepValid, resetForm } = useFormContext();
@@ -29,74 +29,22 @@ export default function MultiStepForm() {
     }
   };
 
-  // Check if there's saved data
-  const checkSavedData = () => {
-    try {
-      const savedData = localStorage.getItem('formData');
-      if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        // Check if there's meaningful data (not just initial state)
-        const hasData = parsedData.basicInfo?.contactoCAU || 
-                       parsedData.basicInfo?.telefonoContacto ||
-                       parsedData.basicInfo?.emailContacto ||
-                       parsedData.basicInfo?.actividad ||
-                       parsedData.basicInfo?.cerroOSector ||
-                       parsedData.participantes?.length > 0 || 
-                       parsedData.itinerario?.length > 0 ||
-                       parsedData.equipo?.length > 0 ||
-                       parsedData.transporte?.length > 0;
-        
-        // Show notification if we just got saved data
-        if (hasData && !hasSavedData) {
-          setShowSaveNotification(true);
-          setTimeout(() => setShowSaveNotification(false), 3000);
-        }
-        
-        setHasSavedData(hasData);
-      } else {
-        setHasSavedData(false);
-      }
-    } catch (error) {
-      console.error('MultiStepForm - Error checking saved data:', error);
-      setHasSavedData(false);
-    }
-  };
+  const hasMeaningfulData = (parsedData) =>
+    parsedData.basicInfo?.contactoCAU ||
+    parsedData.basicInfo?.telefonoContacto ||
+    parsedData.basicInfo?.emailContacto ||
+    parsedData.basicInfo?.actividad ||
+    parsedData.basicInfo?.cerroOSector ||
+    parsedData.participantes?.length > 0 ||
+    parsedData.itinerario?.length > 0 ||
+    parsedData.equipo?.length > 0 ||
+    parsedData.transporte?.length > 0;
 
-  // Check saved data on mount and when formData changes
+  // Derive hasSavedData from formData directly — no localStorage reads needed
   useEffect(() => {
-    checkSavedData();
+    const hasData = hasMeaningfulData(formData);
+    setHasSavedData(hasData);
   }, [formData]);
-
-  // Additional effect to check saved data when component mounts
-  useEffect(() => {
-    // Migrate from sessionStorage to localStorage if needed
-    const sessionData = sessionStorage.getItem('formData');
-    if (sessionData) {
-      localStorage.setItem('formData', sessionData);
-      sessionStorage.removeItem('formData');
-    }
-
-    // Check saved data immediately on mount
-    const savedData = localStorage.getItem('formData');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        const hasData = parsedData.basicInfo?.contactoCAU || 
-                       parsedData.basicInfo?.telefonoContacto ||
-                       parsedData.basicInfo?.emailContacto ||
-                       parsedData.basicInfo?.actividad ||
-                       parsedData.basicInfo?.cerroOSector ||
-                       parsedData.participantes?.length > 0 || 
-                       parsedData.itinerario?.length > 0 ||
-                       parsedData.equipo?.length > 0 ||
-                       parsedData.transporte?.length > 0;
-        
-        setHasSavedData(hasData);
-      } catch (error) {
-        console.error('MultiStepForm - Error in initial check:', error);
-      }
-    }
-  }, []);
 
   const getStepStatus = (stepId) => {
     if (stepId < formData.currentStep) {

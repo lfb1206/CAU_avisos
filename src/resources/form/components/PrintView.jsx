@@ -796,9 +796,6 @@ export default function PrintView({ formData, onClose }) {
                           ...prev,
                           [index]: naturalWidth
                         }));
-                        if (naturalWidth < getImageSize(index)) {
-                          console.log(`Image ${index + 1} natural width: ${naturalWidth}px, requested: ${getImageSize(index)}px - may appear pixelated`);
-                        }
                       }}
                       onError={(e) => {
                         e.target.style.display = 'none';

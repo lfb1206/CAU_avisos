@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { getParticipants, peopleData } from '../../constants/peopleData';
+import { peopleData } from '../../constants/peopleData';
 import ParticipantForm from '../components/ParticipantForm';
 
 export default function Step2Participants() {

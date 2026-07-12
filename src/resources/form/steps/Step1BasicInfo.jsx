@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { getContacts, peopleData } from '../../constants/peopleData';
+import { peopleData } from '../../constants/peopleData';
 import { basicFormOptions } from '../../constants/basicFormOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import WeatherImageUpload from '../components/WeatherImageUpload';

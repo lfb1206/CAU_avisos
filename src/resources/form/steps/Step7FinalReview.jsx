@@ -9,27 +9,8 @@ export default function Step7FinalReview() {
   const [showPrintView, setShowPrintView] = useState(false);
   const [showEmergencyContactsEditor, setShowEmergencyContactsEditor] = useState(false);
 
-  // Ensure all arrays are properly initialized
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-  // Obtener riesgos de los supuestos del itinerario que están incluidos
-  const riesgos = [];
-  formData.itinerario.forEach((day) => {
-    (day.supuestos || []).forEach((assumption) => {
-      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true && assumption.causas) {
-        assumption.causas.forEach((causa) => {
-          if (causa.riesgo && causa.peligro) {
-            riesgos.push({
-              supuesto: assumption.supuesto,
-              riesgo: causa.riesgo,
-              peligro: causa.peligro,
-              lugar: causa.lugar || ''
-            });
-          }
-        });
-      }
-    });
-  });
   const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
   const cuerposRescate = Array.isArray(formData.cuerposRescate) ? formData.cuerposRescate : [];
@@ -68,12 +49,6 @@ export default function Step7FinalReview() {
       patente: t.patente,
       distancia: t.distancia
     }));
-  };
-
-  const getMedicalSummary = () => {
-    return participantes.filter(p => 
-      p.grupoSanguineo || p.alergias || p.enfermedades || p.medicamentos || p.condicionesEspeciales
-    );
   };
 
   const getValidationErrors = () => {
@@ -147,18 +122,6 @@ export default function Step7FinalReview() {
         }
       });
     }
-    
-    // Contar supuestos de gestión para el resumen
-    const supuestosGestionar = [];
-    itinerario.forEach((day, dayIndex) => {
-      (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-        if (assumption.accion === 'gestionar' || 
-            (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
-            (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) {
-          supuestosGestionar.push(assumption);
-        }
-      });
-    });
     
     // Equipment validation - solo si hay equipos agregados
     if (equipo.length > 0) {
@@ -245,7 +208,7 @@ export default function Step7FinalReview() {
 
         {/* Basic Information */}
         <div className="bg-blue-50 rounded-lg p-4">
-          <h4 className="text-md font-semibold text-blue-900 mb-3">
+          <h4 className="text-base font-semibold text-blue-900 mb-3">
             Información Básica
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
@@ -275,7 +238,7 @@ export default function Step7FinalReview() {
 
         {/* Participants */}
         <div className="bg-green-50 rounded-lg p-4">
-          <h4 className="text-md font-semibold text-green-900 mb-3">
+          <h4 className="text-base font-semibold text-green-900 mb-3">
             Participantes ({participantes.length})
           </h4>
           <div className="space-y-2">
@@ -300,7 +263,7 @@ export default function Step7FinalReview() {
         {/* Itinerary */}
         {itinerario.length > 0 && (
           <div className="bg-yellow-50 rounded-lg p-4">
-            <h4 className="text-md font-semibold text-yellow-900 mb-3">
+            <h4 className="text-base font-semibold text-yellow-900 mb-3">
               Itinerario ({itinerario.length} tramos)
             </h4>
             <div className="space-y-2">
@@ -321,25 +284,40 @@ export default function Step7FinalReview() {
         )}
 
         {/* Risk Management */}
-        {riesgos.length > 0 && (
-          <div className="bg-red-50 rounded-lg p-4">
-            <h4 className="text-md font-semibold text-red-900 mb-3">
-              Gestión de Riesgos ({riesgos.length} supuestos)
-            </h4>
-            <div className="space-y-2">
-              {riesgos.map((risk, index) => (
-                <div key={index} className="text-sm">
-                  <strong>{risk.supuesto}</strong> - {risk.riesgo} ({risk.peligro})
-                </div>
-              ))}
+        {(() => {
+          const supuestosConGestion = itinerario.flatMap((day) =>
+            (day.supuestos || []).filter(
+              (s) =>
+                s.accion === 'gestionar' ||
+                ((s.accion === 'monitoreo_intenso' || s.accion === 'monitoreo_normal') && s.incluir === true)
+            )
+          );
+          if (supuestosConGestion.length === 0) return null;
+          return (
+            <div className="bg-red-50 rounded-lg p-4">
+              <h4 className="text-base font-semibold text-red-900 mb-3">
+                Gestión de Supuestos ({supuestosConGestion.length} supuestos)
+              </h4>
+              <div className="space-y-2">
+                {supuestosConGestion.map((s, i) => (
+                  <div key={i} className="text-sm">
+                    <strong>{s.supuesto}</strong>
+                    {s.causas && s.causas.length > 0 && (
+                      <span className="text-gray-600 ml-1">
+                        — {s.causas.length} causa{s.causas.length > 1 ? 's' : ''} definida{s.causas.length > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Equipment */}
         {equipo.length > 0 && (
           <div className="bg-purple-50 rounded-lg p-4">
-            <h4 className="text-md font-semibold text-purple-900 mb-3">
+            <h4 className="text-base font-semibold text-purple-900 mb-3">
               Equipo ({equipo.length} items)
             </h4>
             <div className="space-y-2">
@@ -355,7 +333,7 @@ export default function Step7FinalReview() {
         {/* Transport */}
         {transporte.length > 0 && (
           <div className="bg-indigo-50 rounded-lg p-4">
-            <h4 className="text-md font-semibold text-indigo-900 mb-3">
+            <h4 className="text-base font-semibold text-indigo-900 mb-3">
               Transporte ({transporte.length} vehículos)
             </h4>
             <div className="space-y-2">
@@ -396,7 +374,7 @@ export default function Step7FinalReview() {
           />
         ) : (
           <div className="bg-red-50 rounded-lg p-4">
-            <h4 className="text-md font-semibold text-red-900 mb-3">
+            <h4 className="text-base font-semibold text-red-900 mb-3">
               CUERPOS DE RESCATE OFICIALES ({includedEmergencyContacts.length} contactos)
             </h4>
             <div className="space-y-2">
@@ -417,7 +395,7 @@ export default function Step7FinalReview() {
 
       {/* Validation Status */}
       <div className="bg-gray-50 rounded-lg p-4">
-        <h4 className="text-md font-semibold text-gray-900 mb-3">
+        <h4 className="text-base font-semibold text-gray-900 mb-3">
           Estado de Validación
         </h4>
         <div className="space-y-2">

@@ -4,11 +4,11 @@ import { useFormContext } from '../../contexts/FormContext';
 import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { ASSUMPTION_ACTIONS } from '../../constants/formConstants';
 
 export default function Step4RiskManagement() {
   const { formData, updateItem } = useFormContext();
-  
-  // Estado para el modal de confirmación
+
   const [modalState, setModalState] = useState({
     isOpen: false,
     title: '',
@@ -17,45 +17,27 @@ export default function Step4RiskManagement() {
     type: 'danger'
   });
 
-  // Funciones para manejar el modal
   const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
-    setModalState({
-      isOpen: true,
-      title,
-      message,
-      onConfirm,
-      type
-    });
+    setModalState({ isOpen: true, title, message, onConfirm, type });
   };
 
   const closeModal = () => {
-    setModalState({
-      isOpen: false,
-      title: '',
-      message: '',
-      onConfirm: null,
-      type: 'danger'
-    });
+    setModalState({ isOpen: false, title: '', message: '', onConfirm: null, type: 'danger' });
   };
 
   const handleConfirm = () => {
-    if (modalState.onConfirm) {
-      modalState.onConfirm();
-    }
+    modalState.onConfirm?.();
     closeModal();
   };
 
-  // Obtener supuestos a gestionar del itinerario
   const supuestosGestionar = [];
   formData.itinerario.forEach((day, dayIndex) => {
     (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-      // Incluir supuestos que tengan:
-      // - accion === 'gestionar' (automático) 
-      // - accion === 'monitoreo_intenso' Y incluir === true
-      // - accion === 'monitoreo_normal' Y incluir === true
-      if (assumption.accion === 'gestionar' || 
-          (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
-          (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) {
+      if (
+        assumption.accion === ASSUMPTION_ACTIONS.GESTIONAR ||
+        (assumption.accion === ASSUMPTION_ACTIONS.MONITOREO_INTENSO && assumption.incluir === true) ||
+        (assumption.accion === ASSUMPTION_ACTIONS.MONITOREO_NORMAL && assumption.incluir === true)
+      ) {
         supuestosGestionar.push({
           key: `${dayIndex}-${assumptionIndex}`,
           tramo: day.tramo,
@@ -68,18 +50,25 @@ export default function Step4RiskManagement() {
     });
   });
 
-  // Asegurar que todos los supuestos tengan al menos una causa
   React.useEffect(() => {
-    supuestosGestionar.forEach(sup => {
-      ensureCausaExists(sup.key);
-    });
-  }, [supuestosGestionar.length]); // Solo cuando cambie el número de supuestos
+    supuestosGestionar.forEach(sup => ensureCausaExists(sup.key));
+  }, [supuestosGestionar.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Agregar causa/peligro a un supuesto (automático)
-  const addCausa = (supKey) => {
+  // Shared helper: parse and validate a supKey, return { dayIndex, assumptionIndex, sup, updatedItinerario } or null
+  const resolveSupuesto = (supKey) => {
     const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
+    if (isNaN(dayIndex) || isNaN(assumptionIndex)) return null;
+    if (!formData.itinerario[dayIndex]) return null;
+    if (!formData.itinerario[dayIndex].supuestos?.[assumptionIndex]) return null;
     const updatedItinerario = [...formData.itinerario];
     const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
+    return { dayIndex, assumptionIndex, sup, updatedItinerario };
+  };
+
+  const addCausa = (supKey) => {
+    const resolved = resolveSupuesto(supKey);
+    if (!resolved) return;
+    const { dayIndex, sup, updatedItinerario } = resolved;
     if (!sup.causas) sup.causas = [];
     sup.causas.push({
       lugar: '',
@@ -92,130 +81,40 @@ export default function Step4RiskManagement() {
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  // Agregar causa automáticamente si no existe
   const ensureCausaExists = (supKey) => {
-    const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-    const sup = formData.itinerario[dayIndex].supuestos[assumptionIndex];
-    if (!sup.causas || sup.causas.length === 0) {
-      addCausa(supKey);
-    }
+    const resolved = resolveSupuesto(supKey);
+    if (!resolved) return;
+    const { sup } = resolved;
+    if (!sup.causas || sup.causas.length === 0) addCausa(supKey);
   };
 
-  // Actualizar causa/peligro
   const updateCausa = (supKey, causaIndex, field, value) => {
-    try {
-      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-      
-      // Validar que los índices sean válidos
-      if (isNaN(dayIndex) || isNaN(assumptionIndex) || isNaN(causaIndex)) {
-        console.error('Índices inválidos para actualizar causa:', supKey, causaIndex);
-        return;
-      }
-      
-      // Validar que el día existe
-      if (!formData.itinerario[dayIndex]) {
-        console.error('Día de itinerario no encontrado:', dayIndex);
-        return;
-      }
-      
-      // Validar que el supuesto existe
-      if (!formData.itinerario[dayIndex].supuestos || 
-          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
-        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
-        return;
-      }
-      
-      const updatedItinerario = [...formData.itinerario];
-      const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
-      if (!sup.causas) sup.causas = [];
-      
-      // Validar que la causa existe
-      if (!sup.causas[causaIndex]) {
-        console.error('Causa no encontrada:', dayIndex, assumptionIndex, causaIndex);
-        return;
-      }
-      
-      sup.causas[causaIndex][field] = value;
-      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
-    } catch (error) {
-      console.error('Error al actualizar causa:', error);
-    }
+    const resolved = resolveSupuesto(supKey);
+    if (!resolved) return;
+    const { dayIndex, sup, updatedItinerario } = resolved;
+    if (!sup.causas) sup.causas = [];
+    if (!sup.causas[causaIndex]) return;
+    sup.causas[causaIndex][field] = value;
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  // Eliminar causa/peligro
   const removeCausa = (supKey, causaIndex) => {
-    try {
-      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-      
-      // Validar que los índices sean válidos
-      if (isNaN(dayIndex) || isNaN(assumptionIndex) || isNaN(causaIndex)) {
-        console.error('Índices inválidos para eliminar causa:', supKey, causaIndex);
-        return;
-      }
-      
-      // Validar que el día existe
-      if (!formData.itinerario[dayIndex]) {
-        console.error('Día de itinerario no encontrado:', dayIndex);
-        return;
-      }
-      
-      // Validar que el supuesto existe
-      if (!formData.itinerario[dayIndex].supuestos || 
-          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
-        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
-        return;
-      }
-      
-      const updatedItinerario = [...formData.itinerario];
-      const sup = updatedItinerario[dayIndex].supuestos[assumptionIndex];
-      if (!sup.causas) sup.causas = [];
-      
-      // Validar que la causa existe
-      if (!sup.causas[causaIndex]) {
-        console.error('Causa no encontrada:', dayIndex, assumptionIndex, causaIndex);
-        return;
-      }
-      
-      sup.causas.splice(causaIndex, 1);
-      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
-    } catch (error) {
-      console.error('Error al eliminar causa:', error);
-    }
+    const resolved = resolveSupuesto(supKey);
+    if (!resolved) return;
+    const { dayIndex, sup, updatedItinerario } = resolved;
+    if (!sup.causas?.[causaIndex]) return;
+    sup.causas.splice(causaIndex, 1);
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  // Eliminar supuesto completo
   const removeSupuesto = (supKey) => {
-    try {
-      const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
-      
-      // Validar que los índices sean válidos
-      if (isNaN(dayIndex) || isNaN(assumptionIndex)) {
-        console.error('Índices inválidos para eliminar supuesto:', supKey);
-        return;
-      }
-      
-      // Validar que el día existe
-      if (!formData.itinerario[dayIndex]) {
-        console.error('Día de itinerario no encontrado:', dayIndex);
-        return;
-      }
-      
-      // Validar que el supuesto existe
-      if (!formData.itinerario[dayIndex].supuestos || 
-          !formData.itinerario[dayIndex].supuestos[assumptionIndex]) {
-        console.error('Supuesto no encontrado:', dayIndex, assumptionIndex);
-        return;
-      }
-      
-      const updatedItinerario = [...formData.itinerario];
-      updatedItinerario[dayIndex].supuestos.splice(assumptionIndex, 1);
-      updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
-    } catch (error) {
-      console.error('Error al eliminar supuesto:', error);
-    }
+    const resolved = resolveSupuesto(supKey);
+    if (!resolved) return;
+    const { dayIndex, assumptionIndex, updatedItinerario } = resolved;
+    updatedItinerario[dayIndex].supuestos.splice(assumptionIndex, 1);
+    updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  // UI
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -226,9 +125,7 @@ export default function Step4RiskManagement() {
       <div className="space-y-4">
         {supuestosGestionar.length === 0 && (
           <div className="text-center py-8">
-            <div className="text-gray-500 italic mb-2">
-              No hay supuestos críticos para gestionar.
-            </div>
+            <div className="text-gray-500 italic mb-2">No hay supuestos críticos para gestionar.</div>
             <div className="text-sm text-gray-400">
               Los supuestos aparecerán aquí solo si:
               <ul className="list-disc list-inside mt-1 space-y-1">
@@ -239,9 +136,9 @@ export default function Step4RiskManagement() {
             </div>
           </div>
         )}
-        {supuestosGestionar.map((sup, supIndex) => {
-          return (
-            <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
+
+        {supuestosGestionar.map((sup) => (
+          <details key={sup.key} className="border border-blue-200 rounded-lg bg-blue-50 mb-4">
             <summary className="flex items-center justify-between px-4 py-3 cursor-pointer">
               <div className="flex items-center space-x-3">
                 <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">
@@ -266,6 +163,7 @@ export default function Step4RiskManagement() {
                 Eliminar supuesto
               </button>
             </summary>
+
             <div className="p-4 border-t border-blue-200">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-semibold text-blue-800">Supuesto {sup.indexSupuesto + 1}</h4>
@@ -274,6 +172,7 @@ export default function Step4RiskManagement() {
                 {sup.causas.map((causa, causaIndex) => (
                   <div key={causaIndex} className="bg-blue-50 mb-2 p-4" data-causa-item={`${sup.key}-${causaIndex}`}>
                     <div className="space-y-4">
+
                       {/* 1. Ubicación */}
                       <div className="border-b border-gray-200 pb-3">
                         <h4 className="text-sm font-semibold text-gray-800 mb-3">Ubicación</h4>
@@ -346,8 +245,7 @@ export default function Step4RiskManagement() {
                       {/* 3. Identificación del Problema */}
                       <div className="border-b border-gray-200 pb-3">
                         <h4 className="text-sm font-semibold text-gray-800 mb-3">Identificación del Problema</h4>
-                        
-                        {/* Peligros */}
+
                         <div className="space-y-1 mb-4">
                           <label className="block text-sm font-medium text-gray-700">Peligros o causas subyacentes *</label>
                           <div className="space-y-2">
@@ -373,7 +271,7 @@ export default function Step4RiskManagement() {
                                       'Eliminar Peligro',
                                       `¿Estás seguro de que quieres eliminar el peligro "${peligro}"?`,
                                       () => {
-                                        const updatedPeligros = (causa.peligros || []).filter((_, index) => index !== peligroIndex);
+                                        const updatedPeligros = (causa.peligros || []).filter((_, i) => i !== peligroIndex);
                                         updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
                                       },
                                       'warning'
@@ -396,14 +294,11 @@ export default function Step4RiskManagement() {
                               + Agregar Peligro
                             </button>
                             {(!causa.peligros || causa.peligros.length === 0) && (
-                              <p className="text-sm text-gray-500 italic">
-                                No se han agregado peligros. Haga clic en "Agregar Peligro" para comenzar.
-                              </p>
+                              <p className="text-sm text-gray-500 italic">No se han agregado peligros.</p>
                             )}
                           </div>
                         </div>
 
-                        {/* Riesgos */}
                         <div className="space-y-1">
                           <label className="block text-sm font-medium text-gray-700">Riesgos asociados *</label>
                           <div className="space-y-2">
@@ -429,7 +324,7 @@ export default function Step4RiskManagement() {
                                       'Eliminar Riesgo',
                                       `¿Estás seguro de que quieres eliminar el riesgo "${riesgo}"?`,
                                       () => {
-                                        const updatedRiesgos = (causa.riesgos || []).filter((_, index) => index !== riesgoIndex);
+                                        const updatedRiesgos = (causa.riesgos || []).filter((_, i) => i !== riesgoIndex);
                                         updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
                                       },
                                       'warning'
@@ -452,9 +347,7 @@ export default function Step4RiskManagement() {
                               + Agregar Riesgo
                             </button>
                             {(!causa.riesgos || causa.riesgos.length === 0) && (
-                              <p className="text-sm text-gray-500 italic">
-                                No se han agregado riesgos. Haga clic en "Agregar Riesgo" para comenzar.
-                              </p>
+                              <p className="text-sm text-gray-500 italic">No se han agregado riesgos.</p>
                             )}
                           </div>
                         </div>
@@ -484,64 +377,37 @@ export default function Step4RiskManagement() {
                         </div>
                       </div>
                     </div>
+
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <span className="text-xs text-gray-500 break-words">
-                        {causa.riesgos && causa.riesgos.length > 0 ? 
-                          `Riesgos: ${causa.riesgos.filter(r => r.trim()).join(', ')}` : 
-                          'Sin riesgos definidos'
-                        }
+                        {causa.riesgos && causa.riesgos.length > 0
+                          ? `Riesgos: ${causa.riesgos.filter(r => r.trim()).join(', ')}`
+                          : 'Sin riesgos definidos'}
                       </span>
                     </div>
                   </div>
                 ))}
-                
-
               </div>
             </div>
           </details>
-          );
-        })}
+        ))}
       </div>
 
-      {/* Instrucciones al final */}
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">
-            Instrucciones para la Gestión de Supuestos
-          </h3>
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-blue-900 mb-3">Instrucciones para la Gestión de Supuestos</h3>
         <div className="text-sm text-blue-800 space-y-2">
-          <p>
-            <strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros 
-            que pueden surgir cuando los supuestos del itinerario no se cumplen, afectando la seguridad de la expedición.
-          </p>
-          <p>
-            <strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos del itinerario que están marcados como 
-            "Gestionar" o "Monitoreo Intenso" y que están incluidos en el aviso de salida.
-          </p>
-          <p>
-            <strong>¿Cómo gestionar cada supuesto crítico?</strong> Para cada supuesto que requiere gestión, debe completar:
-          </p>
+          <p><strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros que pueden surgir cuando los supuestos del itinerario no se cumplen.</p>
+          <p><strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos marcados como "Gestionar" o "Monitoreo Intenso" que están incluidos en el aviso de salida.</p>
+          <p><strong>¿Cómo gestionar cada supuesto crítico?</strong> Complete para cada uno:</p>
           <ul className="list-disc list-inside ml-4 space-y-1">
             <li><strong>Identificación del Peligro:</strong> ¿Qué puede salir mal si no se cumple el supuesto?</li>
-            <li><strong>Evaluación del Supuesto:</strong> ¿Qué tan probable es que no se cumpla el supuesto?</li>
-            <li><strong>Ubicación del Peligro:</strong> ¿En qué lugar específico puede ocurrir si no se cumple?</li>
-            <li><strong>Acciones de Mitigación:</strong> ¿Qué medidas tomar para asegurar que se cumpla el supuesto?</li>
+            <li><strong>Evaluación del Supuesto:</strong> ¿Qué tan probable es que no se cumpla?</li>
+            <li><strong>Ubicación del Peligro:</strong> ¿En qué lugar específico puede ocurrir?</li>
+            <li><strong>Acciones de Mitigación:</strong> ¿Qué medidas tomar?</li>
           </ul>
-          <p>
-            <strong>Tipos de Acciones:</strong>
-          </p>
-          <ul className="list-disc list-inside ml-4 space-y-1">
-            <li><strong>Prevención Primaria:</strong> Acciones para asegurar que se cumpla el supuesto</li>
-            <li><strong>Control de Exposición:</strong> Medidas para reducir el impacto si no se cumple el supuesto</li>
-            <li><strong>Mitigación de Consecuencias:</strong> Acciones para minimizar los daños si no se cumple el supuesto</li>
-          </ul>
-          <p className="text-xs text-blue-700 mt-3">
-            <strong>Recomendación:</strong> Cuanto más específicas y detalladas sean sus acciones de mitigación, 
-            más efectiva será la gestión del supuesto y mayor será la seguridad de la expedición.
-          </p>
         </div>
       </div>
 
-      {/* Modal de confirmación */}
       <ConfirmationModal
         isOpen={modalState.isOpen}
         onClose={closeModal}
@@ -554,4 +420,4 @@ export default function Step4RiskManagement() {
       />
     </div>
   );
-} 
+}

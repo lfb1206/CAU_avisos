@@ -3,55 +3,29 @@ import React, { useEffect } from 'react';
 import { transportOptions } from '../../constants/transportOptions';
 import AutocompleteInput from './AutocompleteInput';
 
-export default function TransportForm({ 
-  transport, 
-  index, 
-  onUpdate, 
+export default function TransportForm({
+  transport,
+  index,
+  onUpdate,
   onRemove,
-  getConductorOptions 
+  getConductorOptions
 }) {
   const isAutoParticular = transport.tipo?.toLowerCase() === 'auto particular';
-  const isBus = transport.tipo?.toLowerCase() === 'bus';
-  const needsVehicleDetails = isAutoParticular;
-  const needsFuelInfo = isAutoParticular;
 
-  // Debug logs
-  console.log('TransportForm render:', {
-    tipo: transport.tipo,
-    isAutoParticular,
-    needsVehicleDetails,
-    needsFuelInfo
-  });
-
-  // Limpiar campos cuando cambie el tipo de transporte
+  // Clear auto-particular fields when switching away from that type
   useEffect(() => {
-    console.log('useEffect triggered:', transport.tipo);
-    
-    // Solo limpiar si hay un tipo seleccionado y NO es auto particular
-    if (transport.tipo && transport.tipo.toLowerCase() !== 'auto particular') {
-      console.log('Cleaning auto particular fields');
+    if (transport.tipo && !isAutoParticular) {
       onUpdate(index, 'conductor', '');
       onUpdate(index, 'tipoCombustible', '');
       onUpdate(index, 'tipoAuto', '');
       onUpdate(index, 'anioVehiculo', '');
       onUpdate(index, 'capacidad', '');
-    }
-    
-    // Solo limpiar detalles del vehículo si no los necesita
-    if (transport.tipo && !needsVehicleDetails) {
-      console.log('Cleaning vehicle details fields');
       onUpdate(index, 'marca', '');
       onUpdate(index, 'modelo', '');
       onUpdate(index, 'color', '');
       onUpdate(index, 'patente', '');
     }
-    
-    // Solo limpiar combustible si no lo necesita
-    if (transport.tipo && !needsFuelInfo) {
-      console.log('Cleaning fuel fields');
-      onUpdate(index, 'tipoCombustible', '');
-    }
-  }, [transport.tipo]); // Solo dependencia del tipo
+  }, [transport.tipo]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 md:p-6 bg-gray-50">
@@ -72,12 +46,10 @@ export default function TransportForm({
         <AutocompleteInput
           label="Tipo"
           value={(() => {
-            // Buscar el label correspondiente al value
             const selectedOption = transportOptions.transportTypes.find(option => option.value === transport.tipo);
             return selectedOption ? selectedOption.label : transport.tipo || '';
           })()}
           onChange={(value) => {
-            // Buscar el objeto correspondiente al label seleccionado
             const selectedOption = transportOptions.transportTypes.find(option => option.label === value);
             const actualValue = selectedOption ? selectedOption.value : value;
             onUpdate(index, 'tipo', actualValue);
@@ -107,9 +79,7 @@ export default function TransportForm({
             />
 
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Modelo
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Modelo</label>
               <input
                 type="text"
                 value={transport.modelo || ''}
@@ -120,9 +90,7 @@ export default function TransportForm({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Color
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Color</label>
               <input
                 type="text"
                 value={transport.color || ''}
@@ -133,9 +101,7 @@ export default function TransportForm({
             </div>
 
             <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Patente
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Patente</label>
               <input
                 type="text"
                 value={transport.patente || ''}
@@ -186,7 +152,6 @@ export default function TransportForm({
                     <div><strong>Hatchback:</strong> Auto chico (ej: Swift, Yaris)</div>
                     <div><strong>Station Wagon:</strong> Familiar (ej: Subaru Outback)</div>
                     <div><strong>Jeep:</strong> Vehículo todoterreno (ej: Wrangler, Defender)</div>
-                    <div className="mt-2 text-gray-300">* Factores de emisión por tipo de vehículo</div>
                   </span>
                 </div>
               </label>
@@ -259,61 +224,8 @@ export default function TransportForm({
           </>
         )}
 
-        {needsVehicleDetails && !isAutoParticular && (
-          <>
-            <AutocompleteInput
-              label="Marca"
-              value={transport.marca || ''}
-              onChange={(value) => onUpdate(index, 'marca', value)}
-              options={transportOptions.vehicleBrands}
-              placeholder="Seleccione o escriba la marca"
-            />
-
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Modelo
-              </label>
-              <input
-                type="text"
-                value={transport.modelo || ''}
-                onChange={(e) => onUpdate(index, 'modelo', e.target.value)}
-                placeholder="Modelo del vehículo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Color
-              </label>
-              <input
-                type="text"
-                value={transport.color || ''}
-                onChange={(e) => onUpdate(index, 'color', e.target.value)}
-                placeholder="Color del vehículo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Patente
-              </label>
-              <input
-                type="text"
-                value={transport.patente || ''}
-                onChange={(e) => onUpdate(index, 'patente', e.target.value)}
-                placeholder="Patente del vehículo"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </>
-        )}
-
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">
-            Distancia (km)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Distancia (km)</label>
           <input
             type="number"
             value={transport.distancia || ''}
@@ -325,9 +237,7 @@ export default function TransportForm({
         </div>
 
         <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-700">
-            Huella de Carbono (kg CO2)
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Huella de Carbono (kg CO2)</label>
           <input
             type="number"
             value={transport.huellaCarbono || ''}
@@ -339,9 +249,9 @@ export default function TransportForm({
             readOnly
           />
           <p className="text-xs text-gray-500">
-            {isAutoParticular ? 
-              'Huella total del viaje del vehículo (incluye combustible, tipo de auto, año y ocupación).' : 
-             transport.tipo?.toLowerCase() === 'bus' ? 
+            {isAutoParticular ?
+              'Huella total del viaje del vehículo (incluye combustible, tipo de auto, año y ocupación).' :
+             transport.tipo?.toLowerCase() === 'bus' ?
               'Huella total del viaje del bus (incluye combustible y factor de ocupación).' :
              transport.tipo?.toLowerCase() === 'metro' || transport.tipo?.toLowerCase() === 'tren' ?
               'Huella por viaje individual (transporte público).' :
@@ -352,10 +262,10 @@ export default function TransportForm({
               'Huella por viaje individual (taxi/uber).'}
           </p>
           <p className="text-xs text-blue-600 font-medium">
-            💡 Para auto particular y bus: divide entre pasajeros para obtener huella por persona.
+            Para auto particular y bus: divide entre pasajeros para obtener huella por persona.
           </p>
         </div>
       </div>
     </div>
   );
-} 
+}
