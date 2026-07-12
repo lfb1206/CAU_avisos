@@ -17,7 +17,7 @@ export default function Step4RiskManagement() {
     type: 'danger'
   });
 
-  const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
+  const showConfirmationModal = (title: string, message: string, onConfirm: () => void, type = 'danger') => {
     setModalState({ isOpen: true, title, message, onConfirm, type });
   };
 
@@ -55,7 +55,7 @@ export default function Step4RiskManagement() {
   }, [supuestosGestionar.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Shared helper: parse and validate a supKey, return { dayIndex, assumptionIndex, sup, updatedItinerario } or null
-  const resolveSupuesto = (supKey) => {
+  const resolveSupuesto = (supKey: string) => {
     const [dayIndex, assumptionIndex] = supKey.split('-').map(Number);
     if (isNaN(dayIndex) || isNaN(assumptionIndex)) return null;
     if (!formData.itinerario[dayIndex]) return null;
@@ -65,7 +65,7 @@ export default function Step4RiskManagement() {
     return { dayIndex, assumptionIndex, sup, updatedItinerario };
   };
 
-  const addCausa = (supKey) => {
+  const addCausa = (supKey: string) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { dayIndex, sup, updatedItinerario } = resolved;
@@ -81,14 +81,14 @@ export default function Step4RiskManagement() {
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  const ensureCausaExists = (supKey) => {
+  const ensureCausaExists = (supKey: string) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { sup } = resolved;
     if (!sup.causas || sup.causas.length === 0) addCausa(supKey);
   };
 
-  const updateCausa = (supKey, causaIndex, field, value) => {
+  const updateCausa = (supKey: string, causaIndex: number, field: string, value: unknown) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { dayIndex, sup, updatedItinerario } = resolved;
@@ -98,7 +98,7 @@ export default function Step4RiskManagement() {
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  const removeCausa = (supKey, causaIndex) => {
+  const removeCausa = (supKey: string, causaIndex: number) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { dayIndex, sup, updatedItinerario } = resolved;
@@ -107,7 +107,7 @@ export default function Step4RiskManagement() {
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  const removeSupuesto = (supKey) => {
+  const removeSupuesto = (supKey: string) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { dayIndex, assumptionIndex, updatedItinerario } = resolved;

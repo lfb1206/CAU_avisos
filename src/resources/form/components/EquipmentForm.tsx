@@ -1,12 +1,20 @@
 'use client';
 import React, { useState, useCallback } from 'react';
+import type { EquipmentItem } from '@/types';
 import AutocompleteInput from './AutocompleteInput';
 import { equipmentData } from '../../constants/equipmentData';
 
-export default function EquipmentForm({ equipment, index, onUpdate, onRemove }) {
+interface EquipmentFormProps {
+  equipment: EquipmentItem;
+  index: number;
+  onUpdate: (index: number, field: string, value: unknown) => void;
+  onRemove: (index: number) => void;
+}
+
+export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: EquipmentFormProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const handleInputChange = useCallback((field, value) => {
+  const handleInputChange = useCallback((field: string, value: unknown) => {
     onUpdate(index, field, value);
   }, [onUpdate, index]);
 

@@ -1,17 +1,33 @@
 'use client';
 import React from 'react';
-import docFields from '../../constants/docFields.js';
+import docFields from '../../constants/docFields';
 
-export default function DynamicFormField({ 
-  fieldName, 
-  value, 
-  onChange, 
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface DynamicFormFieldProps {
+  fieldName: string;
+  value: string | boolean;
+  onChange: (value: string | boolean) => void;
+  required?: boolean;
+  className?: string;
+  placeholder?: string | null;
+  options?: SelectOption[] | null;
+  min?: string | null;
+}
+
+export default function DynamicFormField({
+  fieldName,
+  value,
+  onChange,
   required = false,
-  className = "",
+  className = '',
   placeholder = null,
   options = null,
   min = null
-}) {
+}: DynamicFormFieldProps) {
   // Buscar la configuración del campo en docFields
   const fieldConfig = docFields.find(field => field.name === fieldName);
   
@@ -200,13 +216,10 @@ export default function DynamicFormField({
   );
 }
 
-// Función helper para obtener la configuración de un campo
-export const getFieldConfig = (fieldName) => {
-  return docFields.find(field => field.name === fieldName);
-};
+export const getFieldConfig = (fieldName: string) =>
+  docFields.find((field: { name: string }) => field.name === fieldName);
 
-// Función helper para obtener todos los campos de una sección
-export const getFieldsForSection = (sectionName) => {
-  const sectionField = docFields.find(field => field.name === sectionName);
+export const getFieldsForSection = (sectionName: string) => {
+  const sectionField = docFields.find((field: { name: string }) => field.name === sectionName) as { fields?: unknown[] } | undefined;
   return sectionField?.fields || [];
 }; 

@@ -167,11 +167,11 @@ export default function Step7FinalReview() {
     addItem('cuerposRescate', newContact);
   };
 
-  const removeEmergencyContact = (index) => {
+  const removeEmergencyContact = (index: number) => {
     removeItem('cuerposRescate', index);
   };
 
-  const toggleEmergencyContactInclude = (index, include) => {
+  const toggleEmergencyContactInclude = (index: number, include: boolean) => {
     updateItem('cuerposRescate', index, { incluir: include });
   };
 

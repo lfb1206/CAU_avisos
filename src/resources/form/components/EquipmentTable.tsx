@@ -1,20 +1,28 @@
 'use client';
 import React from 'react';
+import type { EquipmentItem } from '@/types';
 import { equipmentData } from '../../constants/equipmentData';
 import AutocompleteInput from './AutocompleteInput';
 
-export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }) {
-  const handleToggleChecked = (index) => {
+interface EquipmentTableProps {
+  equipment: EquipmentItem[];
+  onUpdate: (index: number, field: string, value: unknown) => void;
+  onRemove: (index: number) => void;
+  onAdd: (item: Partial<EquipmentItem>) => void;
+}
+
+export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }: EquipmentTableProps) {
+  const handleToggleChecked = (index: number) => {
     const updatedEquipment = [...equipment];
     updatedEquipment[index].checked = !updatedEquipment[index].checked;
     onUpdate(index, 'checked', updatedEquipment[index].checked);
   };
 
-  const handleInputChange = (index, field, value) => {
+  const handleInputChange = (index: number, field: string, value: unknown) => {
     onUpdate(index, field, value);
   };
 
-  const handleRemove = (index) => {
+  const handleRemove = (index: number) => {
     onRemove(index);
   };
 

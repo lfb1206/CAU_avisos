@@ -1,7 +1,13 @@
 'use client';
 import React, { useRef, useEffect } from 'react';
+import type { FormState } from '@/types';
 
-export default function PrintView({ formData, onClose }) {
+interface PrintViewProps {
+  formData: FormState;
+  onClose: () => void;
+}
+
+export default function PrintView({ formData, onClose }: PrintViewProps) {
   const printRef = useRef();
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
@@ -12,12 +18,12 @@ export default function PrintView({ formData, onClose }) {
   const [imageNaturalWidths, setImageNaturalWidths] = React.useState({});
   
   // Función para obtener el tamaño de una imagen
-  const getImageSize = (index) => {
+  const getImageSize = (index: number) => {
     return imageSizes[index] || 150; // Tamaño por defecto: 150px
   };
   
   // Función para actualizar el tamaño de una imagen
-  const updateImageSize = (index, newSize) => {
+  const updateImageSize = (index: number, newSize: number) => {
     setImageSizes(prev => ({
       ...prev,
       [index]: Math.max(50, Math.min(680, newSize)) // Limitar entre 50px y 680px (ancho máximo del documento)

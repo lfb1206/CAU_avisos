@@ -27,12 +27,12 @@ export default function Step2Participants() {
     addItem('participantes', newParticipant);
   };
 
-  const updateParticipant = (index, field, value) => {
+  const updateParticipant = (index: number, field: string, value: unknown) => {
     const updatedParticipant = { ...participantes[index], [field]: value };
     updateItem('participantes', index, updatedParticipant);
   };
 
-  const handleParticipantNameChange = (index, participantName) => {
+  const handleParticipantNameChange = (index: number, participantName: string) => {
     // Check for duplicates
     const isDuplicate = participantes.some((p, i) => i !== index && p.nombre === participantName);
     if (isDuplicate) {

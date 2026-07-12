@@ -38,11 +38,11 @@ export default function Step5EquipmentTransport() {
     });
   };
 
-  const updateEquipment = (index, field, value) => {
+  const updateEquipment = (index: number, field: string, value: unknown) => {
     updateItem('equipo', index, { [field]: value });
   };
 
-  const updateTransport = (index, field, value) => {
+  const updateTransport = (index: number, field: string, value: unknown) => {
     updateItem('transporte', index, { [field]: value });
 
     const transport = formData.transporte[index];
@@ -56,7 +56,7 @@ export default function Step5EquipmentTransport() {
     }
   };
 
-  const calculateCarbonFootprint = (transport) => {
+  const calculateCarbonFootprint = (transport: import('@/types').Transport): string => {
     if (!transport.distancia || !transport.tipo) return '';
 
     const distancia = parseFloat(transport.distancia);
@@ -90,7 +90,7 @@ export default function Step5EquipmentTransport() {
     return [...formData.participantes.map(p => p.nombre), ...externalDrivers];
   };
 
-  const getEquipmentForActivity = (actividad) => {
+  const getEquipmentForActivity = (actividad: string) => {
     if (!actividad) return [];
     const suggestions = [];
 

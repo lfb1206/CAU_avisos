@@ -28,12 +28,12 @@ export default function PeopleAdminPanel() {
     exportDataToJSON(backupData, 'people_backup.json');
   };
 
-  const handleEditPerson = (personName, personData) => {
+  const handleEditPerson = (personName: string, personData: unknown) => {
     setEditingPerson({ name: personName, data: personData });
     setEditMode(true);
   };
 
-  const handleSavePerson = (updatedPerson) => {
+  const handleSavePerson = (updatedPerson: { name: string; data: unknown }) => {
     setPeople(prev => ({
       ...prev,
       [updatedPerson.name]: updatedPerson.data
@@ -42,7 +42,7 @@ export default function PeopleAdminPanel() {
     setEditingPerson(null);
   };
 
-  const handleDeletePerson = (personName) => {
+  const handleDeletePerson = (personName: string) => {
     if (confirm(`¿Estás seguro de que quieres eliminar a ${personName}?`)) {
       setPeople(prev => {
         const newPeople = { ...prev };

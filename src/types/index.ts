@@ -1,10 +1,12 @@
 // ── Form data shapes ──────────────────────────────────────────────────────────
 
 export interface WeatherImage {
+  id: number;
   name: string;
   base64: string;
   url: string;
   fechaObtencion?: string;
+  file?: File;
 }
 
 export interface BasicInfo {

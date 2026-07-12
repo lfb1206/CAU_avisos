@@ -1,5 +1,13 @@
 'use client';
 import React, { useRef } from 'react';
+import type { WeatherImage } from '@/types';
+
+interface WeatherImageUploadProps {
+  weatherImages: WeatherImage[];
+  onImageUpload: (image: WeatherImage) => void;
+  onImageRemove: (imageId: number) => void;
+  onImageDateUpdate: (imageId: number, newDate: string) => void;
+}
 
 // Función para comprimir imagen (mejorada para mantener calidad)
 const compressImage = (file, maxWidth = 2000, quality = 0.95) => {
@@ -38,12 +46,12 @@ const compressImage = (file, maxWidth = 2000, quality = 0.95) => {
   });
 };
 
-export default function WeatherImageUpload({ 
-  weatherImages = [], 
-  onImageUpload, 
-  onImageRemove, 
-  onImageDateUpdate 
-}) {
+export default function WeatherImageUpload({
+  weatherImages = [],
+  onImageUpload,
+  onImageRemove,
+  onImageDateUpdate
+}: WeatherImageUploadProps) {
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
 
@@ -74,7 +82,7 @@ export default function WeatherImageUpload({
             file: file,
             name: file.name,
             url: URL.createObjectURL(file),
-            base64: e.target.result,
+            base64: e.target?.result as string ?? '',
             fechaObtencion: new Date().toISOString().split('T')[0]
           };
           onImageUpload(newImage);

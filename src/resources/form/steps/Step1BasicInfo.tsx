@@ -11,11 +11,11 @@ import DynamicFormField from '../components/DynamicFormField';
 export default function Step1BasicInfo() {
   const { formData, updateFormField } = useFormContext();
 
-  const handleFieldChange = (field, value) => {
+  const handleFieldChange = (field: string, value: unknown) => {
     updateFormField('basicInfo', field, value);
   };
 
-  const handleContactChange = (value) => {
+  const handleContactChange = (value: string) => {
     handleFieldChange('contactoCAU', value);
     
     // Autocompletar todos los datos si el contacto existe en peopleData
@@ -32,18 +32,18 @@ export default function Step1BasicInfo() {
     }
   };
 
-  const handleImageUpload = (newImage) => {
+  const handleImageUpload = (newImage: import('@/types').WeatherImage) => {
     const currentImages = formData.basicInfo.weatherImages || [];
     handleFieldChange('weatherImages', [...currentImages, newImage]);
   };
 
-  const handleImageRemove = (imageId) => {
+  const handleImageRemove = (imageId: number) => {
     const currentImages = formData.basicInfo.weatherImages || [];
     const filtered = currentImages.filter(img => img.id !== imageId);
     handleFieldChange('weatherImages', filtered);
   };
 
-  const handleImageDateUpdate = (imageId, newDate) => {
+  const handleImageDateUpdate = (imageId: number, newDate: string) => {
     const currentImages = formData.basicInfo.weatherImages || [];
     const updatedImages = currentImages.map(img => 
       img.id === imageId ? { ...img, fechaObtencion: newDate } : img

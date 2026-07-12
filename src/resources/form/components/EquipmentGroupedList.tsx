@@ -1,8 +1,15 @@
 'use client';
 import React, { useState, useMemo, useRef } from 'react';
+import type { EquipmentItem } from '@/types';
 import EquipmentForm from './EquipmentForm';
 
-export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) {
+interface EquipmentGroupedListProps {
+  equipment: EquipmentItem[];
+  onUpdate: (index: number, field: string, value: unknown) => void;
+  onRemove: (index: number) => void;
+}
+
+export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }: EquipmentGroupedListProps) {
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const isInitialized = useRef(false);
 
@@ -27,7 +34,7 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }) 
     }
   }, [groupedEquipment]);
 
-  const toggleCategory = (category) => {
+  const toggleCategory = (category: string) => {
     setExpandedCategories(prev => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(category)) {

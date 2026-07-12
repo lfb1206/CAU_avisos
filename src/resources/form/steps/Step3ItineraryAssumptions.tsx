@@ -8,7 +8,7 @@ export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
 
   // Lógica para evaluación de supuestos (condiciones que favorecen el éxito)
-  const calculateRiskAction = (probability, impact) => {
+  const calculateRiskAction = (probability: string, impact: string): string => {
     if (!probability || !impact) return '';
     
     // Nueva lógica basada en la fórmula: 
@@ -48,17 +48,17 @@ export default function Step3ItineraryAssumptions() {
     addItem('itinerario', newDay);
   };
 
-  const updateDay = (dayIndex, field, value) => {
+  const updateDay = (dayIndex: number, field: string, value: unknown) => {
     const updatedDay = { ...formData.itinerario[dayIndex], [field]: value };
     updateItem('itinerario', dayIndex, updatedDay);
   };
 
-  const removeDay = (dayIndex) => {
+  const removeDay = (dayIndex: number) => {
     removeItem('itinerario', dayIndex);
   };
 
   // Suggest assumptions based on selected difficulties
-  const getSuggestedAssumptions = (selectedDifficulties) => {
+  const getSuggestedAssumptions = (selectedDifficulties: string[]) => {
     const suggestions = [];
     const validDifficulties = selectedDifficulties.filter(d => d && d.trim());
     
@@ -76,7 +76,7 @@ export default function Step3ItineraryAssumptions() {
     return suggestions;
   };
 
-  const addAssumption = (itineraryIndex) => {
+  const addAssumption = (itineraryIndex: number) => {
     const newAssumption = {
       supuesto: '',
       tipoSupuesto: '',
@@ -91,7 +91,7 @@ export default function Step3ItineraryAssumptions() {
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
-  const addSuggestedAssumptions = (itineraryIndex) => {
+  const addSuggestedAssumptions = (itineraryIndex: number) => {
     const day = formData.itinerario[itineraryIndex];
     
     const suggestions = getSuggestedAssumptions(day.dificultadesPrincipales || []);
@@ -125,21 +125,21 @@ export default function Step3ItineraryAssumptions() {
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
-  const addDifficulty = (itineraryIndex) => {
+  const addDifficulty = (itineraryIndex: number) => {
     const day = formData.itinerario[itineraryIndex];
     const currentDifficulties = day.dificultadesPrincipales || [];
     const updatedDifficulties = [...currentDifficulties, ''];
     updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
-  const removeDifficulty = (itineraryIndex, difficultyIndex) => {
+  const removeDifficulty = (itineraryIndex: number, difficultyIndex: number) => {
     const day = formData.itinerario[itineraryIndex];
     const currentDifficulties = day.dificultadesPrincipales || [];
     const updatedDifficulties = currentDifficulties.filter((_, index) => index !== difficultyIndex);
     updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
-  const updateDifficulty = (itineraryIndex, difficultyIndex, value) => {
+  const updateDifficulty = (itineraryIndex: number, difficultyIndex: number, value: string) => {
     const day = formData.itinerario[itineraryIndex];
     const currentDifficulties = day.dificultadesPrincipales || [];
     const updatedDifficulties = [...currentDifficulties];
@@ -147,7 +147,7 @@ export default function Step3ItineraryAssumptions() {
     updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
   };
 
-  const updateAssumption = (itineraryIndex, assumptionIndex, field, value) => {
+  const updateAssumption = (itineraryIndex: number, assumptionIndex: number, field: string, value: unknown) => {
     const updatedItinerary = [...formData.itinerario];
     const assumption = updatedItinerary[itineraryIndex].supuestos[assumptionIndex];
     assumption[field] = value;
@@ -165,13 +165,13 @@ export default function Step3ItineraryAssumptions() {
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
-  const removeAssumption = (itineraryIndex, assumptionIndex) => {
+  const removeAssumption = (itineraryIndex: number, assumptionIndex: number) => {
     const updatedItinerary = [...formData.itinerario];
     updatedItinerary[itineraryIndex].supuestos.splice(assumptionIndex, 1);
     updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
   };
 
-  const getActionColor = (action) => {
+  const getActionColor = (action: string): string => {
     switch (action) {
       case 'gestionar': return 'bg-red-100 text-red-800 border-red-200';
       case 'monitoreo_intenso': return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -180,7 +180,7 @@ export default function Step3ItineraryAssumptions() {
     }
   };
 
-  const getActionLabel = (action) => {
+  const getActionLabel = (action: string): string => {
     switch (action) {
       case 'gestionar': return 'Gestionar';
       case 'monitoreo_intenso': return 'Monitoreo Intenso';
