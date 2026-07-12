@@ -1,14 +1,23 @@
 'use client';
 import React from 'react';
 
-export default function InReachSection({ 
-  llevaInreach, 
-  numeroInreach, 
-  codigoInreach, 
-  onInreachChange, 
-  onInreachNumberChange, 
-  onInreachCodeChange 
-}) {
+interface InReachSectionProps {
+  llevaInreach?: boolean;
+  numeroInreach?: string;
+  codigoInreach?: string;
+  onInreachChange: (value: boolean) => void;
+  onInreachNumberChange: (value: string) => void;
+  onInreachCodeChange: (value: string) => void;
+}
+
+export default function InReachSection({
+  llevaInreach,
+  numeroInreach,
+  codigoInreach,
+  onInreachChange,
+  onInreachNumberChange,
+  onInreachCodeChange
+}: InReachSectionProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-3">

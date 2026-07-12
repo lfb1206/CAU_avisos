@@ -1,13 +1,22 @@
 'use client';
 import React from 'react';
+import type { RescueBody } from '@/types';
 
-export default function EmergencyContactsForm({ 
-  cuerposRescate, 
-  onUpdate, 
-  onAdd, 
-  onRemove, 
-  onToggleInclude 
-}) {
+interface EmergencyContactsFormProps {
+  cuerposRescate: RescueBody[];
+  onUpdate: (index: number, field: string, value: string) => void;
+  onAdd: (contact: RescueBody) => void;
+  onRemove: (index: number) => void;
+  onToggleInclude: (index: number, include: boolean) => void;
+}
+
+export default function EmergencyContactsForm({
+  cuerposRescate,
+  onUpdate,
+  onAdd,
+  onRemove,
+  onToggleInclude
+}: EmergencyContactsFormProps) {
   const addNewContact = () => {
     const newContact = {
       nombre: '',

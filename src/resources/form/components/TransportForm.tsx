@@ -1,7 +1,16 @@
 'use client';
 import React, { useEffect } from 'react';
+import type { Transport } from '@/types';
 import { transportOptions } from '../../constants/transportOptions';
 import AutocompleteInput from './AutocompleteInput';
+
+interface TransportFormProps {
+  transport: Transport;
+  index: number;
+  onUpdate: (index: number, field: string, value: string) => void;
+  onRemove: (index: number) => void;
+  getConductorOptions: () => string[];
+}
 
 export default function TransportForm({
   transport,
@@ -9,7 +18,7 @@ export default function TransportForm({
   onUpdate,
   onRemove,
   getConductorOptions
-}) {
+}: TransportFormProps) {
   const isAutoParticular = transport.tipo?.toLowerCase() === 'auto particular';
 
   // Clear auto-particular fields when switching away from that type

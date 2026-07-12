@@ -1,16 +1,25 @@
 'use client';
 import React from 'react';
+import type { Participant } from '@/types';
 import { medicalOptions } from '../../constants/medicalOptions';
 import AutocompleteInput from './AutocompleteInput';
 
-export default function ParticipantForm({ 
-  participant, 
-  index, 
-  onUpdate, 
-  onNameChange, 
-  getSavedParticipantNames 
-}) {
-  const formatRUT = (rut) => {
+interface ParticipantFormProps {
+  participant: Participant;
+  index: number;
+  onUpdate: (index: number, field: string, value: string) => void;
+  onNameChange: (index: number, value: string) => void;
+  getSavedParticipantNames: () => string[];
+}
+
+export default function ParticipantForm({
+  participant,
+  index,
+  onUpdate,
+  onNameChange,
+  getSavedParticipantNames
+}: ParticipantFormProps) {
+  const formatRUT = (rut: string): string => {
     let value = rut.replace(/[^0-9kK]/g, '');
     if (value.length > 9) {
       value = value.slice(0, 9);
@@ -27,7 +36,7 @@ export default function ParticipantForm({
     return value;
   };
 
-  const handleRUTChange = (value) => {
+  const handleRUTChange = (value: string) => {
     const formattedRUT = formatRUT(value);
     onUpdate(index, 'rut', formattedRUT);
   };

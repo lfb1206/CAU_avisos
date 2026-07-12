@@ -1,6 +1,17 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 
+interface AutocompleteInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  options?: string[];
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  className?: string;
+  disabled?: boolean;
+}
+
 export default function AutocompleteInput({
   value,
   onChange,
@@ -10,11 +21,11 @@ export default function AutocompleteInput({
   required = false,
   className = '',
   disabled = false
-}) {
+}: AutocompleteInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
   const [inputValue, setInputValue] = useState(value || '');
-  const wrapperRef = useRef(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Update input value when value prop changes
   useEffect(() => {
@@ -35,8 +46,8 @@ export default function AutocompleteInput({
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -47,14 +58,14 @@ export default function AutocompleteInput({
     };
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setInputValue(newValue);
     // Solo actualizar el filtro local, no llamar onChange inmediatamente
     setIsOpen(true);
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: string) => {
     setInputValue(option);
     onChange(option); // Solo llamar onChange cuando se selecciona una opción
     setIsOpen(false);
@@ -64,7 +75,7 @@ export default function AutocompleteInput({
     setIsOpen(true);
   };
 
-  const handleInputKeyDown = (e) => {
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       if (filteredOptions.length > 0) {
         handleOptionClick(filteredOptions[0]);

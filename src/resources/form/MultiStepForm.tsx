@@ -1,5 +1,11 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, type ComponentType } from 'react';
+
+interface Step {
+  id: number;
+  name: string;
+  component: ComponentType;
+}
 import { useFormContext } from '../contexts/FormContext';
 import Step1BasicInfo from './steps/Step1BasicInfo';
 import Step2Participants from './steps/Step2Participants';
@@ -11,9 +17,8 @@ import Step6FinalReview from './steps/Step7FinalReview'; // file named Step7 for
 export default function MultiStepForm() {
   const { formData, goToStep, isStepValid, resetForm } = useFormContext();
   const [hasSavedData, setHasSavedData] = useState(false);
-  const [showSaveNotification, setShowSaveNotification] = useState(false);
 
-  const steps = [
+  const steps: Step[] = [
     { id: 1, name: 'Información Básica', component: Step1BasicInfo },
     { id: 2, name: 'Participantes', component: Step2Participants },
     { id: 3, name: 'Itinerario y Supuestos', component: Step3ItineraryAssumptions },
@@ -29,16 +34,18 @@ export default function MultiStepForm() {
     }
   };
 
-  const hasMeaningfulData = (parsedData) =>
-    parsedData.basicInfo?.contactoCAU ||
-    parsedData.basicInfo?.telefonoContacto ||
-    parsedData.basicInfo?.emailContacto ||
-    parsedData.basicInfo?.actividad ||
-    parsedData.basicInfo?.cerroOSector ||
-    parsedData.participantes?.length > 0 ||
-    parsedData.itinerario?.length > 0 ||
-    parsedData.equipo?.length > 0 ||
-    parsedData.transporte?.length > 0;
+  const hasMeaningfulData = (parsedData: typeof formData): boolean =>
+    Boolean(
+      parsedData.basicInfo?.contactoCAU ||
+      parsedData.basicInfo?.telefonoContacto ||
+      parsedData.basicInfo?.emailContacto ||
+      parsedData.basicInfo?.actividad ||
+      parsedData.basicInfo?.cerroOSector ||
+      parsedData.participantes?.length > 0 ||
+      parsedData.itinerario?.length > 0 ||
+      parsedData.equipo?.length > 0 ||
+      parsedData.transporte?.length > 0
+    );
 
   // Derive hasSavedData from formData directly — no localStorage reads needed
   useEffect(() => {
@@ -46,7 +53,7 @@ export default function MultiStepForm() {
     setHasSavedData(hasData);
   }, [formData]);
 
-  const getStepStatus = (stepId) => {
+  const getStepStatus = (stepId: number): 'completed' | 'current' | 'current-error' | 'pending' => {
     if (stepId < formData.currentStep) {
       return 'completed';
     } else if (stepId === formData.currentStep) {
@@ -56,7 +63,7 @@ export default function MultiStepForm() {
     }
   };
 
-  const getStepIcon = (status, stepId) => {
+  const getStepIcon = (status: 'completed' | 'current' | 'current-error' | 'pending', stepId: number) => {
     switch (status) {
       case 'completed':
         return (

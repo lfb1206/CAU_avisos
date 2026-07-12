@@ -1,8 +1,16 @@
 'use client';
 import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import { LOCALSTORAGE_KEY, ASSUMPTION_ACTIONS } from '@/resources/constants/formConstants';
+import type {
+  FormState,
+  FormAction,
+  FormContextValue,
+  Participant,
+  ItineraryDay,
+  WeatherImage,
+} from '@/types';
 
-const initialFormState = {
+const initialFormState: FormState = {
   currentStep: 1,
   basicInfo: {
     contactoCAU: '',
@@ -14,7 +22,7 @@ const initialFormState = {
     ruta: '',
     linkPronostico: '',
     linkRuta: '',
-    weatherImages: []
+    weatherImages: [],
   },
   participantes: [],
   itinerario: [],
@@ -32,87 +40,73 @@ const initialFormState = {
     { nombre: 'Socorro Andino Valparaíso', telefono: '+56 9 8225 7085', incluir: false },
     { nombre: 'Cuerpo de Socorro Andino Aconcagua', telefono: '+56 9 9164 5890', incluir: false },
     { nombre: 'CONAF (Emergencias en Parques Nacionales)', telefono: '+56 2 2663 0000', incluir: false },
-    { nombre: 'Armada de Chile (Rescate Marítimo)', telefono: '+56 32 220 8888', incluir: false }
-  ]
+    { nombre: 'Armada de Chile (Rescate Marítimo)', telefono: '+56 32 220 8888', incluir: false },
+  ],
 };
 
-const formReducer = (state, action) => {
+const formReducer = (state: FormState, action: FormAction): FormState => {
   switch (action.type) {
     case 'UPDATE_FORM_FIELD':
       return {
         ...state,
         [action.section]: {
-          ...state[action.section],
-          [action.field]: action.value
-        }
+          ...(state[action.section as keyof FormState] as Record<string, unknown>),
+          [action.field]: action.value,
+        },
       };
 
     case 'ADD_ITEM': {
-      const currentSection = Array.isArray(state[action.section]) ? state[action.section] : [];
-      return {
-        ...state,
-        [action.section]: [...currentSection, action.item]
-      };
+      const current = Array.isArray(state[action.section as keyof FormState])
+        ? (state[action.section as keyof FormState] as unknown[])
+        : [];
+      return { ...state, [action.section]: [...current, action.item] };
     }
 
     case 'REMOVE_ITEM': {
-      const sectionToRemoveFrom = Array.isArray(state[action.section]) ? state[action.section] : [];
-      return {
-        ...state,
-        [action.section]: sectionToRemoveFrom.filter((_, index) => index !== action.index)
-      };
+      const arr = Array.isArray(state[action.section as keyof FormState])
+        ? (state[action.section as keyof FormState] as unknown[])
+        : [];
+      return { ...state, [action.section]: arr.filter((_, i) => i !== action.index) };
     }
 
     case 'UPDATE_ITEM': {
-      const sectionToUpdate = Array.isArray(state[action.section]) ? state[action.section] : [];
-      const updatedSection = [...sectionToUpdate];
-      if (updatedSection[action.index]) {
-        if (action.field) {
-          updatedSection[action.index] = { ...updatedSection[action.index], [action.field]: action.value };
+      const arr = Array.isArray(state[action.section as keyof FormState])
+        ? [...(state[action.section as keyof FormState] as Record<string, unknown>[])]
+        : [];
+      if (arr[action.index]) {
+        if (action.field !== undefined) {
+          arr[action.index] = { ...arr[action.index], [action.field]: action.value };
         } else if (action.updates) {
-          updatedSection[action.index] = { ...updatedSection[action.index], ...action.updates };
+          arr[action.index] = { ...arr[action.index], ...action.updates };
         }
       }
-      return {
-        ...state,
-        [action.section]: updatedSection
-      };
+      return { ...state, [action.section]: arr };
     }
 
     case 'SET_STEP':
-      return {
-        ...state,
-        currentStep: action.step
-      };
+      return { ...state, currentStep: action.step };
 
     case 'RESET_FORM':
       return initialFormState;
 
     case 'UPDATE_WEATHER_IMAGES':
-      return {
-        ...state,
-        basicInfo: {
-          ...state.basicInfo,
-          weatherImages: action.images
-        }
-      };
+      return { ...state, basicInfo: { ...state.basicInfo, weatherImages: action.images } };
 
     case 'LOAD_SAVED_DATA': {
-      const loadedData = {
+      const d = action.data;
+      return {
         ...initialFormState,
-        ...action.data,
-        currentStep: action.data.currentStep || 1,
-        basicInfo: {
-          ...initialFormState.basicInfo,
-          ...(action.data.basicInfo || {})
-        },
-        participantes: Array.isArray(action.data.participantes) ? action.data.participantes : [],
-        itinerario: Array.isArray(action.data.itinerario) ? action.data.itinerario : [],
-        equipo: Array.isArray(action.data.equipo) ? action.data.equipo : [],
-        transporte: Array.isArray(action.data.transporte) ? action.data.transporte : [],
-        cuerposRescate: Array.isArray(action.data.cuerposRescate) ? action.data.cuerposRescate : initialFormState.cuerposRescate
+        ...d,
+        currentStep: d.currentStep ?? 1,
+        basicInfo: { ...initialFormState.basicInfo, ...(d.basicInfo ?? {}) },
+        participantes: Array.isArray(d.participantes) ? d.participantes : [],
+        itinerario: Array.isArray(d.itinerario) ? d.itinerario : [],
+        equipo: Array.isArray(d.equipo) ? d.equipo : [],
+        transporte: Array.isArray(d.transporte) ? d.transporte : [],
+        cuerposRescate: Array.isArray(d.cuerposRescate)
+          ? d.cuerposRescate
+          : initialFormState.cuerposRescate,
       };
-      return loadedData;
     }
 
     default:
@@ -120,12 +114,12 @@ const formReducer = (state, action) => {
   }
 };
 
-// --- Shared validation helpers ---
+// ── Shared validation helpers ─────────────────────────────────────────────────
 
-const isParticipantValid = (p) =>
-  p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia;
+const isParticipantValid = (p: Participant): boolean =>
+  Boolean(p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
 
-const isItineraryDayValid = (day, reporteDate) => {
+const isItineraryDayValid = (day: ItineraryDay, reporteDate: Date | null): boolean => {
   if (!day.tramo || !day.actividades || day.actividades.length === 0 || !day.horaInicio || !day.horaFin) {
     return false;
   }
@@ -138,41 +132,41 @@ const isItineraryDayValid = (day, reporteDate) => {
   return true;
 };
 
-const getRisksCompletionStatus = (itinerario) => {
-  const supuestosGestionar = [];
-  const supuestosIncompletos = [];
+const getRisksCompletionStatus = (itinerario: ItineraryDay[]): boolean => {
+  let managed = 0;
+  let incomplete = 0;
 
   itinerario.forEach((day) => {
-    (day.supuestos || []).forEach((assumption) => {
+    (day.supuestos ?? []).forEach((assumption) => {
       if (
         assumption.accion === ASSUMPTION_ACTIONS.GESTIONAR ||
         (assumption.accion === ASSUMPTION_ACTIONS.MONITOREO_INTENSO && assumption.incluir === true)
       ) {
-        supuestosGestionar.push(assumption);
+        managed++;
         if (!assumption.causas || assumption.causas.length === 0) {
-          supuestosIncompletos.push(assumption);
+          incomplete++;
         } else {
           const hasIncompleteCausas = assumption.causas.some(
-            (causa) =>
-              !causa.peligros || causa.peligros.length === 0 ||
-              !causa.riesgos || causa.riesgos.length === 0 ||
-              causa.peligros.some((p) => !p.trim()) ||
-              causa.riesgos.some((r) => !r.trim())
+            (c) =>
+              !c.peligros || c.peligros.length === 0 ||
+              !c.riesgos || c.riesgos.length === 0 ||
+              c.peligros.some((p) => !p.trim()) ||
+              c.riesgos.some((r) => !r.trim())
           );
-          if (hasIncompleteCausas) supuestosIncompletos.push(assumption);
+          if (hasIncompleteCausas) incomplete++;
         }
       }
     });
   });
 
-  return supuestosGestionar.length === 0 || supuestosIncompletos.length === 0;
+  return managed === 0 || incomplete === 0;
 };
 
-// ---
+// ── Context ───────────────────────────────────────────────────────────────────
 
-const FormContext = createContext();
+const FormContext = createContext<FormContextValue | null>(null);
 
-export const FormContextProvider = ({ children }) => {
+export const FormContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [formData, dispatch] = useReducer(formReducer, initialFormState);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -180,14 +174,14 @@ export const FormContextProvider = ({ children }) => {
     const savedData = localStorage.getItem(LOCALSTORAGE_KEY);
     if (savedData) {
       try {
-        const parsedData = JSON.parse(savedData);
-        if (parsedData.basicInfo?.weatherImages) {
-          parsedData.basicInfo.weatherImages = parsedData.basicInfo.weatherImages.map((img) => ({
+        const parsed = JSON.parse(savedData) as Partial<FormState>;
+        if (parsed.basicInfo?.weatherImages) {
+          parsed.basicInfo.weatherImages = parsed.basicInfo.weatherImages.map((img: WeatherImage) => ({
             ...img,
-            url: img.base64 || ''
+            url: img.base64 || '',
           }));
         }
-        dispatch({ type: 'LOAD_SAVED_DATA', data: parsedData });
+        dispatch({ type: 'LOAD_SAVED_DATA', data: parsed });
       } catch (error) {
         console.error('Error loading form data from localStorage:', error);
       }
@@ -197,58 +191,48 @@ export const FormContextProvider = ({ children }) => {
 
   useEffect(() => {
     if (!isInitialized) return;
-    const dataToSave = {
-      ...formData,
-      basicInfo: {
-        ...formData.basicInfo,
-        weatherImages: formData.basicInfo.weatherImages || []
-      }
-    };
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(dataToSave));
+    localStorage.setItem(
+      LOCALSTORAGE_KEY,
+      JSON.stringify({
+        ...formData,
+        basicInfo: { ...formData.basicInfo, weatherImages: formData.basicInfo.weatherImages ?? [] },
+      })
+    );
   }, [formData, isInitialized]);
 
-  const updateFormField = (section, field, value) => {
+  const updateFormField = (section: string, field: string, value: unknown) =>
     dispatch({ type: 'UPDATE_FORM_FIELD', section, field, value });
-  };
 
-  const addItem = (section, item) => {
+  const addItem = (section: string, item: unknown) =>
     dispatch({ type: 'ADD_ITEM', section, item });
-  };
 
-  const removeItem = (section, index) => {
+  const removeItem = (section: string, index: number) =>
     dispatch({ type: 'REMOVE_ITEM', section, index });
-  };
 
-  const updateItem = (section, index, updatedItem) => {
-    if (typeof updatedItem === 'object' && Object.keys(updatedItem).length === 1) {
-      const field = Object.keys(updatedItem)[0];
-      const value = Object.values(updatedItem)[0];
-      dispatch({ type: 'UPDATE_ITEM', section, index, field, value });
-    } else if (typeof updatedItem === 'object') {
-      dispatch({ type: 'UPDATE_ITEM', section, index, updates: updatedItem });
+  const updateItem = (section: string, index: number, updatedItem: Record<string, unknown>) => {
+    const keys = Object.keys(updatedItem);
+    if (keys.length === 1) {
+      dispatch({ type: 'UPDATE_ITEM', section, index, field: keys[0], value: updatedItem[keys[0]] });
     } else {
-      dispatch({ type: 'UPDATE_ITEM', section, index, field: 'value', value: updatedItem });
+      dispatch({ type: 'UPDATE_ITEM', section, index, updates: updatedItem });
     }
   };
 
-  const goToStep = (step) => {
-    dispatch({ type: 'SET_STEP', step });
-  };
+  const goToStep = (step: number) => dispatch({ type: 'SET_STEP', step });
 
   const resetForm = () => {
     dispatch({ type: 'RESET_FORM' });
     localStorage.removeItem(LOCALSTORAGE_KEY);
   };
 
-  const updateWeatherImages = (images) => {
+  const updateWeatherImages = (images: WeatherImage[]) =>
     dispatch({ type: 'UPDATE_WEATHER_IMAGES', images });
-  };
 
-  const isStepValid = (step) => {
-    const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
-    const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
-    const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
-    const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
+  const isStepValid = (step: number): boolean => {
+    const participantes = formData.participantes ?? [];
+    const equipo = formData.equipo ?? [];
+    const transporte = formData.transporte ?? [];
+    const itinerario = formData.itinerario ?? [];
     const reporteDate = formData.basicInfo.fechaHoraReporteRegreso
       ? new Date(formData.basicInfo.fechaHoraReporteRegreso)
       : null;
@@ -271,7 +255,7 @@ export const FormContextProvider = ({ children }) => {
         return participantes.length > 0 && participantes.every(isParticipantValid);
       case 3:
         return itinerario.length > 0 && itinerario.every((day) => isItineraryDayValid(day, reporteDate));
-      case 4: // FIX BUG-1: added return statement
+      case 4:
         return getRisksCompletionStatus(itinerario);
       case 5: {
         if (equipo.length === 0 && transporte.length === 0) return true;
@@ -292,11 +276,11 @@ export const FormContextProvider = ({ children }) => {
     }
   };
 
-  const checkFormCompletion = () => {
-    const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
-    const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
-    const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
-    const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
+  const checkFormCompletion = (): boolean => {
+    const participantes = formData.participantes ?? [];
+    const equipo = formData.equipo ?? [];
+    const transporte = formData.transporte ?? [];
+    const itinerario = formData.itinerario ?? [];
     const reporteDate = formData.basicInfo.fechaHoraReporteRegreso
       ? new Date(formData.basicInfo.fechaHoraReporteRegreso)
       : null;
@@ -313,32 +297,23 @@ export const FormContextProvider = ({ children }) => {
       !formData.basicInfo.llevaInreach ||
       (formData.basicInfo.numeroInreach && formData.basicInfo.codigoInreach);
 
-    const participantsComplete =
-      participantes.length > 0 && participantes.every(isParticipantValid);
-
-    const itineraryComplete =
-      itinerario.length > 0 && itinerario.every((day) => isItineraryDayValid(day, reporteDate));
-
-    // FIX BUG-2: uses shared helper with plural field names (peligros/riesgos)
-    const risksComplete = getRisksCompletionStatus(itinerario);
-
     const validEquipo = equipo.filter((e) => e.categoria && e.item && e.cantidad);
     const validTransporte = transporte.filter((t) => t.tipo && t.conductor);
-    const equipmentComplete = equipo.length === 0 || validEquipo.length === equipo.length;
-    const transportComplete = transporte.length === 0 || validTransporte.length === transporte.length;
 
     return Boolean(
       basicInfoComplete &&
-      inReachComplete &&
-      participantsComplete &&
-      itineraryComplete &&
-      risksComplete &&
-      equipmentComplete &&
-      transportComplete
+        inReachComplete &&
+        participantes.length > 0 &&
+        participantes.every(isParticipantValid) &&
+        itinerario.length > 0 &&
+        itinerario.every((day) => isItineraryDayValid(day, reporteDate)) &&
+        getRisksCompletionStatus(itinerario) &&
+        (equipo.length === 0 || validEquipo.length === equipo.length) &&
+        (transporte.length === 0 || validTransporte.length === transporte.length)
     );
   };
 
-  const value = {
+  const value: FormContextValue = {
     formData,
     updateFormField,
     addItem,
@@ -348,20 +323,14 @@ export const FormContextProvider = ({ children }) => {
     resetForm,
     updateWeatherImages,
     isStepValid,
-    checkFormCompletion
+    checkFormCompletion,
   };
 
-  return (
-    <FormContext.Provider value={value}>
-      {children}
-    </FormContext.Provider>
-  );
+  return <FormContext.Provider value={value}>{children}</FormContext.Provider>;
 };
 
-export const useFormContext = () => {
+export const useFormContext = (): FormContextValue => {
   const context = useContext(FormContext);
-  if (!context) {
-    throw new Error('useFormContext must be used within a FormContextProvider');
-  }
+  if (!context) throw new Error('useFormContext must be used within a FormContextProvider');
   return context;
 };

@@ -1,16 +1,34 @@
 'use client';
 import React from 'react';
+import type { ItineraryDay } from '@/types';
 import { basicFormOptions } from '../../constants/basicFormOptions';
 import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from './AutocompleteInput';
 
-export default function ItineraryDayForm({ 
-  day, 
-  dayIndex, 
-  onUpdate, 
+interface ItineraryDayFormProps {
+  day: ItineraryDay;
+  dayIndex: number;
+  onUpdate: (dayIndex: number, field: string, value: unknown) => void;
+  onRemove: (dayIndex: number) => void;
+  onAddAssumption: (dayIndex: number) => void;
+  onRemoveAssumption: (dayIndex: number, supIdx: number) => void;
+  onUpdateAssumption: (dayIndex: number, supIdx: number, field: string, value: unknown) => void;
+  onAddDifficulty: (dayIndex: number) => void;
+  onRemoveDifficulty: (dayIndex: number, difficultyIndex: number) => void;
+  onUpdateDifficulty: (dayIndex: number, difficultyIndex: number, value: string) => void;
+  onAddSuggestedAssumptions: (dayIndex: number) => void;
+  getActionColor: (accion: string) => string;
+  getActionLabel: (accion: string) => string;
+  fechaReporteRegreso?: string;
+}
+
+export default function ItineraryDayForm({
+  day,
+  dayIndex,
+  onUpdate,
   onRemove,
-  onAddAssumption, 
-  onRemoveAssumption, 
+  onAddAssumption,
+  onRemoveAssumption,
   onUpdateAssumption,
   onAddDifficulty,
   onRemoveDifficulty,
@@ -19,7 +37,7 @@ export default function ItineraryDayForm({
   getActionColor,
   getActionLabel,
   fechaReporteRegreso
-}) {
+}: ItineraryDayFormProps) {
   return (
     <details
       className="border border-gray-200 rounded-lg p-0 transition-colors bg-gray-50"

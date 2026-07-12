@@ -1,16 +1,27 @@
 'use client';
 import React, { useEffect } from 'react';
 
-export default function ConfirmationModal({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  message, 
-  confirmText = 'Eliminar', 
+interface ConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  message: string;
+  type?: 'danger' | 'warning' | 'info';
+  confirmText?: string;
+  cancelText?: string;
+}
+
+export default function ConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
+  confirmText = 'Eliminar',
   cancelText = 'Cancelar',
-  type = 'danger' // 'danger', 'warning', 'info'
-}) {
+  type = 'danger'
+}: ConfirmationModalProps) {
   if (!isOpen) return null;
 
   const getTypeStyles = () => {
@@ -44,13 +55,13 @@ export default function ConfirmationModal({
 
   const styles = getTypeStyles();
 
-  const handleBackdropClick = (e) => {
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     }
