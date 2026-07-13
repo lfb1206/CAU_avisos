@@ -32,7 +32,7 @@ export default async function DashboardPage() {
       where: { created_by: user.id },
       orderBy: { updated_at: 'desc' },
       take: 10,
-      select: { id: true, title: true, status: true, updated_at: true },
+      select: { id: true, title: true, status: true, tipo: true, location: true, updated_at: true },
     }),
     prisma.courseEnrollment.findMany({
       where: { user_id: user.id, status: { in: ['enrolled', 'completed'] } },
@@ -54,29 +54,55 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Avisos */}
         <section>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-gray-900">Mis Avisos</h2>
             <Link
-              href="/"
-              className="text-sm text-blue-600 hover:text-blue-500 font-medium"
+              href="/avisos"
+              className="text-sm text-gray-500 hover:text-blue-600 font-medium"
             >
-              + Nuevo aviso
+              Biblioteca →
+            </Link>
+          </div>
+
+          {/* New aviso CTAs */}
+          <div className="flex gap-2 mb-4">
+            <Link
+              href="/"
+              className="flex-1 text-center text-xs font-semibold py-2 px-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              + Aviso Largo
+            </Link>
+            <Link
+              href="/aviso/rapido"
+              className="flex-1 text-center text-xs font-semibold py-2 px-3 text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors"
+            >
+              + Aviso Rápido
             </Link>
           </div>
 
           {avisos.length === 0 ? (
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
               <p className="text-sm">No tienes avisos aún.</p>
-              <Link href="/" className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block">
-                Crear primer aviso
-              </Link>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {avisos.map((aviso) => (
-                <div key={aviso.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{aviso.title || 'Sin título'}</p>
+                <div key={aviso.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className={`text-xs font-medium px-1.5 py-px rounded ${
+                        (aviso as { tipo?: string }).tipo === 'rapido'
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'bg-blue-100 text-blue-700'
+                      }`}>
+                        {(aviso as { tipo?: string }).tipo === 'rapido' ? 'Rápido' : 'Largo'}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {(aviso as { location?: string }).location
+                        ? `${aviso.title || 'Aviso'} — ${(aviso as { location?: string }).location}`
+                        : (aviso.title || 'Sin título')}
+                    </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
                     </p>

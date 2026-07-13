@@ -13,6 +13,8 @@ type CourseRow = {
   order_index: number;
   capacity: number;
   prerequisite_course_ids: number[];
+  enrollment_open: boolean;
+  required_points: number;
   enrollments: { status: string }[];
   _count: { enrollments: number };
 };
@@ -20,10 +22,11 @@ type CourseRow = {
 function resolveMemberStatus(
   course: CourseRow,
   completedIds: Set<number>,
-  enrolledIds: Set<number>,
   isLoggedIn: boolean
 ): MemberCourseStatus {
   if (!isLoggedIn) return 'bloqueado';
+  // base branch is auto-completed for all members
+  if (course.branch === 'base') return 'completado';
   if (completedIds.has(course.id)) return 'completado';
   const prereqsMet = course.prerequisite_course_ids.every((pid) => completedIds.has(pid));
   if (!prereqsMet) return 'bloqueado';
@@ -34,16 +37,16 @@ function BranchColumn({
   title,
   courses,
   completedIds,
-  enrolledIds,
   allCourses,
   isLoggedIn,
+  userActivePoints,
 }: {
   title: string;
   courses: CourseRow[];
   completedIds: Set<number>;
-  enrolledIds: Set<number>;
   allCourses: CourseRow[];
   isLoggedIn: boolean;
+  userActivePoints: number;
 }) {
   const courseMap = new Map(allCourses.map((c) => [c.id, c.name]));
 
@@ -54,7 +57,8 @@ function BranchColumn({
       </h2>
       <div className="space-y-3">
         {courses.map((course, idx) => {
-          const status = resolveMemberStatus(course, completedIds, enrolledIds, isLoggedIn);
+          const status = resolveMemberStatus(course, completedIds, isLoggedIn);
+          const enrollmentStatus = course.enrollments[0]?.status ?? null;
           const missingPrerequisiteNames = status === 'bloqueado'
             ? course.prerequisite_course_ids
                 .filter((pid) => !completedIds.has(pid))
@@ -69,11 +73,14 @@ function BranchColumn({
                 description={course.description}
                 level={course.level}
                 status={status}
+                enrollmentStatus={enrollmentStatus}
                 enrolledCount={course._count.enrollments}
                 capacity={course.capacity}
                 missingPrerequisiteNames={missingPrerequisiteNames}
+                enrollmentOpen={course.enrollment_open}
+                requiredPoints={course.required_points}
+                userActivePoints={userActivePoints}
               />
-              {/* Connector arrow between cards */}
               {idx < courses.length - 1 && (
                 <div className="flex justify-center my-1">
                   <svg className="w-4 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,30 +100,38 @@ export default async function CursosPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const courses = await prisma.course.findMany({
-    orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
-    include: {
-      enrollments: user
-        ? { where: { user_id: user.id }, select: { status: true } }
-        : { where: { id: -1 }, select: { status: true } }, // empty result
-      _count: { select: { enrollments: { where: { status: { in: ['enrolled', 'waitlisted'] } } } } },
-    },
-  }) as CourseRow[];
+  const now = new Date();
 
-  const completedIds = new Set<number>(
-    courses
+  const [courses, userActivePoints] = await Promise.all([
+    prisma.course.findMany({
+      orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
+      include: {
+        enrollments: user
+          ? { where: { user_id: user.id }, select: { status: true } }
+          : { where: { id: -1 }, select: { status: true } },
+        _count: { select: { enrollments: { where: { status: { in: ['enrolled', 'waitlisted'] } } } } },
+      },
+    }) as Promise<CourseRow[]>,
+    user
+      ? prisma.coursePoints.aggregate({
+          where: { user_id: user.id, expires_at: { gt: now } },
+          _sum: { points: true },
+        }).then((r) => r._sum.points ?? 0)
+      : Promise.resolve(0),
+  ]);
+
+  // base branch is always completed for members; plus any explicitly completed enrollments
+  const baseCourseIds = new Set(courses.filter((c) => c.branch === 'base').map((c) => c.id));
+  const completedIds = new Set<number>([
+    ...baseCourseIds,
+    ...courses
       .filter((c) => c.enrollments.some((e) => e.status === 'completed'))
-      .map((c) => c.id)
-  );
-  const enrolledIds = new Set<number>(
-    courses
-      .filter((c) => c.enrollments.some((e) => e.status === 'enrolled' || e.status === 'waitlisted'))
-      .map((c) => c.id)
-  );
+      .map((c) => c.id),
+  ]);
 
-  const baseCourses    = courses.filter((c) => c.branch === 'base');
-  const nieveCourses   = courses.filter((c) => c.branch === 'nieve_hielo');
-  const rocaCourses    = courses.filter((c) => c.branch === 'roca');
+  const baseCourses  = courses.filter((c) => c.branch === 'base');
+  const nieveCourses = courses.filter((c) => c.branch === 'nieve_hielo');
+  const rocaCourses  = courses.filter((c) => c.branch === 'roca');
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -131,41 +146,44 @@ export default async function CursosPage() {
             para ver tu progreso personal.
           </p>
         )}
+        {user && userActivePoints > 0 && (
+          <p className="mt-3 text-sm text-purple-700 bg-purple-50 inline-block px-4 py-2 rounded-full">
+            Tienes <strong>{userActivePoints} punto{userActivePoints !== 1 ? 's' : ''}</strong> activos
+          </p>
+        )}
       </div>
 
       {/* Foundation course — spans both columns */}
-      {baseCourses.map((course) => {
-        const status = resolveMemberStatus(course, completedIds, enrolledIds, Boolean(user));
-        return (
-          <div key={course.id} className="mb-6">
-            <div className="max-w-sm mx-auto">
-              <CourseCard
-                id={course.id}
-                name={course.name}
-                description={course.description}
-                level={course.level}
-                status={status}
-                enrolledCount={course._count.enrollments}
-                capacity={course.capacity}
-              />
-            </div>
-            <div className="flex justify-center mt-2 mb-4">
-              <div className="flex gap-12">
-                <div className="flex flex-col items-center">
+      {baseCourses.map((course) => (
+        <div key={course.id} className="mb-6">
+          <div className="max-w-sm mx-auto">
+            <CourseCard
+              id={course.id}
+              name={course.name}
+              description={course.description}
+              level={course.level}
+              status={resolveMemberStatus(course, completedIds, Boolean(user))}
+              enrollmentStatus={course.enrollments[0]?.status ?? null}
+              enrolledCount={course._count.enrollments}
+              capacity={course.capacity}
+              enrollmentOpen={course.enrollment_open}
+              requiredPoints={course.required_points}
+              userActivePoints={userActivePoints}
+            />
+          </div>
+          <div className="flex justify-center mt-2 mb-4">
+            <div className="flex gap-12">
+              {[0, 1].map((i) => (
+                <div key={i} className="flex flex-col items-center">
                   <div className="w-px h-4 bg-gray-300" />
                   <div className="w-24 h-px bg-gray-300" />
                   <div className="w-px h-4 bg-gray-300" />
                 </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-px h-4 bg-gray-300" />
-                  <div className="w-24 h-px bg-gray-300" />
-                  <div className="w-px h-4 bg-gray-300" />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        );
-      })}
+        </div>
+      ))}
 
       {/* Two-column branch view */}
       <div className="flex gap-6 items-start">
@@ -173,18 +191,18 @@ export default async function CursosPage() {
           title="Nieve / Hielo"
           courses={nieveCourses}
           completedIds={completedIds}
-          enrolledIds={enrolledIds}
           allCourses={courses}
           isLoggedIn={Boolean(user)}
+          userActivePoints={userActivePoints}
         />
         <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
         <BranchColumn
           title="Roca"
           courses={rocaCourses}
           completedIds={completedIds}
-          enrolledIds={enrolledIds}
           allCourses={courses}
           isLoggedIn={Boolean(user)}
+          userActivePoints={userActivePoints}
         />
       </div>
 
@@ -193,6 +211,7 @@ export default async function CursosPage() {
         {[
           { color: 'bg-green-400', label: 'Completado' },
           { color: 'bg-blue-400',  label: 'Disponible para inscripción' },
+          { color: 'bg-purple-400', label: 'Ayudante registrado' },
           { color: 'bg-gray-300',  label: 'Bloqueado (prerequisitos pendientes)' },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-2">

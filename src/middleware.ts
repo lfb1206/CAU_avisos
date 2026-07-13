@@ -27,11 +27,29 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Redirect unauthenticated users away from protected routes
-  if (!user && (pathname.startsWith('/aviso') || pathname.startsWith('/dashboard') || pathname.startsWith('/cursos'))) {
+  if (!user && (pathname === '/' || pathname.startsWith('/aviso') || pathname.startsWith('/dashboard') || pathname.startsWith('/cursos') || pathname.startsWith('/perfil') || pathname.startsWith('/coordinador'))) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/auth/login';
     loginUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Coordinador-only routes
+  if (pathname.startsWith('/coordinador')) {
+    if (!user) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/auth/login';
+      loginUrl.searchParams.set('redirectTo', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
   }
 
   // Admin-only routes — check role from profile

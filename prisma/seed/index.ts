@@ -1,8 +1,10 @@
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import { seedPeople } from './people';
 import { seedEquipment } from './equipment';
 import { seedBasicOptions } from './basicOptions';
 import { seedCourses } from './courses';
+import { seedSupuestos } from './supuestos';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +15,7 @@ async function main() {
   await seedEquipment(prisma);
   await seedBasicOptions(prisma);
   await seedCourses(prisma);
+  await seedSupuestos(prisma);
 
   console.log('\nSeed complete.');
 }

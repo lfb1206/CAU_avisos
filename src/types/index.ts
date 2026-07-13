@@ -157,8 +157,8 @@ export interface Person {
 export type CourseBranch = 'base' | 'nieve_hielo' | 'roca';
 export type CourseLevel = 'introductorio' | 'intermedio' | 'intermedio_avanzado' | 'avanzado';
 export type CourseStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
-export type EnrollmentStatus = 'enrolled' | 'waitlisted' | 'completed' | 'cancelled';
-export type UserRole = 'admin' | 'member';
+export type EnrollmentStatus = 'enrolled' | 'waitlisted' | 'ayudante' | 'completed' | 'cancelled';
+export type UserRole = 'admin' | 'coordinador' | 'member';
 
 export interface Course {
   id: number;
@@ -175,6 +175,20 @@ export interface Course {
   prerequisite_course_ids: number[];
   branch: CourseBranch;
   level: CourseLevel;
+  enrollment_open: boolean;
+  enrollment_opens_at?: string | null;
+  required_points: number;
+}
+
+export interface CoursePoints {
+  id: number;
+  user_id: string;
+  course_id?: number | null;
+  points: number;
+  awarded_by: string;
+  description?: string | null;
+  earned_at: string;
+  expires_at: string;
 }
 
 export type MemberCourseStatus = 'completado' | 'disponible' | 'bloqueado';

@@ -1,0 +1,2762 @@
+[
+ {
+  "id": "S01",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día",
+   "caminata por sendero"
+  ],
+  "dificultades": [
+   "fisiológico",
+   "grupo/dinámica"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo sostiene durante toda la jornada un ritmo conversacional marcado por el integrante más lento.",
+  "estab_prob": "El más lento marca el paso adelante; pausas breves regulares; carga equilibrada.",
+  "estab_expo": "Objetivos intermedios que permiten acortar la jornada sin frustrarla.",
+  "mitigacion": "Redistribución de carga; comida extra para una jornada más lenta.",
+  "senal": "Rezago sistemático de un integrante pese a dos ajustes de ritmo.",
+  "regla": "Se reevalúa el objetivo en el próximo descanso; el grupo no se estira ni se divide."
+ },
+ {
+  "id": "S02",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "navegación/extravío"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La huella en terreno coincide con el track planificado",
+  "estab_prob": "Track descargado y estudiado por todos; navegante designado; teléfono cargado más batería externa",
+  "estab_expo": "Confirmación de posición en hitos definidos, para que un desvío nunca supere __ min de marcha",
+  "mitigacion": "Puntos de reagrupe definidos; contacto de emergencia tiene copia del plan y del track",
+  "senal": "15 minutos caminando sin coincidencia con el track",
+  "regla": "Volver al último punto confirmado; no cortar camino"
+ },
+ {
+  "id": "S03",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "meteorología"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La meteorología del día coincide con el pronóstico usado en el plan",
+  "estab_prob": "Pronóstico de al menos 2 fuentes con menos de 24 h; elegir el día con la ventana más amplia",
+  "estab_expo": "Salida temprana (menos horas expuestas al desarrollo vespertino); rutas de escape identificadas",
+  "mitigacion": "Capa impermeable y abrigo de emergencia por persona",
+  "senal": "Nubosidad de desarrollo vertical antes de mediodía o viento no pronosticado",
+  "regla": "Adelantar la hora de retorno"
+ },
+ {
+  "id": "S04",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "fatiga",
+   "grupo/dinámica"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos los integrantes conservan energía y ánimo para el retorno completo",
+  "estab_prob": "Alimentación programada cada hora de marcha; hidratación pautada; objetivo acorde a la condición declarada de todos",
+  "estab_expo": "Objetivos intermedios definidos que permiten acortar la actividad sin frustrar la salida",
+  "mitigacion": "Comida extra; regla de retorno conjunto: el grupo no se divide",
+  "senal": "Cualquier integrante manifiesta agotamiento o malestar",
+  "regla": "La cumbre deja de ser objetivo del grupo, no del individuo"
+ },
+ {
+  "id": "S05",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "sendero/huella"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El terreno se mantiene de marcha, sin pasos expuestos ni uso de manos",
+  "estab_prob": "Estudio previo de fotos y relatos de la ruta; consulta a socios que la conocen",
+  "estab_expo": "Trazado estrictamente por la ruta normal descrita, sin variantes exploratorias",
+  "mitigacion": "Ruta alternativa identificada en la planificación",
+  "senal": "Aparece terreno que exige uso de manos o genera duda en algún integrante",
+  "regla": "Punto de retorno; en actividades de marcha no se improvisa trepada"
+ },
+ {
+  "id": "S06",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "horario/luz"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La cumbre se alcanza antes de las __ hrs (hora límite fijada la noche anterior)",
+  "estab_prob": "Salida a las __ hrs; ritmo planificado con hitos horarios de control",
+  "estab_expo": "La hora límite precomprometida acota las horas totales de actividad",
+  "mitigacion": "Frontales accesibles sin vaciar la mochila; el contacto conoce la hora de reporte",
+  "senal": "Hora límite alcanzada sin cumbre",
+  "regla": "Retorno inmediato, sin excepción por estar cerca"
+ },
+ {
+  "id": "S07",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "horario/luz"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Queda luz diurna suficiente para completar todo el descenso",
+  "estab_prob": "Hora de ocaso anotada en el plan; margen de 2 h entre término proyectado y ocaso",
+  "estab_expo": "Inicio de descenso a las __ hrs independiente del avance logrado",
+  "mitigacion": "Frontal con pilas de repuesto por persona",
+  "senal": "El descenso proyectado termina a menos de 1 hora del ocaso",
+  "regla": "Acortar descansos; activar frontales antes de necesitarlas"
+ },
+ {
+  "id": "S09",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "senderismo",
+   "trekking de un día",
+   "caminata por sendero"
+  ],
+  "dificultades": [
+   "agua/hidratación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El agua alcanza entre fuentes confirmadas: __ L por persona por tramo, con la regla del tercio aplicada.",
+  "estab_prob": "Fuentes confirmadas con reportes recientes; volumen dimensionado al calor pronosticado.",
+  "estab_expo": "Trazado que pasa por fuentes intermedias aunque alargue la distancia.",
+  "mitigacion": "Pastillas potabilizadoras; fuentes de emergencia identificadas en el estudio de la ruta.",
+  "senal": "Consumo adelantado al plan en el primer tercio de la jornada.",
+  "regla": "Racionamiento y acortamiento del objetivo en el siguiente punto de decisión."
+ },
+ {
+  "id": "S10",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "fisiológico/aclimatación",
+   "altura (>3.500 m)"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Aclimatación adecuada: sin síntomas de MAM más allá de cefalea leve que cede con hidratación y descanso",
+  "estab_prob": "Noche previa en cota intermedia; ganancia de cota de pernocte menor a __ m/día; hidratación pautada",
+  "estab_expo": "Pernocte a la menor cota compatible con el plan (subir alto, dormir bajo)",
+  "mitigacion": "Analgésicos y protocolo MAM en el botiquín; ruta de descenso rápido identificada",
+  "senal": "Cefalea que no cede, náuseas, ataxia o insomnio severo en campamento",
+  "regla": "Esa persona no sube al día siguiente; se evalúa descenso acompañado"
+ },
+ {
+  "id": "S11",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "fatiga"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El ritmo de porteo permite llegar al campamento con al menos 2 horas de luz",
+  "estab_prob": "Porteo dimensionado (menos de __ % del peso corporal); salida temprana",
+  "estab_expo": "Campamentos alternativos identificados que acortan la jornada si el ritmo cae",
+  "mitigacion": "Capacidad de armar campamento con frontales; abrigo accesible durante la marcha",
+  "senal": "Llegada proyectada al campamento después de la hora precomprometida",
+  "regla": "Acampar en la alternativa identificada en la planificación; no forzar"
+ },
+ {
+  "id": "S12",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "agua/hidratación",
+   "logística/autonomía"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Las fuentes de agua están disponibles según lo planificado",
+  "estab_prob": "Fuentes verificadas con reportes recientes de otras cordadas",
+  "estab_expo": "Plan dimensionado para que ningún tramo dependa de una sola fuente de agua",
+  "mitigacion": "Cocinilla y combustible para derretir nieve; reserva mínima intocable de __ L por persona",
+  "senal": "Fuente seca o congelada",
+  "regla": "Activar plan B (derretir nieve / depósito previo); si no existe plan B, el supuesto falló: retorno"
+ },
+ {
+  "id": "S13",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico",
+   "nevero"
+  ],
+  "dificultades": [
+   "nevero",
+   "horario/luz"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La nieve del nevero de subida está recongelada y transitable a la hora de paso: firme que marca el paso, no vitrificada (entrada entre las __ y las __ hrs).",
+  "estab_prob": "Hora de paso calculada con la orientación de la ladera y el recongelamiento nocturno; consulta de condiciones de la semana.",
+  "estab_expo": "La ventana precomprometida acota el horario de toda la jornada; el itinerario completo se calcula hacia atrás desde ella.",
+  "mitigacion": "Línea alternativa por filo o acarreo identificada en la planificación.",
+  "senal": "El piolet rebota (superficie vitrificada) o el pie se hunde sobre el tobillo al probar la entrada.",
+  "regla": "Fuera de ventana en la entrada → línea alternativa o crampones desde antes del tramo; sin opción segura, retorno."
+ },
+ {
+  "id": "S14",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "viento",
+   "meteorología"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Viento en altura bajo __ km/h sostenido (umbral fijado la noche anterior; referencia CAU: 40 km/h en formación)",
+  "estab_prob": "Umbral fijado la noche anterior con pronóstico de viento en altura; elección del día",
+  "estab_expo": "Ruta con puntos de resguardo; tramos expuestos al viento cruzados temprano",
+  "mitigacion": "Cortaviento accesible sin abrir la mochila; antiparras",
+  "senal": "Viento que obliga a detenerse o desestabiliza la marcha",
+  "regla": "Retorno; el viento en altura no mejora durante el día en la zona central"
+ },
+ {
+  "id": "S15",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "horario/luz"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La cumbre se proyecta dentro de la hora límite de retorno definida la noche anterior",
+  "estab_prob": "Hora límite de retorno calculada con pronóstico, horas de luz y ritmo real del grupo",
+  "estab_expo": "Hitos de control intermedios que acortan la actividad apenas aparece atraso",
+  "mitigacion": "El plan de descenso funciona desde cualquier punto de la ruta, no solo desde la cumbre",
+  "senal": "Hora límite de retorno alcanzada sin cumbre",
+  "regla": "Retorno; la decisión ya está tomada y en terreno no se renegocia"
+ },
+ {
+  "id": "S16",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "frío/congelación"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos los integrantes mantienen sensibilidad normal en manos y pies",
+  "estab_prob": "Sistema de guantes por capas más repuesto; calzado probado antes de la salida",
+  "estab_expo": "Pausas de reactivación programadas; trazado que minimiza tramos en sombra y viento",
+  "mitigacion": "Calentadores químicos; protocolo de congelación conocido (no frotar; no recalentar si puede recongelarse)",
+  "senal": "Pérdida de sensibilidad que no se recupera con maniobras activas en 15 minutos",
+  "regla": "Descenso del afectado con acompañante"
+ },
+ {
+  "id": "S17",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico",
+   "nevero"
+  ],
+  "dificultades": [
+   "nevero",
+   "horario/luz"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Los neveros de bajada siguen firmes a la hora de paso de regreso: el paso de bajada ocurre antes de las __ hrs.",
+  "estab_prob": "Cumbre temprana; hora de paso de bajada planificada según recongelamiento y orientación (la cara de bajada puede tener otra ventana que la de subida).",
+  "estab_expo": "La hora límite de retorno se dimensiona por la ventana del nevero de bajada, no por la cumbre; de a uno en las pendientes.",
+  "mitigacion": "Acarreo alternativo identificado; espera del recongelamiento como opción declarada (abrigo y comida de margen); autodetención practicada y casco puesto.",
+  "senal": "Nieve podrida en pendiente durante la bajada; el piolet no muerde al apoyar.",
+  "regla": "Podrida con alternativa → acarreo; sin alternativa → cramponaje lento, encordado si se acordó, o espera del recongelamiento."
+ },
+ {
+  "id": "S18",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "fatiga",
+   "logística/autonomía"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Queda energía para desmontar campamento y completar el porteo de salida",
+  "estab_prob": "Reparto de peso según el estado de cada integrante; jornada de salida dimensionada",
+  "estab_expo": "Itinerario de salida en etapas cortas con puntos de corte",
+  "mitigacion": "Día de margen contemplado en el plan y comunicado al contacto",
+  "senal": "El grupo llega al campamento sin margen físico",
+  "regla": "Pernocte adicional si hay reservas (la comida extra debe estar declarada en el aviso)"
+ },
+ {
+  "id": "S19",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "trekking de altura",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "comunicación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La comunicación de retorno se emite a la hora comprometida",
+  "estab_prob": "Puntos de señal identificados en el plan; batería reservada para el reporte",
+  "estab_expo": "Horarios de reporte con margen amplio antes de la hora de activación del protocolo",
+  "mitigacion": "Mensaje predefinido acordado con el contacto; protocolo del club conocido por todos",
+  "senal": "Sin señal en el punto previsto de comunicación",
+  "regla": "Moverse al punto alternativo identificado antes de la hora de activación del protocolo"
+ },
+ {
+  "id": "S20",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "fisiológico/aclimatación",
+   "altura (>3.500 m)"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La aclimatación escalonada se cumplió según el plan (noches previas a cota progresiva)",
+  "estab_prob": "Itinerario con noches a cota progresiva y día de margen; monitoreo básico (FC en reposo, calidad de sueño)",
+  "estab_expo": "Rotaciones que minimizan el tiempo en cota alta sin propósito de aclimatación",
+  "mitigacion": "Cotas de repliegue definidas por etapa; criterio explícito de quién baja acompañando",
+  "senal": "Presión de calendario para saltarse una etapa de aclimatación",
+  "regla": "Se reprograma el ataque; el plan no se comprime"
+ },
+ {
+  "id": "S22",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía",
+   "avalancha"
+  ],
+  "dificultades": [
+   "nieve inestable"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Durante la aproximación y el avance, el manto no presenta señales activas de inestabilidad.",
+  "estab_prob": "Trazado que permite leer el manto en pendientes de prueba pequeñas y sin consecuencia antes de las pendientes comprometidas.",
+  "estab_expo": "Trazado por filos, contrapendientes y zonas de baja inclinación; las pendientes de 30–45° (rango de máxima frecuencia de avalanchas de placa) se evitan o se cruzan por sus bordes.",
+  "mitigacion": "ARVA, pala y sonda operativos (B2.G.1); puntos seguros mapeados a lo largo de toda la línea.",
+  "senal": "Whumpf (colapso audible del manto), fisuras que se propagan desde los pies, avalanchas recientes en laderas de orientación análoga.",
+  "regla": "Una sola señal activa → se cancelan todas las pendientes de carga de la jornada; la regla es precomprometida y ningún argumento de terreno la revierte."
+ },
+ {
+  "id": "S23",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "meteorología",
+   "comunicación"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El pronóstico de ventana se confirma en el último punto con comunicación",
+  "estab_prob": "Pronóstico de múltiples modelos; fecha y hora límite de decisión definidas",
+  "estab_expo": "Plan que mantiene a la cordada a menos de __ jornadas de una cota segura",
+  "mitigacion": "Comida y combustible para esperar __ días; plan de retirada por mal tiempo escrito",
+  "senal": "La ventana se acorta o se degrada respecto al plan",
+  "regla": "Recalcular el plan desde el campo alto con el margen nuevo, nunca con el antiguo"
+ },
+ {
+  "id": "S24",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Las condiciones permiten protección confiable (tornillos que muerden, nieve que sostiene estacas)",
+  "estab_prob": "Temporada y hora elegidas por condiciones; reportes recientes; lectura de hielo entrenada previamente",
+  "estab_expo": "El primer largo se plantea como test con retirada barata: compromiso mínimo hasta confirmar el supuesto",
+  "mitigacion": "Material de abandono contemplado en el inventario; rapelar es posible desde cualquier punto alcanzado",
+  "senal": "Hielo podrido o nieve sin cohesión en el primer largo",
+  "regla": "Retirada desde abajo; el primer largo es el test del supuesto, no un costo hundido"
+ },
+ {
+  "id": "S25",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "maniobras de cuerda",
+   "horario/luz"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El ritmo por largo se mantiene dentro de ±__ % de lo estimado (referencia: 25 %)",
+  "estab_prob": "Tiempos por largo estimados con la reseña de la ruta; transiciones y maniobras ensayadas antes",
+  "estab_expo": "Puntos de escape identificados por sección de la vía",
+  "mitigacion": "Reuniones equipadas identificadas en la reseña; frontal y abrigo para descenso nocturno",
+  "senal": "Dos largos consecutivos sobre el tiempo estimado",
+  "regla": "Recálculo inmediato de la hora de cumbre proyectada; si supera la hora límite de retorno, retirada con los rapeles disponibles"
+ },
+ {
+  "id": "S26",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "caída de rocas",
+   "horario/luz"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Las zonas de caída de rocas/seracs se cruzan dentro de la ventana fría",
+  "estab_prob": "Horario de cruce planificado pre-alba, cuando el material está congelado",
+  "estab_expo": "Exposición mínima en la zona: de a uno, sin detenerse, tiempo de permanencia mínimo",
+  "mitigacion": "Casco siempre puesto; puntos de resguardo identificados antes de entrar a la zona",
+  "senal": "Caída de material observada o audible en la zona de paso, o retraso que obliga a cruzar con sol",
+  "regla": "Se aborta el cruce; no existe cruce rápido que gestione ese riesgo"
+ },
+ {
+  "id": "S27",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "fatiga",
+   "fisiológico/aclimatación"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Reserva fisiológica: cada integrante es capaz de liderar un largo más",
+  "estab_prob": "Entrenamiento verificado en salidas previas de menor compromiso",
+  "estab_expo": "Roles rotados según estado; vía con longitud acorde al integrante menos entrenado",
+  "mitigacion": "El integrante más entero baja último y asegura; azúcares de acción rápida a mano",
+  "senal": "Un integrante ya no puede liderar ni asegurar con atención plena",
+  "regla": "La cordada completa entra en modo descenso"
+ },
+ {
+  "id": "S30",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "maniobras de cuerda",
+   "fatiga"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada maniobra de descenso se ejecuta con verificación cruzada del compañero, sin excepción",
+  "estab_prob": "Protocolo de chequeo mutuo acordado antes de salir; maniobras estandarizadas del club",
+  "estab_expo": "Sistema de descenso simplificado: menos maniobras, menos ocasiones de error",
+  "mitigacion": "Sistemas con redundancia: nudo de respaldo, mosquetón con seguro en puntos críticos",
+  "senal": "Error detectado en una maniobra (mosquetón sin seguro, nudo incompleto)",
+  "regla": "Detención total, hidratación, y verificación doble en todas las maniobras restantes"
+ },
+ {
+  "id": "S31",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "alpinismo clásico",
+   "glaciar",
+   "escalada hielo/mixto",
+   "travesía"
+  ],
+  "dificultades": [
+   "comunicación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La comunicación de estado se emite en cada hito del plan de retorno",
+  "estab_prob": "Hitos y horas con margen; responsable de comunicación definido por jornada",
+  "estab_expo": "Ruta de retorno trazada por puntos de señal conocidos",
+  "mitigacion": "Mensajes predefinidos; contacto instruido en el protocolo de activación",
+  "senal": "Hito incumplido sin comunicación",
+  "regla": "El protocolo externo se activa solo; la cordada prioriza llegar al punto de señal"
+ },
+ {
+  "id": "S32",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "fisiológico/aclimatación",
+   "altura extrema (>5.500 m)"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La curva de aclimatación individual está dentro de parámetros (SpO2, FC en reposo y sueño registrados)",
+  "estab_prob": "Rotaciones de aclimatación planificadas; registro diario de indicadores; hidratación y nutrición pautadas",
+  "estab_expo": "Tiempo en cota alta minimizado: subir alto, dormir bajo",
+  "mitigacion": "Cotas de evacuación definidas por etapa; fármacos de altura con criterios médicos acordados antes de salir",
+  "senal": "Tendencia negativa sostenida por 2 o más días en un integrante",
+  "regla": "Esa persona baja de cota; la expedición redefine roles, no ignora los datos"
+ },
+ {
+  "id": "S33",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "logística/autonomía"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La logística está verificada físicamente: depósitos, combustible y comida donde el plan dice",
+  "estab_prob": "Depósitos redundantes, marcados con GPS y referencia física; inventario al llegar a cada campo",
+  "estab_expo": "Margen de comida y combustible distribuido entre campos, no concentrado en uno",
+  "mitigacion": "Plan de reabastecimiento o retirada si la autonomía cae bajo el umbral definido",
+  "senal": "Depósito perdido o dañado",
+  "regla": "Recálculo total de autonomía antes de cualquier decisión de avance; avanzar y ver no es opción"
+ },
+ {
+  "id": "S34",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "meteorología"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Existe ventana sinóptica identificable con 3 o más días de anticipación",
+  "estab_prob": "Dos o más modelos consultados; contacto meteorológico externo si el proyecto lo justifica",
+  "estab_expo": "Campos ubicados de modo que la retirada tome menos de __ jornadas",
+  "mitigacion": "Plan de espera con recursos y moral; fecha límite de abandono del objetivo definida",
+  "senal": "Modelos en desacuerdo o ventana menor que ataque + descenso + margen",
+  "regla": "No se inicia el ataque; una ventana justa no es una ventana"
+ },
+ {
+  "id": "S35",
+  "tramos": [
+   "Aproximación"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "grupo/dinámica"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La cohesión de la cordada está intacta tras semanas de convivencia",
+  "estab_prob": "Expectativas y liderazgo acordados antes de salir; reuniones diarias de estado en campo base",
+  "estab_expo": "Decisiones críticas tomadas en campo base, no en cota alta donde el conflicto cuesta más",
+  "mitigacion": "Protocolo de decisión definido (quién decide qué); subgrupos con planes propios declarados si es necesario",
+  "senal": "Conflicto que altera decisiones o comunicación",
+  "regla": "Se explicita y resuelve en campo base; una cordada fracturada en cota alta es peor que el terreno"
+ },
+ {
+  "id": "S36",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "fisiológico/aclimatación",
+   "altura extrema (>5.500 m)"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Ningún integrante presenta deterioro neurológico en cota de ataque (habla, coordinación y decisiones normales)",
+  "estab_prob": "Perfil de ascenso conservador; hidratación pautada; vigilancia mutua con test verbal en cada control",
+  "estab_expo": "Tiempo sobre la cota __ limitado a __ hrs",
+  "mitigacion": "Fármacos de emergencia según protocolo médico acordado; oxígeno o cámara si el proyecto lo justifica",
+  "senal": "Ataxia, confusión, tos productiva o disnea en reposo",
+  "regla": "Descenso inmediato del afectado con acompañante; la sospecha de ECA/EPA se trata bajando, ahora"
+ },
+ {
+  "id": "S37",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "altura extrema (>5.500 m)"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La cumbre se proyecta dentro de la hora límite de retorno, con margen para descender hasta cota segura (no hasta la cumbre)",
+  "estab_prob": "Hora límite de retorno fijada con pronóstico y fisiología real del equipo; controles horarios cada __",
+  "estab_expo": "Ataque desde el campo más alto posible: menos horas de exposición el día de cumbre",
+  "mitigacion": "Abrigo y reservas listos en el campo alto; depósitos de equipo en la ruta para el regreso",
+  "senal": "Proyección de cumbre fuera de hora en cualquier control intermedio",
+  "regla": "Retorno; la hora límite de retorno en altura extrema protege el descenso, que es donde ocurren las muertes"
+ },
+ {
+  "id": "S38",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "frío/congelación",
+   "viento"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La sensación térmica se mantiene dentro del umbral de __ °C acordado antes de salir",
+  "estab_prob": "Umbral de sensación térmica fijado antes de salir; sistemas de abrigo probados; salida condicionada al viento",
+  "estab_expo": "Tramos expuestos al viento cruzados con la primera luz; paradas mínimas en zonas ventosas",
+  "mitigacion": "Calentadores; protocolo de congelación; parejas de vigilancia mutua de caras y manos",
+  "senal": "Congelamiento incipiente en cualquier integrante",
+  "regla": "Descenso; en esta cota no existe recuperar sensibilidad y seguir"
+ },
+ {
+  "id": "S39",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "logística/autonomía"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Las reservas (oxígeno/energía/agua) llegan intactas hasta el punto de no retorno definido",
+  "estab_prob": "Consumos medidos en las rotaciones previas; puntos de control de reservas en el plan de ataque",
+  "estab_expo": "Punto de no retorno definido conservadoramente: acota el compromiso máximo",
+  "mitigacion": "Reservas de emergencia selladas, separadas del consumo diario",
+  "senal": "Consumo de reservas antes del punto definido",
+  "regla": "El punto de no retorno se adelanta en la misma proporción; se recalcula, no se estira"
+ },
+ {
+  "id": "S40",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "logística/autonomía",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La capacidad de autorrescate es operativa en todo punto del plan: la cordada puede bajar a un incapacitado",
+  "estab_prob": "Autorrescate entrenado por la cordada completa; equipo dimensionado para bajar a una persona",
+  "estab_expo": "Ruta elegida sin puntos donde el autorrescate sea imposible: ese punto es el límite real",
+  "mitigacion": "Camilla improvisable, cuerda de margen y plan de evacuación escrito por etapa",
+  "senal": "Un punto del plan donde bajar a un incapacitado deja de ser posible con los medios presentes",
+  "regla": "Ese punto es el límite real de la ruta; se identifica en la planificación, no se descubre en terreno"
+ },
+ {
+  "id": "S41",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "meteorología",
+   "logística/autonomía"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Existe margen de comida/combustible para +__ días de mal tiempo en cualquier campo (referencia: 2)",
+  "estab_prob": "Logística con margen declarado en el aviso; disciplina de consumo verificada en cada campo",
+  "estab_expo": "Campos ubicados a distancia de repliegue entre sí",
+  "mitigacion": "Cotas de resguardo identificadas; plan de racionamiento definido antes de necesitarlo",
+  "senal": "Margen consumido por retrasos acumulados",
+  "regla": "El descenso se prioriza sobre cualquier objetivo remanente"
+ },
+ {
+  "id": "S42",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "fatiga",
+   "altura extrema (>5.500 m)"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El deterioro cognitivo por hipoxia y fatiga se gestiona con protocolos, no con voluntad",
+  "estab_prob": "Checklists de maniobra escritos; verificación cruzada obligatoria pactada antes de salir",
+  "estab_expo": "Sistemas simplificados: menos maniobras en el descenso, más margen",
+  "mitigacion": "Descansos programados en el descenso; tareas críticas asignadas al integrante más entero",
+  "senal": "Errores u olvidos observados en compañeros",
+  "regla": "Se activa modo checklist verbal explícito; nadie opera solo"
+ },
+ {
+  "id": "S43",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "expedición de altura",
+   "ruta técnica sostenida",
+   "invernal comprometida"
+  ],
+  "dificultades": [
+   "meteorología"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La ventana de salida está confirmada para el porteo final o la extracción",
+  "estab_prob": "Pronóstico monitoreado hasta el final de la expedición; extracción coordinada con margen",
+  "estab_expo": "Campo base ubicado con salida viable incluso en ventanas cortas",
+  "mitigacion": "Recursos para esperar en campo base; comunicación con el exterior para reprogramar",
+  "senal": "Cierre de la ventana meteorológica de salida",
+  "regla": "Esperar es la decisión por defecto; forzar la salida es la causa clásica de accidente post-cumbre"
+ },
+ {
+  "id": "A1.C.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "caminata por sendero",
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "sendero/huella",
+   "horario/luz",
+   "agua/hidratación",
+   "fatiga"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El sendero está vigente y transitable: sin cortes por derrumbes, crecidas o vegetación cerrada.",
+  "estab_prob": "Reportes recientes del estado del sendero; track descargado; época del año considerada.",
+  "estab_expo": "Trazado por la ruta principal y no por variantes; cruces de agua ubicados temprano en el día (menor caudal).",
+  "mitigacion": "El plan declara que el grupo no navega fuera de sendero: esa limitación es parte del aviso.",
+  "senal": "El sendero se pierde o aparece cortado; cruces de agua no previstos en la reseña.",
+  "regla": "15 min sin sendero → volver al último punto confirmado; un cruce de agua sobre el umbral acordado (__ cm de profundidad / correntada) no se cruza."
+ },
+ {
+  "id": "A1.C.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "caminata por sendero",
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "sendero/huella",
+   "horario/luz",
+   "agua/hidratación",
+   "fatiga"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La temperatura permite marcha continua: los tramos sin sombra se cruzan fuera de las horas de mayor calor.",
+  "estab_prob": "Salida temprana; pronóstico de temperatura por franja horaria.",
+  "estab_expo": "Tramos expuestos programados para la mañana; siesta a la sombra en el peak si la jornada lo exige.",
+  "mitigacion": "Sales de rehidratación; protección solar completa; agua extra sobre el cálculo base.",
+  "senal": "Integrante que deja de sudar, se confunde o se desorienta; temperatura real sobre el pronóstico.",
+  "regla": "Pausa a la sombra e hidratación; síntomas neurológicos (confusión, desorientación) → evacuación, no descanso."
+ },
+ {
+  "id": "A1.G.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "caminata por sendero",
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "sendero/huella",
+   "horario/luz",
+   "agua/hidratación",
+   "fatiga"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Los pies de todos se mantienen sin ampollas ni puntos calientes en una jornada de __ hrs.",
+  "estab_prob": "Calzado probado en salidas previas (nunca estrenado en jornada larga); calcetines adecuados; norma de avisar al primer roce, pactada al inicio.",
+  "estab_expo": "Jornada dimensionada al calzado menos probado del grupo.",
+  "mitigacion": "Kit de ampollas completo (parches hidrocoloides, cinta); calcetines de recambio.",
+  "senal": "Cualquier integrante reporta un punto caliente.",
+  "regla": "Detención inmediata y tratamiento; caminar sobre una ampolla abierta compromete el retorno completo del grupo."
+ },
+ {
+  "id": "A1.I.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "caminata por sendero",
+   "senderismo",
+   "trekking de un día"
+  ],
+  "dificultades": [
+   "sendero/huella",
+   "horario/luz",
+   "agua/hidratación",
+   "fatiga"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Los tiempos de la reseña se cumplen dentro de un __ % de margen en cada hito de la jornada.",
+  "estab_prob": "Itinerario con hitos horarios realistas para el grupo real (no el ideal); salida temprana.",
+  "estab_expo": "Puntos de decisión con objetivos intermedios definidos: la jornada puede acortarse sin crisis.",
+  "mitigacion": "Frontales con pilas por persona; plan de retorno viable desde cada hito.",
+  "senal": "El primer hito se alcanza con atraso mayor al margen.",
+  "regla": "Recálculo inmediato; si el atraso proyecta el retorno fuera de la luz, el objetivo se acorta en el siguiente punto de decisión, no al final."
+ },
+ {
+  "id": "A2.C.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El terreno permite marcha continua: la vegetación, los roquedales y las quebradas no bloquean la línea estudiada.",
+  "estab_prob": "Imagen satelital de detalle estudiada; época del año considerada (vegetación, nieve remanente, caudales).",
+  "estab_expo": "Línea por terreno abierto verificable en la imagen, con margen de tiempo para desvíos.",
+  "mitigacion": "Margen horario declarado en el aviso; ropa resistente a vegetación.",
+  "senal": "Avance bajo __ m por hora en vegetación cerrada; quebrada infranqueable no prevista.",
+  "regla": "Dos bloqueos consecutivos → se replantea la ruta completa desde la posición actual o se retorna; no se improvisa un tercer intento."
+ },
+ {
+  "id": "A2.C.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La visibilidad permite identificar los rasgos de referencia de cada waypoint durante todo el tramo.",
+  "estab_prob": "Pronóstico de nubosidad y altura de la base de nubes consultado.",
+  "estab_expo": "El tramo de navegación se inicia solo con visibilidad asegurada hasta el primer waypoint.",
+  "mitigacion": "Track, brújula y altímetro; capacidad de esperar (abrigo y comida de margen).",
+  "senal": "Niebla o nubosidad que oculta las referencias del terreno.",
+  "regla": "Sin referencias visibles, se navega instrumentalmente solo sobre track propio o verificado; si no lo hay, detención sobre la posición conocida o retorno."
+ },
+ {
+  "id": "A2.G.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo se mantiene a distancia visual permanente; nadie navega por su cuenta.",
+  "estab_prob": "Orden de marcha definido: navegante adelante, cierre designado atrás.",
+  "estab_expo": "Reagrupe obligatorio en cada waypoint, sin excepciones por buen terreno.",
+  "mitigacion": "Silbatos por persona; punto y protocolo de encuentro definidos si alguien queda separado.",
+  "senal": "Integrantes fuera de vista; líneas de avance divergentes dentro del grupo.",
+  "regla": "Detención y reagrupe inmediato; se camina al paso del último, no del navegante."
+ },
+ {
+  "id": "A2.G.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Las decisiones de microrruta (qué ladera, qué quebrada, qué franja de vegetación) se validan entre navegante y suplente.",
+  "estab_prob": "Navegante titular y suplente designados; criterio de reversibilidad acordado antes de salir.",
+  "estab_expo": "Trazado por lomos y filos abiertos, no por fondos de quebrada encajonados, aunque alargue.",
+  "mitigacion": "La capacidad de retroceder está garantizada por el track propio y la regla de reversibilidad.",
+  "senal": "Correcciones repetidas de rumbo; el grupo entra a terreno que obliga a destrepar.",
+  "regla": "Ante duda entre dos opciones se elige siempre la reversible; terreno que exige uso de manos → se retrocede, no se fuerza."
+ },
+ {
+  "id": "A2.I.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La ruta avanza por rumbos entre waypoints definidos sobre rasgos inconfundibles del terreno, con verificación de posición en cada uno.",
+  "estab_prob": "Estudio combinado de imagen satelital y curvas de nivel; waypoints elegidos sobre rasgos identificables (portezuelos, confluencias, roquedales notorios).",
+  "estab_expo": "Tramos entre waypoints acotados a __ min de marcha: un error de rumbo nunca cuesta más que eso.",
+  "mitigacion": "Track grabado en el GPS durante el avance; mapa y brújula además del dispositivo.",
+  "senal": "Un waypoint no se alcanza en el tiempo estimado; el terreno no coincide con lo esperado del estudio.",
+  "regla": "Detención y reposicionamiento; sin certeza de posición, retorno por el rumbo inverso o la huella registrada."
+ },
+ {
+  "id": "A2.I.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campo traviesa",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "navegación/extravío",
+   "terreno técnico"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La velocidad fuera de sendero (__ km/h, típicamente la mitad o menos que en sendero) sostiene el itinerario dentro de la luz del día.",
+  "estab_prob": "Estimación conservadora desde el diseño (mitad de la velocidad de sendero); salida temprana.",
+  "estab_expo": "Objetivos con escape hacia sendero o huella conocida en más de un punto del trazado.",
+  "mitigacion": "Frontales; equipo de vivac ligero si el tramo es largo.",
+  "senal": "El primer tramo se completa bajo la velocidad planificada.",
+  "regla": "Recálculo inmediato; la hora límite de retorno se respeta sin renegociación en terreno."
+ },
+ {
+  "id": "A3.C.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "acarreo",
+   "montañismo básico",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "acarreo",
+   "caída de rocas"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El material del acarreo está asentado: soporta la pisada sin fluir en placas ni arrastrar al caminante.",
+  "estab_prob": "Reseña y consulta reciente sobre la calidad del acarreo; época del año considerada (el hielo intersticial de la mañana lo cementa).",
+  "estab_expo": "Paso a primera hora cuando el material amanece cementado; línea por bordes.",
+  "mitigacion": "Casco; distancia entre integrantes ampliada en material vivo.",
+  "senal": "El acarreo fluye arrastrando más de lo controlable; bloques grandes que se sueltan con el paso.",
+  "regla": "Cambio a línea de material más grueso o roca fija; si no existe en toda la ladera, retorno."
+ },
+ {
+  "id": "A3.C.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "acarreo",
+   "montañismo básico",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "acarreo",
+   "caída de rocas"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "No hay caída de piedras desde arriba durante el paso: ni descarga natural ni otras cordadas o animales sobre la línea del grupo.",
+  "estab_prob": "Horario temprano (menos cordadas, material cementado); observación de la ladera antes de entrar.",
+  "estab_expo": "Zonas encajonadas cruzadas de a uno y sin detenerse, con vigía que observa hacia arriba.",
+  "mitigacion": "Casco; puntos de resguardo identificados antes de entrar a la zona.",
+  "senal": "Piedras bajando sin origen visible; cordada o animales arriba en la misma línea.",
+  "regla": "Salir de la línea de caída y esperar, o cambiar de línea; con otra cordada arriba, se coordina el paso — nunca se transita debajo."
+ },
+ {
+  "id": "A3.G.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "acarreo",
+   "montañismo básico",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "acarreo",
+   "caída de rocas"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo transita en la formación acordada (agrupado en zigzag corto o separado en diagonal), de modo que ninguna piedra soltada por uno alcance a otro.",
+  "estab_prob": "Técnica de marcha en acarreo repasada antes de entrar; orden de marcha según destreza.",
+  "estab_expo": "Nadie se ubica en la línea de caída de otro; grupos grandes divididos en tandas de paso.",
+  "mitigacion": "Casco en acarreos encajonados; protocolo de grito \"¡piedra!\" conocido por todos (avisar, no mirar hacia arriba sin casco).",
+  "senal": "Piedras sueltas por integrantes pasando cerca de otros; gritos de \"¡piedra!\" repetidos.",
+  "regla": "Se detiene y reordena la formación; si el acarreo descarga con el paso del propio grupo, se cambia de línea."
+ },
+ {
+  "id": "A3.G.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "acarreo",
+   "montañismo básico",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "acarreo",
+   "caída de rocas"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos mantienen pisada estable durante el tránsito: sin resbalones repetidos ni fatiga que degrade el apoyo.",
+  "estab_prob": "Calzado con caña probado; bastones; técnica de descenso en acarreo enseñada (talón firme, peso atrás).",
+  "estab_expo": "Tramos de acarreo minimizados en el trazado cuando existe alternativa por roca fija o sendero.",
+  "mitigacion": "Botiquín con vendaje funcional; reparto de la carga del lesionado.",
+  "senal": "Resbalones reiterados del mismo integrante; apoyo de manos frecuente; quejas de tobillo.",
+  "regla": "Pausa, reordenar y cambiar a línea de material más grueso; ante torcedura, se activa el plan de evacuación — un esguince en acarreo no se \"camina\"."
+ },
+ {
+  "id": "A3.I.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "acarreo",
+   "montañismo básico",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "acarreo",
+   "caída de rocas"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El acarreo se sube (o baja) en __ min según lo estimado, con verificación en el punto medio.",
+  "estab_prob": "Tiempo estimado con reseña y experiencia en acarreos comparables; elección de línea por material asentado (bloques trabados, no bolones sueltos).",
+  "estab_expo": "Línea por el borde del acarreo o islas de roca fija: mejor apoyo y salida lateral disponible.",
+  "mitigacion": "Bastones; bota con caña que proteja el tobillo.",
+  "senal": "En el punto medio el tiempo consumido supera el __ % de lo estimado; dos pasos atrás por cada tres adelante en secciones que fluyen.",
+  "regla": "Atraso sobre el margen en el punto medio → se evalúa línea alternativa o retorno; el acarreo no se \"aguanta\" esperando que mejore."
+ },
+ {
+  "id": "A4.C.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "cruce de río",
+   "senderismo",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "cruce de río"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El agua no supera el umbral de cruce: profundidad bajo __ (referencia: media pierna del integrante más bajo) y correntada que permite mantener el pie plantado.",
+  "estab_prob": "Época y hora elegidas por caudal; cuenca pequeña preferida sobre cauce principal cuando la ruta lo permite.",
+  "estab_expo": "Umbral definido por el integrante más bajo y liviano, no por el promedio del grupo.",
+  "mitigacion": "Calzado puesto para el vadeo (nunca descalzo); bastones; ropa de recambio estanca en la mochila.",
+  "senal": "Agua sobre la rodilla del primero en entrar; bolones rodando audibles en el fondo; agua turbia.",
+  "regla": "Umbral superado → no se cruza; no existe técnica grupal que gestione un río sobre el umbral."
+ },
+ {
+  "id": "A4.C.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "cruce de río",
+   "senderismo",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "cruce de río"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Aguas abajo del punto, en la distancia de arrastre posible, no hay trampas: rápidos, gargantas, troncos ni sifones.",
+  "estab_prob": "Inspección visual aguas abajo antes de elegir el punto; estudio previo del tramo en imagen satelital.",
+  "estab_expo": "Punto elegido con remanso o playa de recepción aguas abajo, aunque el cruce sea más ancho.",
+  "mitigacion": "Observador apostado aguas abajo durante cada cruce, con bastón o cuerda de asistencia lista.",
+  "senal": "Rápidos o estrechamientos visibles o audibles aguas abajo del punto.",
+  "regla": "Con trampa aguas abajo, el punto se descarta aunque el caudal esté bajo el umbral: la consecuencia manda sobre la probabilidad."
+ },
+ {
+  "id": "A4.G.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "cruce de río",
+   "senderismo",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "cruce de río"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo cruza con la técnica acordada antes de entrar al agua (trípode con bastones, línea tomados por los hombros de cara a la corriente, o de a uno asegurado, según el caso) y con los roles definidos.",
+  "estab_prob": "Técnica elegida y ensayada en seco; orden de cruce definido (el más fuerte rompe la corriente); mochilas con correas de cadera y pecho sueltas para poder soltarlas.",
+  "estab_expo": "Cruce de a una unidad (persona o grupo tomado) mientras el resto observa desde la orilla, aguas abajo del punto, listo para asistir.",
+  "mitigacion": "Protocolo de arrastre definido antes de entrar (quién asiste, desde dónde, con qué); ropa y equipo crítico embolsado estanco.",
+  "senal": "Un integrante pierde pie o se paraliza a mitad del cruce.",
+  "regla": "Pérdida de pie o pánico → la unidad retrocede a la orilla de partida si es posible; el cruce del resto se suspende hasta reevaluar punto y técnica."
+ },
+ {
+  "id": "A4.I.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "cruce de río",
+   "senderismo",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "cruce de río"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El cruce se realiza a la hora de menor caudal: antes de las __ hrs (en régimen de deshielo, el caudal crece durante el día).",
+  "estab_prob": "Cruce programado a primera hora; régimen del río estudiado (deshielo vs. lluvia); pronóstico de temperatura en la cuenca.",
+  "estab_expo": "Hora límite de cruce precomprometida; el campamento previo se ubica en la orilla correcta para cruzar temprano.",
+  "mitigacion": "Plan de espera con reservas para cruzar a la mañana siguiente.",
+  "senal": "A la hora planificada, el caudal es visiblemente mayor al esperado; agua turbia de crecida.",
+  "regla": "Hora límite alcanzada con caudal sobre el umbral → no se cruza hoy: espera hasta la mañana siguiente o retorno."
+ },
+ {
+  "id": "A4.I.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "cruce de río",
+   "senderismo",
+   "trekking de altura"
+  ],
+  "dificultades": [
+   "cruce de río"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El punto de cruce estudiado existe y presenta las condiciones esperadas: cauce trenzado o ancho, fondo regular, salida practicable en la otra orilla.",
+  "estab_prob": "Reportes recientes del punto; estudio de imagen satelital del trenzado; consulta a arrieros o socios que pasaron esta temporada.",
+  "estab_expo": "Búsqueda de alternativa acotada a __ min río arriba y río abajo: el tiempo de exploración no consume la ventana de caudal bajo.",
+  "mitigacion": "El plan declara la salida alternativa completa si el río no se puede cruzar (el río puede ser el límite de la salida).",
+  "senal": "El cauce cambió: el punto es irreconocible, el brazo único reemplazó al trenzado.",
+  "regla": "Sin punto seguro dentro del tiempo de búsqueda acotado → el río es el límite de la salida; se ejecuta el plan alternativo."
+ },
+ {
+  "id": "A5.C.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "marcha nocturna",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "navegación/extravío",
+   "frío/congelación"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Cada integrante lleva frontal probada con pilas de recambio; la autonomía del grupo cubre __ hrs de marcha nocturna con margen.",
+  "estab_prob": "Frontales verificadas encendidas antes de salir; pilas nuevas al inicio del tramo nocturno; recambio por persona.",
+  "estab_expo": "El tramo nocturno del plan es más corto que la autonomía mínima individual, no que el promedio.",
+  "mitigacion": "Una frontal extra de grupo; protocolo de marcha compartiendo haz si una falla.",
+  "senal": "Una frontal baja de intensidad temprano en el tramo.",
+  "regla": "Cambio de pilas inmediato, sin \"estirar\"; si el grupo queda con una sola fuente de luz de reserva, se detiene en punto seguro hasta la luz natural."
+ },
+ {
+  "id": "A5.G.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "marcha nocturna",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "navegación/extravío",
+   "frío/congelación"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo marcha compacto: cada integrante ve al de adelante y nadie queda fuera del conjunto de frontales.",
+  "estab_prob": "Orden de marcha fijado antes de salir; cierre designado con la instrucción explícita de avisar cortes.",
+  "estab_expo": "De noche la fila avanza al paso del último, no del navegante; reagrupes en cada cambio de terreno.",
+  "mitigacion": "Silbatos; protocolo de detención total si alguien queda fuera de vista (nadie busca solo en la oscuridad).",
+  "senal": "Cortes en la fila; una frontal que se aleja o desaparece.",
+  "regla": "Corte de fila → detención y reagrupe inmediato antes de seguir; reiterado → se reduce el ritmo del conjunto."
+ },
+ {
+  "id": "A5.G.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "marcha nocturna",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "navegación/extravío",
+   "frío/congelación"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos parten con descanso suficiente y abrigo para el mínimo térmico de la madrugada.",
+  "estab_prob": "Pernocte o descanso real previo pautado en el plan (no \"dormimos en el auto\"); sistema de abrigo de marcha probado.",
+  "estab_expo": "Las horas más frías coinciden con marcha activa en el plan, no con esperas; las pausas nocturnas se acortan.",
+  "mitigacion": "Comida de madrugada rica en azúcares planificada; bebida caliente; capa extra accesible sin abrir la mochila.",
+  "senal": "Tropiezos y silencio inusual (somnolencia); tiritones sostenidos en algún integrante.",
+  "regla": "Somnolencia persistente en terreno con consecuencia → se espera la luz en punto resguardado; el frío no controlado con abrigo y movimiento → se activa el descenso."
+ },
+ {
+  "id": "A5.I.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "marcha nocturna",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "navegación/extravío",
+   "frío/congelación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La navegación funciona de noche: el tramo nocturno transcurre por huella clara o terreno simple ya conocido, con track verificado.",
+  "estab_prob": "Tramo nocturno elegido sobre terreno conocido o con huella evidente; track cargado en dos dispositivos; navegante designado.",
+  "estab_expo": "Los tramos de navegación compleja del plan quedan asignados a horas de luz; de noche solo se camina lo simple.",
+  "mitigacion": "Capacidad de esperar la luz en punto resguardado (abrigo de espera declarado en el aviso).",
+  "senal": "Pérdida de la huella; referencias que no aparecen donde el track las indica.",
+  "regla": "10 min sin certeza de posición → detención y reposicionamiento; de noche no se explora."
+ },
+ {
+  "id": "A5.I.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "marcha nocturna",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "horario/luz",
+   "navegación/extravío",
+   "frío/congelación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El tramo nocturno empalma con el amanecer donde el plan lo exige: el terreno técnico se alcanza con la primera luz, no antes.",
+  "estab_prob": "Hora de salida calculada hacia atrás desde el punto de empalme con margen de __ min; hora civil de amanecer verificada.",
+  "estab_expo": "Punto de espera resguardado identificado antes del terreno técnico, por si se llega adelantado o la luz se atrasa (nubosidad).",
+  "mitigacion": "Abrigo de espera y bebida caliente en termo para la detención al frío.",
+  "senal": "Atraso que proyecta llegar al terreno técnico todavía a oscuras, o adelanto que obliga a esperar más de lo abrigable.",
+  "regla": "El terreno técnico no se inicia a oscuras: se espera la luz en el punto resguardado; si la espera excede lo tolerable, se retorna."
+ },
+ {
+  "id": "B1.C.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "nevero",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "nevero"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La pendiente (≤ __ °) y su salida inferior permiten que un resbalón sea detenible: sin rocas, grietas ni cortes en la línea de caída.",
+  "estab_prob": "Pendiente y salida estudiadas en fotos y reseña; verificación visual desde la base antes de entrar.",
+  "estab_expo": "Línea de cruce elegida donde la salida es limpia, aunque alargue; con salida peligrosa, el nevero se trata como terreno de cuerda o se rodea.",
+  "mitigacion": "La autodetención practicada es el último recurso, no la garantía: el plan nunca depende de ella.",
+  "senal": "Desde la entrada se ven rocas, canaletas de salida o un corte (grieta, resalte) bajo la línea de cruce.",
+  "regla": "Salida no detenible y sin línea limpia disponible → el nevero se rodea o se encorda; si ninguna opción existe, retorno."
+ },
+ {
+  "id": "B1.C.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "nevero",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "nevero"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La superficie es homogénea en toda la línea: sin placas de hielo intercaladas ni penitentes que rompan el ritmo y la técnica.",
+  "estab_prob": "Reportes recientes; lectura de brillos desde la base (el hielo brilla distinto que la nieve).",
+  "estab_expo": "Ante duda, crampones puestos desde antes del tramo dudoso, no en medio de la pendiente.",
+  "mitigacion": "Crampones y piolet siempre en el equipo aunque la reseña diga \"no necesarios\"; puntos de la pendiente donde es posible detenerse a calzarlos, identificados.",
+  "senal": "Brillos de hielo en franjas; penitentes más altos que lo transitable.",
+  "regla": "Placa de hielo sin crampones puestos → retroceder a punto seguro y calzarlos; penitentes impracticables → rodear o retornar."
+ },
+ {
+  "id": "B1.G.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "nevero",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "nevero"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos ejecutan la autodetención con piolet de forma refleja, practicada esta temporada en pendiente equivalente, y la prueba de entrada al nevero lo confirma.",
+  "estab_prob": "Práctica formal de autodetención en la temporada; repaso en la base del nevero antes de entrar (obligatorio, no opcional).",
+  "estab_expo": "Quien no la ejecuta con solvencia no cruza por la pendiente: línea alternativa individual o cambio de plan del grupo.",
+  "mitigacion": "Orden de marcha con los más sólidos abajo (posición de contención); casco puesto.",
+  "senal": "En la prueba de entrada, un integrante no logra detenerse o duda en la secuencia.",
+  "regla": "Prueba fallida → esa persona no entra a la pendiente; sin alternativa razonable, el nevero define el límite de la salida para el grupo completo."
+ },
+ {
+  "id": "B1.G.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "nevero",
+   "montañismo básico"
+  ],
+  "dificultades": [
+   "nevero"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada integrante progresa con la técnica correcta: piolet siempre en la mano del monte, pisada plana o de punta según pendiente, cambios de dirección con secuencia.",
+  "estab_prob": "Repaso técnico en la entrada; ritmo que permite pisar bien (la técnica se degrada con el apuro).",
+  "estab_expo": "Huella común: todos pisan la misma escalera de pasos, que mejora con cada tránsito.",
+  "mitigacion": "Corrección verbal inmediata entre compañeros pactada como norma (no es descortesía, es protocolo).",
+  "senal": "Piolet en la mano de valle; cruces de pies; pasos que no marcan.",
+  "regla": "Corrección que no prospera → la pendiente excede el nivel actual de esa persona: se baja por la línea alternativa."
+ },
+ {
+  "id": "B2.G.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "avalancha",
+   "invernal comprometida",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nieve inestable"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos portan ARVA encendido y verificado, pala y sonda, y ejecutaron una búsqueda de práctica esta temporada en menos de __ min.",
+  "estab_prob": "Práctica formal de búsqueda en la temporada; verificación de emisión de cada ARVA en el punto de partida (protocolo de chequeo cruzado).",
+  "estab_expo": "Quien no porta el equipo completo o no verificó no entra a terreno de carga; el grupo no comparte equipo de rescate.",
+  "mitigacion": "Protocolo de búsqueda con roles definidos antes de salir (quién dirige, quién sondea, quién pala).",
+  "senal": "El chequeo de partida falla para algún equipo; alguien reconoce no haber practicado.",
+  "regla": "Chequeo fallido sin solución en terreno → esa persona no cruza; sin ella, el grupo decide si el objetivo sigue siendo viable."
+ },
+ {
+  "id": "B2.G.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "avalancha",
+   "invernal comprometida",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nieve inestable"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El grupo cruza las pendientes de carga con la disciplina acordada: de a uno, con distancias de __ m, desde y hacia puntos seguros definidos.",
+  "estab_prob": "Puntos seguros (islas de roca, contrapendientes, filos) identificados antes de entrar a cada pendiente.",
+  "estab_expo": "Solo una persona expuesta a la vez; el resto observa desde punto seguro con visual completa del expuesto.",
+  "mitigacion": "El observador mantiene la última posición vista del expuesto (punto de entrada de búsqueda si descarga).",
+  "senal": "El grupo se relaja y cruza junto \"porque se ve firme\"; distancias que se acortan.",
+  "regla": "Pérdida de disciplina → detención y reinstrucción; segunda vez → el terreno de carga queda vetado para la jornada."
+ },
+ {
+  "id": "B2.I.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "avalancha",
+   "invernal comprometida",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nieve inestable"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Los tramos por o bajo pendientes de carga se cruzan antes del calentamiento diurno: paso completado antes de las __ hrs.",
+  "estab_prob": "Horario calculado con la orientación de las laderas de carga y el pronóstico de temperatura e insolación.",
+  "estab_expo": "El itinerario ordena los tramos bajo carga al inicio de la jornada; el retorno usa una línea sin carga aunque sea más larga.",
+  "mitigacion": "Línea de retorno alternativa por terreno sin pendientes de carga, identificada en la planificación.",
+  "senal": "Bolas de nieve rodando, descargas puntuales al sol, nieve que se humedece al tacto.",
+  "regla": "Señales de calentamiento antes de completar el paso → se aborta el tramo restante y se activa la línea sin carga."
+ },
+ {
+  "id": "B2.I.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "avalancha",
+   "invernal comprometida",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nieve inestable"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Han pasado al menos __ hrs desde la última nevada o viento fuerte antes de exponer al grupo a pendientes de 30° o más.",
+  "estab_prob": "Registro del último evento de carga (nevada, viento) verificado antes de salir; boletín de nieve consultado si existe.",
+  "estab_expo": "Con ventana insuficiente, el plan cambia a objetivos bajo 30° de pendiente sin necesidad de cancelar la salida completa.",
+  "mitigacion": "Objetivo alternativo de baja pendiente declarado en el aviso.",
+  "senal": "Nieve reciente acumulada más profunda que lo reportado; cornisas y placas de viento visibles.",
+  "regla": "Evidencia de carga mayor a la asumida → el plan de baja pendiente entra en vigor de inmediato; es una decisión precomprometida, no un debate en terreno."
+ },
+ {
+  "id": "B3.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La nieve está recongelada y el hielo sano: piolet y crampones muerden firme y la protección (tornillos/estacas) es confiable desde el primer largo.",
+  "estab_prob": "Fecha elegida por ciclo de congelamiento (noches despejadas previas); reportes de la semana.",
+  "estab_expo": "El primer largo se plantea como muestra representativa con retirada barata: compromiso mínimo hasta confirmar.",
+  "mitigacion": "Material de abandono; capacidad de destrepar lo escalado.",
+  "senal": "Hielo que rompe en placas, nieve sin cohesión bajo los pies, tornillos que no muerden.",
+  "regla": "El primer largo es el test del supuesto: si la protección no es confiable, retirada inmediata; no se sigue \"a ver si mejora arriba\"."
+ },
+ {
+  "id": "B3.C.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La canaleta no descarga: sin caída de piedras ni hielo desde las paredes ni la salida durante la ventana de escalada.",
+  "estab_prob": "Ventana fría (el congelamiento cementa el material); temporada adecuada para esa canaleta.",
+  "estab_expo": "Progresión por los flancos y no por el centro del embudo; reuniones bajo resaltes; de a uno en los tramos más expuestos.",
+  "mitigacion": "Casco siempre puesto; reuniones bajo protección natural que permiten esperar o iniciar rapeles.",
+  "senal": "Silbidos o impactos de material, piedras frescas sobre la nieve del embudo, goteo en las paredes.",
+  "regla": "Primera descarga observada → la cordada sale de la línea de caída y se retira; no existe \"cruzar rápido\" una canaleta activa."
+ },
+ {
+  "id": "B3.C.3",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El viento en la salida está bajo __ km/h y no hay ingreso de mal tiempo antes de las __ hrs.",
+  "estab_prob": "Pronóstico de viento en altura por franja horaria; día elegido con margen sobre el umbral.",
+  "estab_expo": "Hora límite de retorno adelantada respecto del ingreso pronosticado del viento.",
+  "mitigacion": "Abrigo de escalada accesible en reuniones; antiparras; la retirada equipada es posible con viento.",
+  "senal": "Nieve venteada cayendo por la canaleta (spindrift continuo); lenticulares o cierre del cielo.",
+  "regla": "Spindrift continuo o cambio de tiempo → retirada; la canaleta es un embudo también para el viento y la nieve."
+ },
+ {
+  "id": "B3.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos los integrantes han escalado pendientes de nieve/hielo de __ ° con protección, en salidas previas verificables de esta temporada.",
+  "estab_prob": "Práctica en escuela de hielo o pendiente equivalente la misma temporada; verificación por instructor si es actividad de club.",
+  "estab_expo": "El integrante menos experimentado no lidera; canaleta elegida un grado bajo el máximo demostrado del grupo.",
+  "mitigacion": "El más experimentado equipa y dirige la retirada; sistema de descenso asistido conocido por todos.",
+  "senal": "Inseguridad, lentitud marcada o errores de técnica en el primer largo.",
+  "regla": "Si un integrante no progresa con solvencia en el primer tercio, la cordada completa se retira; en canaleta no se aprende bajo descarga."
+ },
+ {
+  "id": "B3.G.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La comunicación entre puntas de cuerda funciona dentro de la canaleta (voz o código de cuerda acordado).",
+  "estab_prob": "Código de señales de cuerda acordado antes de entrar; largos dimensionados a distancia de voz.",
+  "estab_expo": "Reuniones a distancia visual entre sí donde el terreno lo permite.",
+  "mitigacion": "Radios de cordada si la canaleta es larga; protocolo por defecto ante silencio: asegurar y esperar.",
+  "senal": "Gritos que no se entienden por viento o distancia; tirones de cuerda ambiguos.",
+  "regla": "Se detiene la progresión hasta restablecer comunicación; sin comunicación no se escala en simultáneo."
+ },
+ {
+  "id": "B3.G.3",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada integrante conserva reserva para liderar o asegurar con atención plena hasta la salida.",
+  "estab_prob": "Descanso real la víspera; hidratación y azúcares pautados en cada reunión.",
+  "estab_expo": "Longitud de la línea acorde al integrante de menor resistencia.",
+  "mitigacion": "Geles de acción rápida en el arnés (no en la mochila); el más entero asume las maniobras críticas de la retirada.",
+  "senal": "Errores en maniobras simples, silencio inusual, calambres.",
+  "regla": "Al primer signo en cualquier integrante se activa la retirada; en una canaleta no hay dónde esperar recuperación."
+ },
+ {
+  "id": "B3.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La canaleta se asciende completa dentro de la ventana fría: entrada a las __ hrs y salida por arriba antes de las __ hrs, antes de que el sol toque las paredes que la alimentan.",
+  "estab_prob": "Ventana calculada con la orientación de la canaleta y la hora solar; salida alpina; aproximación resuelta la víspera si consume horas de la ventana.",
+  "estab_expo": "Hora límite de entrada precomprometida: pasadas las __ hrs no se entra; reuniones planificadas en emplazamientos protegidos.",
+  "mitigacion": "Escapes laterales y reuniones de retirada identificados en la reseña; material de abandono suficiente.",
+  "senal": "El sol alcanza las paredes laterales o la salida antes de lo previsto; primeras caídas aisladas de material.",
+  "regla": "Si en el punto de control la salida proyectada supera la hora límite, se desciende desde ahí; la ventana no se estira."
+ },
+ {
+  "id": "B3.I.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El ritmo se mantiene en __ m/hora (o __ min por largo), verificado en puntos de control a 1/3 y 2/3 de la canaleta.",
+  "estab_prob": "Ritmo estimado con la reseña y con experiencia propia en pendiente similar; transiciones y maniobras ensayadas antes.",
+  "estab_expo": "Puntos de decisión predefinidos a 1/3 y 2/3: acotan cuánta canaleta se compromete antes de cada evaluación.",
+  "mitigacion": "Plan de retirada por rapeles dimensionado desde cualquier punto de la línea.",
+  "senal": "Dos controles consecutivos bajo el ritmo estimado.",
+  "regla": "Recálculo inmediato de la hora de salida proyectada; si cae fuera de la ventana fría, retirada desde el punto alcanzado."
+ },
+ {
+  "id": "B3.I.3",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "canaleta nieve-hielo",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "nevero",
+   "caída de rocas",
+   "terreno técnico",
+   "viento"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La salida por arriba (o el descenso alternativo) está confirmada como transitable en las condiciones del día.",
+  "estab_prob": "Reseña y fotos recientes de la salida; consulta a cordadas que la hicieron esta temporada.",
+  "estab_expo": "El compromiso con el último tercio queda condicionado a la confirmación visual de la salida desde el control de 2/3.",
+  "mitigacion": "Material para rapelar la canaleta completa (abalakov, estacas o abandonos según terreno).",
+  "senal": "Cornisa, placa de viento o roca descompuesta en la salida, no previstas en la reseña.",
+  "regla": "La decisión de continuar hasta la salida se toma en el control de 2/3, no debajo de la salida misma; si la salida no es segura, el descenso es por la vía de ascenso."
+ },
+ {
+  "id": "B4.C.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Los puentes de la línea de cruce sostienen el paso: nieve consolidada, de espesor suficiente.",
+  "estab_prob": "Cruce en horario de recongelamiento; temporada con manto suficiente sobre el hielo.",
+  "estab_expo": "De a uno sobre cada puente, cuerda tensa, resto de la cordada en posición de autodetención preventiva.",
+  "mitigacion": "Rescate en grieta operativo e inmediato; sondeo con bastón o piolet antes de cargar el peso.",
+  "senal": "Hundimientos parciales, puentes flectados en el centro, bordes de grieta insinuados bajo la nieve.",
+  "regla": "Puente dudoso → se sondea y se cruza de a uno con cuerda tensa, o se rodea; dos puentes dudosos consecutivos → cambia el trazado o se aborta el cruce."
+ },
+ {
+  "id": "B4.C.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La visibilidad permite leer el glaciar (depresiones, cambios de tono de la nieve) durante toda la ventana de cruce.",
+  "estab_prob": "Pronóstico de nubosidad baja consultado; cruce en las horas de mejor luz compatible con el recongelamiento.",
+  "estab_expo": "Ventana de cruce acotada a esas horas; sin visibilidad no se entra.",
+  "mitigacion": "Track y huella propia; antiparras de lente de contraste; vivac de espera posible.",
+  "senal": "Entrada de niebla o viento blanco; luz plana que borra el relieve.",
+  "regla": "Luz plana o niebla en zona agrietada → detención sobre la huella; se avanza solo con navegación instrumental y únicamente si el trazado fue verificado a la ida."
+ },
+ {
+  "id": "B4.C.3",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La noche previa alcanzó el congelamiento: isoterma 0 °C bajo la cota del glaciar.",
+  "estab_prob": "Pronóstico de isoterma consultado; fecha elegida con noches despejadas.",
+  "estab_expo": "Plan con día de margen para esperar una noche de recongelamiento real.",
+  "mitigacion": "Reservas para +1 día; ruta alternativa sin glaciar identificada, si existe.",
+  "senal": "Al amanecer, la nieve no sostiene el peso ni con la costra matinal.",
+  "regla": "Sin recongelamiento, el cruce se posterga; un glaciar podrido no es una condición gestionable, es un supuesto fallido."
+ },
+ {
+  "id": "B4.G.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Toda la cordada progresa encordada con las distancias y nudos de freno acordados, sin excepciones en zonas \"fáciles\".",
+  "estab_prob": "Sistema de encordamiento definido y practicado antes de la salida; nudos de freno preparados en la cuerda.",
+  "estab_expo": "Distancias de __ m entre integrantes; el integrante más pesado no abre la marcha en zona dudosa.",
+  "mitigacion": "Rescate en grieta practicado por todos los integrantes; equipo de polipasto completo por persona.",
+  "senal": "Integrantes que acortan cuerda o se desencordan en zonas aparentemente seguras.",
+  "regla": "Se detiene la marcha y se restablece el sistema completo; en glaciar cubierto no existen zonas fáciles."
+ },
+ {
+  "id": "B4.G.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada integrante puede detener una caída a grieta y montar el polipasto acordado sin ayuda del caído.",
+  "estab_prob": "Práctica de detención y polipasto la misma temporada, con verificación cruzada.",
+  "estab_expo": "Cordada mínima de 3 en glaciar cubierto (dos para rescatar a uno); orden de marcha según peso y experiencia.",
+  "mitigacion": "Material de rescate en el arnés, no en la mochila; protocolo de emergencia escrito en el aviso.",
+  "senal": "En la práctica previa, alguien no monta el sistema en menos de __ minutos.",
+  "regla": "Si la capacidad no quedó verificada antes de la salida, el supuesto falló en planificación: no se cruza ese glaciar con esa cordada."
+ },
+ {
+  "id": "B4.G.3",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El navegante mantiene el rumbo con niebla o viento blanco usando track, waypoints y brújula.",
+  "estab_prob": "Track cargado en dos dispositivos; navegante titular y suplente designados; brújula de respaldo.",
+  "estab_expo": "El cruce solo se inicia con visibilidad suficiente hasta el primer waypoint de decisión.",
+  "mitigacion": "Capacidad de vivac de espera; la huella propia es la línea de retorno garantizada.",
+  "senal": "Desviación del track mayor a __ m; discusiones sobre el rumbo dentro de la cordada.",
+  "regla": "Sin visibilidad y sin confianza plena en la navegación, la cordada se detiene sobre su huella y espera o retorna por ella."
+ },
+ {
+  "id": "B4.I.1",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El cruce completo se realiza con los puentes congelados: entrada al glaciar a las __ hrs y salida antes de las __ hrs.",
+  "estab_prob": "Cruce planificado a primera hora; noche previa despejada verificada antes de entrar.",
+  "estab_expo": "Hora límite de entrada precomprometida acota el tiempo total sobre el glaciar.",
+  "mitigacion": "Posibilidad de campamento o espera en el borde del glaciar, con reservas para +1 día.",
+  "senal": "Hundimiento de bastón o pies en puentes que deberían estar firmes; la nieve ablanda antes de lo previsto.",
+  "regla": "Hora límite de entrada alcanzada sin haber entrado, o ablandamiento anticipado → el cruce se posterga al día siguiente o se cancela."
+ },
+ {
+  "id": "B4.I.2",
+  "tramos": [
+   "Aproximación",
+   "Ascenso / Cumbre",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La línea de cruce estudiada (imágenes satelitales, reseñas, tracks) coincide con el estado real del glaciar.",
+  "estab_prob": "Imágenes del mismo mes; tracks de cordadas recientes; estudio de zonas de compresión y extensión del hielo.",
+  "estab_expo": "Trazado por zonas de compresión (menos grietas) aunque alargue el cruce; waypoints de decisión intermedios.",
+  "mitigacion": "Huella propia registrada en el GPS como línea exacta de retorno; tiempo y reservas para deshacer el camino.",
+  "senal": "Grietas abiertas donde el trazado indicaba zona ciega; hundimientos o colapsos nuevos.",
+  "regla": "Desvíos acumulados que superan el __ % del tiempo previsto de cruce → se evalúa el retorno por la huella propia."
+ },
+ {
+  "id": "B4.I.3",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "glaciar",
+   "alpinismo clásico",
+   "travesía"
+  ],
+  "dificultades": [
+   "glaciar agrietado",
+   "navegación/extravío"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Si la ruta recruza el glaciar de regreso, el recruce ocurre antes del reblandecimiento de los puentes: paso de vuelta antes de las __ hrs.",
+  "estab_prob": "La hora límite de retorno se dimensiona para recruzar temprano; la jornada se calcula hacia atrás desde el recruce, no desde la cumbre.",
+  "estab_expo": "Ruta de regreso por el sector de menos grietas aunque sea más larga; la huella de ida como línea preferente.",
+  "mitigacion": "Espera del recongelamiento nocturno con vivac declarado en el aviso (equipo y reservas).",
+  "senal": "Retraso que proyecta el recruce en horas de calor; puentes que a la ida ablandaron más de lo esperado.",
+  "regla": "Recruce proyectado fuera de ventana → se espera el recongelamiento; el vivac es la opción planificada, no una emergencia."
+ },
+ {
+  "id": "C1.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trepada sin cuerda",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "caída de rocas"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La roca de la sección es firme: las presas y apoyos sostienen, sin bloques sueltos en la línea.",
+  "estab_prob": "Reseña sobre calidad de roca; sectores de roca descompuesta conocidos de la zona, evitados desde el trazado.",
+  "estab_expo": "Norma de trepada pactada: toda presa se prueba antes de cargarla (golpe con la palma, tracción progresiva); nadie trepa en la vertical de otro.",
+  "mitigacion": "Casco puesto en toda la sección; grito de \"¡piedra!\" pactado.",
+  "senal": "Presas que suenan huecas; roca que se desprende al probarla; repisas con material suelto.",
+  "regla": "Dos presas sueltas en pocos metros → la línea se descarta y se destrepa: la roca descompuesta no mejora hacia arriba."
+ },
+ {
+  "id": "C1.C.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trepada sin cuerda",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "caída de rocas"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La sección está seca: sin agua, verglás (hielo fino invisible) ni nieve en presas y apoyos.",
+  "estab_prob": "Horario que evita la escarcha matinal en secciones en sombra; pronóstico sin precipitación previa.",
+  "estab_expo": "Las secciones en sombra se trepan después de que el sol las trabaje; con humedad, el grupo espera o rodea.",
+  "mitigacion": "El rodeo o la espera están en el plan con su costo de tiempo calculado.",
+  "senal": "Brillo de humedad o hielo en la roca; goteo desde arriba; nieve en repisas.",
+  "regla": "Verglás detectado → la sección se cierra sin discusión: es la condición más traicionera del terreno de manos porque no se ve hasta pisarla."
+ },
+ {
+  "id": "C1.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trepada sin cuerda",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "caída de rocas"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La sección está dentro del nivel del integrante menos hábil del grupo, con margen: nadie trepa en su límite sin cuerda.",
+  "estab_prob": "Dificultad de la sección verificada en reseña contra la experiencia demostrada (no declarada) de cada integrante.",
+  "estab_expo": "El menos hábil trepa en el medio del grupo, con un experimentado adelante marcando la secuencia y otro atrás.",
+  "mitigacion": "Cordín o cinta en la mochila de los experimentados para asegurar un paso puntual si alguien se bloquea.",
+  "senal": "Un integrante se detiene más de lo normal, pregunta la secuencia repetidamente o trepa agarrotado.",
+  "regla": "Bloqueo o duda de cualquier integrante → el grupo completo destrepa al último punto de detención; el paso se asegura con cordín o la sección se descarta."
+ },
+ {
+  "id": "C1.G.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trepada sin cuerda",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "caída de rocas"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada integrante decide su paso sin presión: la opción de no trepar está explícitamente legitimada antes de entrar.",
+  "estab_prob": "El veto individual se declara en la base de la sección (\"cualquiera puede decir no y el grupo se adapta\").",
+  "estab_expo": "El que duda no trepa mientras el resto espera arriba: o trepa el grupo completo con seguridad, o no trepa nadie por esa línea.",
+  "mitigacion": "Alternativa de rodeo identificada antes de entrar, para que el veto tenga una salida concreta.",
+  "senal": "Frases de presión (\"es un paso corto\", \"ya casi\", \"no mires abajo\"); alguien trepa visiblemente contra su voluntad.",
+  "regla": "Presión detectada → detención y reformulación: se activa la alternativa de rodeo o se asegura el paso."
+ },
+ {
+  "id": "C1.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "trepada sin cuerda",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "caída de rocas"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La línea de trepada avanza por tramos cortos y reversibles: desde cada punto de detención se ve y se puede destrepar lo trepado.",
+  "estab_prob": "Línea estudiada en reseña y fotos; la sección se observa completa desde la base antes de entrar.",
+  "estab_expo": "Compromiso por tramos entre puntos de detención naturales; nunca se trepa una sección completa sin puntos intermedios.",
+  "mitigacion": "El punto de entrada queda marcado (referencia memorizada) como línea de retorno.",
+  "senal": "El tramo siguiente no se ve completo; el terreno se empina más que lo trepado hasta ahora.",
+  "regla": "Solo se sube lo que se puede destrepar: ante el primer movimiento que genera duda de reversibilidad, se destrepa desde ahí — no un movimiento después."
+ },
+ {
+  "id": "C2.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca moderada",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La roca es sana en la línea y la protección descrita existe: fisuras que reciben empotradores o parabolts donde la reseña los indica.",
+  "estab_prob": "Reseña actualizada; reportes de la temporada sobre estado del equipamiento fijo.",
+  "estab_expo": "El primer largo funciona como test de roca y protección con retirada barata.",
+  "mitigacion": "Rack con margen sobre lo que la reseña pide; material de abandono.",
+  "senal": "Roca que suena hueca, parabolts oxidados o flojos, fisuras ciegas donde debía haber protección.",
+  "regla": "Protección inexistente o roca podrida en el primer largo → retirada; largos corridos sin protección no se aceptan por sorpresa, solo por diseño conocido."
+ },
+ {
+  "id": "C2.C.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca moderada",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La vía está seca y sin cordadas encima en la misma línea (caída de material humano: mosquetones, piedras, cuerdas).",
+  "estab_prob": "Pronóstico sin lluvia previa; hora de inicio que evita cordadas lentas adelante (temprano o vía alternativa).",
+  "estab_expo": "Con cordada lenta adelante, se espera en la base o se cambia de vía; nunca se escala pegado debajo.",
+  "mitigacion": "Casco siempre; reuniones protegidas del rebote cuando la línea lo permite.",
+  "senal": "Chorreras o humedad en los largos superiores; cordada adelante gritando o descolgando material.",
+  "regla": "Humedad en los largos clave o cordada conflictiva encima → retirada o cambio de vía; el apuro por \"pasar\" es la señal de estar decidiendo mal."
+ },
+ {
+  "id": "C2.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca moderada",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El líder de cada largo escala al menos __ grados bajo su máximo a vista demostrado: en montaña nadie lidera en su límite.",
+  "estab_prob": "Grados máximos verificados en escuela o vías previas de la temporada, no declarados de memoria.",
+  "estab_expo": "Los largos duros los lidera quien más margen tiene; el reparto de largos se decide en la base, no reunión a reunión.",
+  "mitigacion": "El segundo puede liderar cualquier largo de la vía si el líder no puede continuar.",
+  "senal": "El líder duda largo rato bajo un paso, sobre-protege o pide tensión repetidamente.",
+  "regla": "Líder al límite en un largo temprano → la vía excede el margen del equipo hoy: retirada desde la reunión."
+ },
+ {
+  "id": "C2.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca moderada",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La hora límite de retorno se fija contando la vía completa más el descenso en rapel más margen: cumbre de la vía a las __ hrs a más tardar.",
+  "estab_prob": "Tiempos por largo estimados con la reseña (S25); descenso calculado a __ min por rapel, no como apéndice.",
+  "estab_expo": "Puntos de escape por largo identificados: desde qué reuniones se puede rapelar la línea sin completarla.",
+  "mitigacion": "Frontal y abrigo en la mochila de la vía; el descenso funciona a oscuras si el margen falla.",
+  "senal": "El control de tiempo en la reunión __ proyecta la cumbre fuera de hora.",
+  "regla": "Proyección fuera de hora → retirada desde la reunión actual; la vía queda para otra vez, los rapeles no."
+ },
+ {
+  "id": "C3.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca sostenida",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda",
+   "meteorología"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La ventana de buen tiempo confirmada supera la duración total estimada (vía + descenso) en al menos __ hrs: la retirada compleja necesita su propio clima.",
+  "estab_prob": "Pronóstico de múltiples modelos consultado hasta el último momento con señal; la vía se posterga con ventana justa.",
+  "estab_expo": "El inicio se adelanta todo lo posible dentro de la ventana: el margen se gasta al principio, no al final.",
+  "mitigacion": "Equipo para aguantar tormenta en pared (vivac de emergencia) si la vía supera cierta longitud.",
+  "senal": "El cielo evoluciona antes de lo pronosticado en los primeros largos.",
+  "regla": "Deterioro visible antes del último punto de no retorno → retirada inmediata; una ventana que se cierra no se corre a ganarle."
+ },
+ {
+  "id": "C3.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca sostenida",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda",
+   "meteorología"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Ambos escaladores dominan el grado con margen, pueden liderar cualquier largo, y la cordada ha escalado junta vías largas antes.",
+  "estab_prob": "Vías previas de compromiso creciente juntas; maniobras de pared (izado, péndulos, rapeles con travesía) practicadas.",
+  "estab_expo": "La primera vía de este régimen para una cordada se elige con retirada simple deliberadamente; el compromiso se gana por etapas.",
+  "mitigacion": "Cada uno sabe ejecutar el autorrescate de cordada (descender al compañero, remontar la cuerda).",
+  "senal": "Fricciones de coordinación en los primeros largos; maniobras que toman el doble de lo normal.",
+  "regla": "Coordinación deficiente antes del primer punto de no retorno → la vía no es para esta cordada hoy; se rapela sin drama."
+ },
+ {
+  "id": "C3.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca sostenida",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda",
+   "meteorología"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Los puntos de no retorno de la vía están identificados por largo: desde dónde la retirada deja de ser rapelar la línea y pasa a ser continuar o una operación compleja.",
+  "estab_prob": "Estudio de la topo largo a largo con esa pregunta explícita; consulta a cordadas que se retiraron de la vía (no solo a las que la completaron).",
+  "estab_expo": "La decisión de cruzar cada punto de no retorno se toma en la reunión previa con checklist verbal (hora, clima, estado del equipo), no escalando.",
+  "mitigacion": "Plan de retirada compleja escrito: qué se abandona, por dónde, cuántas horas toma desde cada tramo.",
+  "senal": "La cordada llega a un punto de no retorno atrasada, cansada o con el clima dudoso.",
+  "regla": "Cualquier condición degradada en un punto de no retorno → no se cruza; después de cruzarlo, la regla cambia: continuar suele ser la retirada más segura, y por eso la decisión de cruzar es la última decisión libre."
+ },
+ {
+  "id": "C3.I.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "roca sostenida",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "terreno técnico",
+   "maniobras de cuerda",
+   "meteorología"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La cordada carga autonomía para la duración estimada más __ (agua, comida, abrigo o vivac según la vía).",
+  "estab_prob": "Consumos calculados sobre experiencia propia en vías largas, no sobre la reseña optimista.",
+  "estab_expo": "El peso extra se acepta como costo del régimen: una vía de compromiso no se escala \"ligera\" para ir rápido.",
+  "mitigacion": "Reserva sellada de agua y comida que solo se abre pasada la hora límite original.",
+  "senal": "Consumo de agua adelantado al plan a mitad de vía.",
+  "regla": "Reserva alcanzada antes del último punto de no retorno → retirada; después de él, racionamiento y continuar."
+ },
+ {
+  "id": "D1.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo moderado",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El hielo tiene espesor para tornillos (≥ __ cm) y está adherido a la roca en toda la línea, sin cámaras de aire ni agua corriendo detrás.",
+  "estab_prob": "Reportes de la semana; temporada con frío acumulado suficiente; lectura del color (azul-verde sano, blanco aireado, gris/negro con agua).",
+  "estab_expo": "La línea se elige por el hielo más sano aunque sea menos directa; los tramos delgados se superan por la roca lateral si existe.",
+  "mitigacion": "Tornillos cortos en el rack para hielo delgado; protección en roca lateral (fisuras) como respaldo.",
+  "senal": "Sonido hueco al piolet, agua visible o audible tras el hielo, hielo blanco aireado en tramos largos.",
+  "regla": "Hielo hueco o con agua detrás en tramo obligado → retirada: no hay protección confiable posible sobre hielo no adherido."
+ },
+ {
+  "id": "D1.C.2",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo moderado",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La parte superior de la línea no descarga: sin bloques de hielo colgantes activos, cornisas ni cordadas encima.",
+  "estab_prob": "Línea inspeccionada completa desde la base; hora temprana (las descargas aumentan con el sol).",
+  "estab_expo": "Reuniones fuera de la línea de caída (al costado, bajo techos); de a uno escalando cuando hay material colgante lejano.",
+  "mitigacion": "Casco; el asegurador protegido y atento hacia arriba, no solo a la cuerda.",
+  "senal": "Caída de placas o carámbanos, cordada arriba en la misma línea.",
+  "regla": "Descarga observada en la línea → se aborta; con cordada arriba, se espera fuera de la línea o se cambia de cascada."
+ },
+ {
+  "id": "D1.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo moderado",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada integrante sabe colocar tornillos que muerden, construir un abalakov y rapelar de él: la retirada no depende de una sola persona.",
+  "estab_prob": "Práctica de tornillos y abalakov en la temporada, verificada en hielo real y no solo en teoría.",
+  "estab_expo": "El primer resalte se usa como verificación práctica con consecuencia baja antes del terreno comprometido.",
+  "mitigacion": "Cordelería de abandono para múltiples abalakov; el más sólido cierra la retirada.",
+  "senal": "Tornillos que entran sin morder, abalakov de práctica mal alineados.",
+  "regla": "Verificación fallida en el primer resalte → la jornada se convierte en escuela en terreno sin consecuencia; el objetivo se pospone."
+ },
+ {
+  "id": "D1.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo moderado",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La escalada ocurre en la ventana térmica del hielo: plástico y no quebradizo (frío extremo del alba) ni en fusión (sol o temperatura sobre 0 °C).",
+  "estab_prob": "Pronóstico de temperatura por hora; orientación de la cascada considerada (cuándo la toca el sol).",
+  "estab_expo": "Los largos al sol se escalan antes de que lo reciban; la hora límite se fija por la temperatura, no solo por la luz.",
+  "mitigacion": "Retirada por rapel en abalakov posible desde cualquier punto (cordelería dedicada en el rack).",
+  "senal": "El hielo \"llora\" (agua corriendo), placas que saltan grandes y frágiles al piolet, goteo sobre la línea.",
+  "regla": "Hielo en fusión o quebradizo extremo en el primer largo → se cambia de línea o de hora; el hielo no mejora escalando más rápido."
+ },
+ {
+  "id": "D2.C.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo sostenido",
+   "escalada hielo/mixto",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La estructura vertical está sana: columna adherida arriba y abajo, sin fracturas horizontales, con diámetro y apoyo suficientes; temperatura estable en las últimas __ hrs (los cambios bruscos fracturan).",
+  "estab_prob": "Inspección completa desde la base y los costados antes de escalar; historial térmico de los días previos revisado, no solo el pronóstico de hoy.",
+  "estab_expo": "El primer tramo de columna se escala con delicadeza deliberada (golpes de gancho, no de demolición); estructuras dudosas se escalan por el hielo lateral o no se escalan.",
+  "mitigacion": "La reunión de la base fuera del radio de colapso completo de la estructura.",
+  "senal": "Fracturas horizontales visibles, sonido de tambor generalizado, columna \"descolgada\" del techo, cambio térmico brusco durante la escalada.",
+  "regla": "Una fractura horizontal en la estructura → nadie escala esa columna hoy; es la regla más binaria de todo el banco porque el colapso de columna no da segunda señal."
+ },
+ {
+  "id": "D2.G.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo sostenido",
+   "escalada hielo/mixto",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El líder escala __ grados bajo su máximo en hielo (la caída del líder con crampones es inaceptable, no improbable), y el segundo puede liderar la retirada completa.",
+  "estab_prob": "Grado máximo verificado esta temporada en top-rope y líder; progresión de compromiso por jornadas.",
+  "estab_expo": "Los largos sostenidos se escalan con protección abundante aunque cueste tiempo; correr largos en WI4+ no es velocidad, es exposición.",
+  "mitigacion": "El segundo porta el material de retirada y conoce el plan de rapeles; autorrescate de cordada practicado.",
+  "senal": "El líder tiembla (\"máquina de coser\"), coloca tornillos cada vez más espaciados por bombeo, pide tensión.",
+  "regla": "Bombeo del líder en tramo protegible → descuelga del último tornillo y baja; en tramo no protegible ya es tarde — por eso el margen de grado es la regla madre de este set."
+ },
+ {
+  "id": "D2.I.1",
+  "tramos": [
+   "Ascenso / Cumbre"
+  ],
+  "actividades": [
+   "hielo sostenido",
+   "escalada hielo/mixto",
+   "ruta técnica sostenida"
+  ],
+  "dificultades": [
+   "hielo",
+   "terreno técnico"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "Las reuniones de la línea quedan fuera de la trayectoria del hielo que desprende el líder: en hielo sostenido, el líder bombardea al que está abajo.",
+  "estab_prob": "Línea estudiada para ubicar reuniones al costado o bajo protección; largos acortados si es necesario para lograrlo.",
+  "estab_expo": "El asegurador se ubica y ancla fuera de la vertical del líder, siempre, aunque la reunión \"natural\" esté en la línea.",
+  "mitigacion": "Casco y hombros protegidos; pactado que el líder grita todo desprendimiento grande.",
+  "senal": "El asegurador recibe impactos en la reunión elegida.",
+  "regla": "Reunión bajo bombardeo sin alternativa lateral → el largo se replantea o la línea se abandona; asegurar bajo impacto no es asegurar."
+ },
+ {
+  "id": "E1.C.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "rapel",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "maniobras de cuerda"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "Los anclajes de cada estación están en condición de uso (o son reconstruibles con el material propio, S28) y la línea de rapel está limpia: las cuerdas corren al recuperar, sin atascos en fisuras, bloques o arbustos.",
+  "estab_prob": "Estado del equipamiento consultado en reportes recientes; línea de recuperación evaluada antes de lanzar (¿dónde se puede trabar?).",
+  "estab_expo": "Tendidos acortados en terreno con riesgo de atasco aunque agregue rapeles; la primera recuperación se prueba con tensión suave antes de que baje el último.",
+  "mitigacion": "Material de reconstrucción (cordelería, maillones) según S28; plan si la cuerda se atasca: remontar por la línea con autoseguro, decidido antes y no improvisado.",
+  "senal": "Anclajes con desgaste severo, cintas quemadas por sol, recuperación que corre con dureza en el primer rapel.",
+  "regla": "Recuperación dura en el primer rapel → los tendidos se acortan desde el segundo; anclaje irreconstruible con el material presente → se busca línea alternativa desde esa estación, no un rapel más abajo."
+ },
+ {
+  "id": "E1.G.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "rapel",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "maniobras de cuerda"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Cada rapel se ejecuta con el protocolo completo: nudos en las puntas siempre, verificación cruzada del sistema (S30), autobloqueante, y el orden pactado (experimentado primero para equipar, experimentado último para rearmar).",
+  "estab_prob": "Protocolo repasado en la primera estación; maniobras estandarizadas del club usadas por todos.",
+  "estab_expo": "Un solo escalador en movimiento por rapel; el resto anclado a la estación en todo momento.",
+  "mitigacion": "Autobloqueante obligatorio permite soltar las manos; cuchillo accesible del último por si una cuerda se traba con alguien abajo.",
+  "senal": "Puntas sin nudo, alguien se desancla antes de estar en el sistema, verificación saltada \"porque es corto\".",
+  "regla": "Primera omisión del protocolo → detención total y reinicio verbal del protocolo en cada rapel restante; la fatiga del descenso es exactamente la razón por la que el protocolo existe."
+ },
+ {
+  "id": "E1.G.2",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "rapel",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "maniobras de cuerda"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La concentración operativa alcanza para toda la secuencia: las maniobras se ejecutan igual de bien en el último rapel que en el primero.",
+  "estab_prob": "Pausa con comida y agua antes de iniciar la secuencia; hora límite fijada contando el descenso completo (C2.I.1).",
+  "estab_expo": "En secuencias largas, pausas breves programadas cada __ rapeles, no \"cuando estemos cansados\".",
+  "mitigacion": "El integrante más entero asume el rearmado de estaciones en la segunda mitad; azúcares en el arnés.",
+  "senal": "Errores pequeños crecientes (mosquetón sin seguro, cuerdas mal lanzadas), silencio, movimientos lentos.",
+  "regla": "Error detectado en el sistema (S30) → detención, pausa obligada y verificación doble de todo lo que resta; dos errores → el más entero verifica personalmente cada sistema."
+ },
+ {
+  "id": "E1.I.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "rapel",
+   "alpinismo clásico",
+   "escalada hielo/mixto"
+  ],
+  "dificultades": [
+   "maniobras de cuerda"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La secuencia está identificada antes del primer rapel: cuántos son, dónde está cada estación siguiente y de qué largo son los tendidos.",
+  "estab_prob": "Topo de descenso estudiada; la estación siguiente se localiza visualmente antes de lanzar las cuerdas, no bajando.",
+  "estab_expo": "El primero que baja lleva el material para equipar y se detiene en la estación aunque la cuerda dé para más.",
+  "mitigacion": "Material para construir una estación intermedia si la siguiente no aparece; capacidad de remontar la cuerda.",
+  "senal": "La estación esperada no se ve desde la actual; los tendidos reales no coinciden con la topo.",
+  "regla": "Sin visual ni certeza de la estación siguiente, no se baja al vacío: se remonta o se construye estación intermedia — bajar \"a ver\" es la causa clásica de quedarse colgado."
+ },
+ {
+  "id": "E2.C.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campamento de altura",
+   "trekking de altura",
+   "expedición de altura"
+  ],
+  "dificultades": [
+   "logística/autonomía",
+   "viento",
+   "fisiológico/aclimatación"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El emplazamiento está fuera de líneas de peligro: sin caída de piedras o hielo, fuera de zonas de avalancha y de drenaje de agua, lejos de grietas y cornisas.",
+  "estab_prob": "Emplazamientos candidatos identificados en la planificación con fotos y reportes; llegada con luz para evaluar (S11).",
+  "estab_expo": "El campamento se instala en el mejor emplazamiento disponible aunque implique __ min extra de marcha; nunca \"aquí no más\" por cansancio.",
+  "mitigacion": "Emplazamiento alternativo conocido si el principal está ocupado o dañado.",
+  "senal": "Piedras frescas alrededor del sitio; canales de descarga o de agua que cruzan el emplazamiento; hundimientos que insinúan grieta.",
+  "regla": "Cualquier línea de peligro sobre el sitio → se sigue al alternativo; el cansancio no participa de esta decisión."
+ },
+ {
+  "id": "E2.C.2",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campamento de altura",
+   "trekking de altura",
+   "expedición de altura"
+  ],
+  "dificultades": [
+   "logística/autonomía",
+   "viento",
+   "fisiológico/aclimatación"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "El anclaje de la carpa resiste el viento máximo pronosticado para la noche (__ km/h) con margen.",
+  "estab_prob": "Anclajes dimensionados al sustrato real (estacas de nieve, piedras muertas, rocas); orientación de la carpa al viento dominante; muro de nieve si corresponde.",
+  "estab_expo": "Emplazamiento elegido también por protección de viento (contrapendiente, bloques), no solo por lo plano.",
+  "mitigacion": "Protocolo nocturno de viento: equipo crítico dentro y embolsado, botas accesibles, plan de repliegue a punto protegido definido.",
+  "senal": "Ráfagas sobre lo pronosticado al armar; anclajes que ceden al primer tirón.",
+  "regla": "Viento sobre el umbral de resistencia del sistema antes de la noche → repliegue anticipado al punto protegido; de noche, se refuerza y se espera la primera luz."
+ },
+ {
+  "id": "E2.G.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campamento de altura",
+   "trekking de altura",
+   "expedición de altura"
+  ],
+  "dificultades": [
+   "logística/autonomía",
+   "viento",
+   "fisiológico/aclimatación"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "El pernocte repara: todos duermen lo suficiente y se alimentan e hidratan según lo pautado para la cota.",
+  "estab_prob": "Sistema de dormir dimensionado a la temperatura mínima pronosticada con margen; cena e hidratación pautadas aunque no haya hambre (la altura la suprime).",
+  "estab_expo": "La jornada siguiente se dimensiona asumiendo sueño imperfecto en cota, no sueño ideal.",
+  "mitigacion": "Plan del día siguiente con versión recortada si el grupo amanece mal dormido.",
+  "senal": "Insomnio severo, cena no consumida, integrantes tiritando en la noche.",
+  "regla": "Mala noche generalizada → se ejecuta la versión recortada del día; síntomas de MAM sobre lo tolerable → aplica la regla de aclimatación (S10)."
+ },
+ {
+  "id": "E2.I.1",
+  "tramos": [
+   "Aproximación",
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "campamento de altura",
+   "trekking de altura",
+   "expedición de altura"
+  ],
+  "dificultades": [
+   "logística/autonomía",
+   "viento",
+   "fisiológico/aclimatación"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La rutina de campamento (armado, agua producida, comida, equipo del día siguiente preparado) se completa antes de oscurecer.",
+  "estab_prob": "Rutina con orden y responsables definidos; llegada con margen (S11); producción de agua iniciada de inmediato (es lo más lento).",
+  "estab_expo": "Las tareas críticas (anclaje de carpa, agua) van primero; lo postergable se posterga sin culpa.",
+  "mitigacion": "Frontales y sistema para completar rutina a oscuras; comida fría de respaldo si la cocina falla.",
+  "senal": "El agua o la comida siguen pendientes al caer la luz; discusiones sobre tareas.",
+  "regla": "Rutina incompleta al oscurecer dos noches seguidas → el plan de jornadas está mal dimensionado: se acorta el objetivo."
+ },
+ {
+  "id": "E3.C.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "descenso sin equipar",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nevero",
+   "terreno técnico",
+   "fatiga"
+  ],
+  "categoria": "Condiciones",
+  "supuesto": "La pendiente y su dureza permiten destrepe controlado, y la línea de caída termina en salida limpia: sin rocas, resaltes, rimayas ni grietas entre el grupo y el terreno seguro.",
+  "estab_prob": "Salida inferior verificada en la subida o desde un punto con visual completa; dureza probada en los primeros pasos.",
+  "estab_expo": "Línea de bajada elegida por la salida más limpia aunque sea más larga; el tramo sobre la salida peligrosa, si es inevitable, se baja de cara al terreno y de a uno.",
+  "mitigacion": "La opción de rapel (anclaje natural, cordelería de abandono) viaja en la mochila aunque el plan no la contemple.",
+  "senal": "Sombra o corte que insinúa un resalte no visto; la pendiente audiblemente \"suena\" a hielo bajo la nieve; no se ve el final.",
+  "regla": "Un descenso que genera duda es un descenso de rapel: si el grupo discute si se puede destrepar, la respuesta ya es no."
+ },
+ {
+  "id": "E3.G.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "descenso sin equipar",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nevero",
+   "terreno técnico",
+   "fatiga"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "Todos dominan las técnicas de bajada requeridas: de espalda al terreno con piolet en apoyo en pendiente moderada, de cara al terreno con pasos cortados o crampones en lo empinado o duro.",
+  "estab_prob": "Técnicas practicadas en la temporada; repaso en el punto alto antes de iniciar; la primera sección la abre el más sólido marcando la huella.",
+  "estab_expo": "El grupo baja por una sola huella común, en tramos cortos, reagrupando en puntos de detención natural.",
+  "mitigacion": "Orden de bajada con los más sólidos abajo (contención); casco puesto; quien duda cambia a técnica de cara al terreno sin que se le pregunte dos veces.",
+  "senal": "Un integrante baja agarrotado, resbala repetidamente o se niega a moverse.",
+  "regla": "Si la técnica de cara al terreno tampoco da seguridad a esa persona, la pendiente es de rapel para este grupo: se busca anclaje o línea alternativa; el destrepe forzado no es una opción."
+ },
+ {
+  "id": "E3.G.2",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "descenso sin equipar",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nevero",
+   "terreno técnico",
+   "fatiga"
+  ],
+  "categoria": "Grupo Humano",
+  "supuesto": "La concentración se sostiene durante toda la bajada: el descenso se trata explícitamente como la mitad más peligrosa de la actividad.",
+  "estab_prob": "Pausa real en el punto alto (comida, agua, reorden del equipo) antes de iniciar; verbalización pactada: \"empieza la parte difícil\".",
+  "estab_expo": "Bajada en formación cerrada con reagrupes frecuentes; los tramos con consecuencia se bajan de a uno mientras el resto observa detenido.",
+  "mitigacion": "Azúcares de acción rápida accesibles; el más entero cierra la bajada observando al resto.",
+  "senal": "Conversación dispersa en terreno con consecuencia; pasos arrastrados; pequeños errores acumulados (piolet mal tomado, traspiés).",
+  "regla": "Dos señales en el mismo integrante → detención del grupo, pausa con comida y agua, y reinicio en formación cerrada a ritmo menor."
+ },
+ {
+  "id": "E3.I.1",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "descenso sin equipar",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nevero",
+   "terreno técnico",
+   "fatiga"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "El descenso se inicia a las __ hrs, con la nieve en condición de bajada: marca escalones firmes sin fluir ni estar vitrificada.",
+  "estab_prob": "Hora de cumbre calculada para que la bajada ocurra dentro de la ventana; orientación de la ladera considerada (la cara de bajada puede tener otra ventana que la de subida).",
+  "estab_expo": "Hora límite de inicio de descenso precomprometida, independiente de haber logrado o no la cumbre.",
+  "mitigacion": "Espera del recongelamiento como opción declarada (abrigo y comida de margen); línea alternativa de bajada por acarreo si existe.",
+  "senal": "Al probar los primeros pasos de bajada, la nieve fluye bajo el pie o el piolet rebota.",
+  "regla": "Nieve podrida → esperar sombra o cambiar de línea; superficie dura → bajar de cara al terreno con crampones, o buscar anclaje y rapelar; ninguna opción segura → esperar el recongelamiento."
+ },
+ {
+  "id": "E3.I.2",
+  "tramos": [
+   "Descenso / Retorno"
+  ],
+  "actividades": [
+   "descenso sin equipar",
+   "montañismo básico",
+   "alpinismo clásico"
+  ],
+  "dificultades": [
+   "nevero",
+   "terreno técnico",
+   "fatiga"
+  ],
+  "categoria": "Itinerario",
+  "supuesto": "La línea de descenso fue observada e identificada durante la subida o desde la cumbre: referencias memorizadas o registradas, y el final de la línea es visible o conocido.",
+  "estab_prob": "Durante la subida se identifican y registran las referencias de bajada (norma pactada: subir mirando hacia abajo); foto de la línea desde el frente si la aproximación lo permitió.",
+  "estab_expo": "La bajada se compromete por tramos entre referencias, nunca completa de una vez.",
+  "mitigacion": "Track de subida como línea de retorno garantizada si la bajada directa se descarta.",
+  "senal": "Las referencias no aparecen; el terreno se empina más de lo esperado; no se ve el final del tramo siguiente.",
+  "regla": "Nunca se destrepa \"a ver qué hay abajo\": sin visual o certeza del tramo siguiente, se vuelve a la última referencia y se cambia de línea o se sube de regreso."
+ }
+]

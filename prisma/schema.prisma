@@ -23,26 +23,34 @@ model Profile {
   avisos             Aviso[]
   course_enrollments CourseEnrollment[]
   instructed_courses Course[]           @relation("instructor")
+  received_points    CoursePoints[]     @relation("recipient")
+  awarded_points     CoursePoints[]     @relation("awarder")
 
   @@map("profiles")
 }
 
 enum UserRole {
   admin
+  coordinador
   member
 }
 
 // ── Avisos (exit notices) ─────────────────────────────────────────────────────
 
 model Aviso {
-  id           Int         @id @default(autoincrement())
-  created_by   String      @db.Uuid
-  title        String      @default("")
-  status       AvisoStatus @default(draft)
-  form_data    Json        @default("{}")
-  submitted_at DateTime?
-  created_at   DateTime    @default(now())
-  updated_at   DateTime    @updatedAt
+  id                    Int         @id @default(autoincrement())
+  created_by            String      @db.Uuid
+  title                 String      @default("")
+  status                AvisoStatus @default(draft)
+  tipo                  AvisoTipo   @default(largo)
+  form_data             Json        @default("{}")
+  location              String?
+  activity_date         DateTime?
+  activity_type         String?
+  participant_names_text String?
+  submitted_at          DateTime?
+  created_at            DateTime    @default(now())
+  updated_at            DateTime    @updatedAt
 
   profile Profile @relation(fields: [created_by], references: [id], onDelete: Cascade)
 
@@ -53,6 +61,11 @@ enum AvisoStatus {
   draft
   submitted
   archived
+}
+
+enum AvisoTipo {
+  rapido
+  largo
 }
 
 // ── People (club member directory) ───────────────────────────────────────────
@@ -102,6 +115,25 @@ model BasicFormOption {
   @@map("basic_form_options")
 }
 
+// ── Supuestos (assumption bank) ───────────────────────────────────────────────
+
+model Supuesto {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  categoria    String
+  supuesto     String
+  tramos       String[]
+  actividades  String[]
+  dificultades String[]
+  estab_prob   String?
+  estab_expo   String?
+  mitigacion   String?
+  senal        String?
+  regla        String?
+
+  @@map("supuestos")
+}
+
 // ── Risk management options ───────────────────────────────────────────────────
 
 model RiskOption {
@@ -132,9 +164,13 @@ model Course {
   prerequisite_course_ids Int[]        @default([])
   branch                  CourseBranch
   level                   CourseLevel
+  enrollment_open         Boolean      @default(false)
+  enrollment_opens_at     DateTime?
+  required_points         Int          @default(0)
 
-  instructor  Profile?           @relation("instructor", fields: [instructor_id], references: [id])
-  enrollments CourseEnrollment[]
+  instructor    Profile?           @relation("instructor", fields: [instructor_id], references: [id])
+  enrollments   CourseEnrollment[]
+  course_points CoursePoints[]
 
   @@map("courses")
 }
@@ -178,6 +214,26 @@ model CourseEnrollment {
 enum EnrollmentStatus {
   enrolled
   waitlisted
+  ayudante
   completed
   cancelled
+}
+
+// ── Course points (earned by being Ayudante; awarded by Coordinadores) ────────
+
+model CoursePoints {
+  id          Int      @id @default(autoincrement())
+  user_id     String   @db.Uuid
+  course_id   Int?
+  points      Int      @default(1)
+  awarded_by  String   @db.Uuid
+  description String?
+  earned_at   DateTime @default(now())
+  expires_at  DateTime
+
+  recipient Profile  @relation("recipient", fields: [user_id], references: [id], onDelete: Cascade)
+  awarder   Profile  @relation("awarder", fields: [awarded_by], references: [id])
+  course    Course?  @relation(fields: [course_id], references: [id])
+
+  @@map("course_points")
 }
