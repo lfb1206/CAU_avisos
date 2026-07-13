@@ -27,14 +27,21 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Redirect unauthenticated users away from protected routes
-  if (!user && (pathname === '/' || pathname.startsWith('/aviso') || pathname.startsWith('/dashboard') || pathname.startsWith('/cursos') || pathname.startsWith('/perfil') || pathname.startsWith('/coordinador'))) {
+  if (
+    !user &&
+    (pathname.startsWith('/aviso') ||
+      pathname.startsWith('/dashboard') ||
+      pathname.startsWith('/cursos') ||
+      pathname.startsWith('/coordinador') ||
+      pathname.startsWith('/perfil'))
+  ) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/auth/login';
     loginUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Coordinador-only routes
+  // Coordinador-only routes — check role from profile
   if (pathname.startsWith('/coordinador')) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();
@@ -42,11 +49,13 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirectTo', pathname);
       return NextResponse.redirect(loginUrl);
     }
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
+
     if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) {
       return NextResponse.redirect(new URL('/', request.url));
     }

@@ -4,9 +4,14 @@ import { prisma } from '@/lib/prisma';
 
 async function guardCoordinador() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
-  const profile = await prisma.profile.findUnique({ where: { id: user.id }, select: { role: true } });
+  const profile = await prisma.profile.findUnique({
+    where: { id: user.id },
+    select: { role: true },
+  });
   if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) return null;
   return user;
 }
@@ -16,12 +21,12 @@ export async function POST(request: NextRequest) {
   const user = await guardCoordinador();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
 
-  const body = await request.json() as {
+  const body = (await request.json()) as {
     user_id: string;
-    course_id?: number | null;
+    edicion_id?: number | null;
     points: number;
     description?: string | null;
-    awarded_by: string;
+    awarded_by?: string;
   };
 
   if (!body.user_id || !body.points || body.points < 1) {
@@ -33,12 +38,12 @@ export async function POST(request: NextRequest) {
 
   const entry = await prisma.coursePoints.create({
     data: {
-      user_id:     body.user_id,
-      course_id:   body.course_id ?? null,
-      points:      body.points,
-      awarded_by:  user.id,
+      user_id: body.user_id,
+      edicion_id: body.edicion_id ?? null,
+      points: body.points,
+      awarded_by: user.id,
       description: body.description ?? null,
-      expires_at:  expiresAt,
+      expires_at: expiresAt,
     },
   });
 

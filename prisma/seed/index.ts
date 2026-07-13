@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { seedPeople } from './people';
 import { seedEquipment } from './equipment';
 import { seedBasicOptions } from './basicOptions';
-import { seedCourses } from './courses';
+import { seedTalleres } from './talleres';
 import { seedSupuestos } from './supuestos';
 
 const prisma = new PrismaClient();
@@ -14,7 +14,7 @@ async function main() {
   await seedPeople(prisma);
   await seedEquipment(prisma);
   await seedBasicOptions(prisma);
-  await seedCourses(prisma);
+  await seedTalleres(prisma);
   await seedSupuestos(prisma);
 
   console.log('\nSeed complete.');

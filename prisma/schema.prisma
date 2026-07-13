@@ -20,11 +20,12 @@ model Profile {
   avatar_url String?
   created_at DateTime @default(now())
 
-  avisos             Aviso[]
-  course_enrollments CourseEnrollment[]
-  instructed_courses Course[]           @relation("instructor")
-  received_points    CoursePoints[]     @relation("recipient")
-  awarded_points     CoursePoints[]     @relation("awarder")
+  avisos                Aviso[]
+  inscripciones         Inscripcion[]
+  ayudantias            Ayudantia[]
+  coordinadas_ediciones EdicionTaller[] @relation("coordinador_edicion")
+  received_points       CoursePoints[]  @relation("recipient")
+  awarded_points        CoursePoints[]  @relation("awarder")
 
   @@map("profiles")
 }
@@ -38,19 +39,19 @@ enum UserRole {
 // ── Avisos (exit notices) ─────────────────────────────────────────────────────
 
 model Aviso {
-  id                    Int         @id @default(autoincrement())
-  created_by            String      @db.Uuid
-  title                 String      @default("")
-  status                AvisoStatus @default(draft)
-  tipo                  AvisoTipo   @default(largo)
-  form_data             Json        @default("{}")
-  location              String?
-  activity_date         DateTime?
-  activity_type         String?
+  id                     Int         @id @default(autoincrement())
+  created_by             String      @db.Uuid
+  title                  String      @default("")
+  status                 AvisoStatus @default(draft)
+  tipo                   AvisoTipo   @default(largo)
+  form_data              Json        @default("{}")
+  location               String?
+  activity_date          DateTime?
+  activity_type          String?
   participant_names_text String?
-  submitted_at          DateTime?
-  created_at            DateTime    @default(now())
-  updated_at            DateTime    @updatedAt
+  submitted_at           DateTime?
+  created_at             DateTime    @default(now())
+  updated_at             DateTime    @updatedAt
 
   profile Profile @relation(fields: [created_by], references: [id], onDelete: Cascade)
 
@@ -85,10 +86,10 @@ model Person {
 // ── Activities ────────────────────────────────────────────────────────────────
 
 model Activity {
-  id                       Int      @id @default(autoincrement())
-  name                     String   @unique
+  id                        Int      @id @default(autoincrement())
+  name                      String   @unique
   equipment_recommendations Json?
-  created_at               DateTime @default(now())
+  created_at                DateTime @default(now())
 
   @@map("activities")
 }
@@ -147,76 +148,147 @@ model RiskOption {
   @@map("risk_options")
 }
 
-// ── Courses ───────────────────────────────────────────────────────────────────
+// ── Talleres (workshop catalog) ───────────────────────────────────────────────
 
-model Course {
+model Taller {
   id                      Int          @id @default(autoincrement())
   name                    String
   description             String       @default("")
-  instructor_id           String?      @db.Uuid
-  start_date              DateTime?
-  end_date                DateTime?
-  capacity                Int          @default(20)
-  status                  CourseStatus @default(upcoming)
-  location                String?
-  price                   Decimal?     @db.Decimal(10, 2)
+  branch                  TallerBranch
+  level                   TallerLevel
   order_index             Int
-  prerequisite_course_ids Int[]        @default([])
-  branch                  CourseBranch
-  level                   CourseLevel
-  enrollment_open         Boolean      @default(false)
-  enrollment_opens_at     DateTime?
-  required_points         Int          @default(0)
+  prerequisite_taller_ids Int[]        @default([])
+  content_outline         Json?
 
-  instructor    Profile?           @relation("instructor", fields: [instructor_id], references: [id])
-  enrollments   CourseEnrollment[]
-  course_points CoursePoints[]
+  ediciones EdicionTaller[]
 
-  @@map("courses")
+  @@unique([name, branch])
+  @@map("talleres")
 }
 
-enum CourseStatus {
-  upcoming
-  active
-  completed
-  cancelled
-}
-
-enum CourseBranch {
+enum TallerBranch {
   base
   nieve_hielo
   roca
 }
 
-enum CourseLevel {
+enum TallerLevel {
   introductorio
   intermedio
   intermedio_avanzado
   avanzado
 }
 
-// ── Course enrollments ────────────────────────────────────────────────────────
+// ── EdicionTaller (specific instance of a workshop) ──────────────────────────
 
-model CourseEnrollment {
-  id          Int              @id @default(autoincrement())
-  course_id   Int
-  user_id     String           @db.Uuid
-  status      EnrollmentStatus @default(enrolled)
-  enrolled_at DateTime         @default(now())
+model EdicionTaller {
+  id                  Int           @id @default(autoincrement())
+  taller_id           Int
+  name                String
+  year                Int
+  semester            Int
+  start_date          DateTime?
+  end_date            DateTime?
+  capacity            Int           @default(20)
+  price               Decimal?      @db.Decimal(10, 2)
+  status              EdicionStatus @default(planificada)
+  enrollment_open     Boolean       @default(false)
+  enrollment_opens_at DateTime?
+  required_points     Int           @default(0)
+  coordinador_id      String?       @db.Uuid
+  location            String?
+  notas               String?
 
-  course  Course  @relation(fields: [course_id], references: [id], onDelete: Cascade)
-  profile Profile @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  taller        Taller         @relation(fields: [taller_id], references: [id])
+  coordinador   Profile?       @relation("coordinador_edicion", fields: [coordinador_id], references: [id])
+  inscripciones Inscripcion[]
+  ayudantias    Ayudantia[]
+  course_points CoursePoints[]
 
-  @@unique([course_id, user_id])
-  @@map("course_enrollments")
+  @@unique([taller_id, name])
+  @@map("ediciones_taller")
 }
 
-enum EnrollmentStatus {
-  enrolled
-  waitlisted
-  ayudante
-  completed
-  cancelled
+enum EdicionStatus {
+  planificada
+  inscripciones_abiertas
+  en_curso
+  finalizada
+  cancelada
+}
+
+// ── Inscripcion (member applying to / enrolled in an EdicionTaller) ───────────
+
+model Inscripcion {
+  id                      Int               @id @default(autoincrement())
+  edicion_id              Int
+  user_id                 String            @db.Uuid
+  status                  InscripcionStatus @default(postulando)
+  aprobado                Boolean?
+  rezagado                Boolean           @default(false)
+  pago_recibido           Boolean           @default(false)
+  grupo_sanguineo         String?
+  alergias                String?
+  medicamentos            String?
+  condiciones_especiales  String?
+  tiene_primeros_auxilios Boolean           @default(false)
+  notas_coordinador       String?
+  inscrito_at             DateTime          @default(now())
+  aprobado_at             DateTime?
+
+  edicion EdicionTaller @relation(fields: [edicion_id], references: [id], onDelete: Cascade)
+  profile Profile       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([edicion_id, user_id])
+  @@map("inscripciones")
+}
+
+enum InscripcionStatus {
+  postulando
+  aceptado
+  en_lista
+  rechazado
+  no_asiste
+  completado
+  reprobado
+  retirado
+  rezagado
+}
+
+// ── Ayudantia (experienced member helping teach an edition) ───────────────────
+
+model Ayudantia {
+  id               Int           @id @default(autoincrement())
+  edicion_id       Int
+  user_id          String        @db.Uuid
+  asistio          Boolean?
+  puntos_otorgados Boolean       @default(false)
+  signed_up_at     DateTime      @default(now())
+
+  edicion EdicionTaller @relation(fields: [edicion_id], references: [id], onDelete: Cascade)
+  profile Profile       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([edicion_id, user_id])
+  @@map("ayudantias")
+}
+
+// ── Course points (earned by ayudantias, awarded by coordinadores) ────────────
+
+model CoursePoints {
+  id          Int            @id @default(autoincrement())
+  user_id     String         @db.Uuid
+  edicion_id  Int?
+  points      Int            @default(1)
+  awarded_by  String         @db.Uuid
+  description String?
+  earned_at   DateTime       @default(now())
+  expires_at  DateTime
+
+  recipient Profile        @relation("recipient", fields: [user_id], references: [id], onDelete: Cascade)
+  awarder   Profile        @relation("awarder", fields: [awarded_by], references: [id])
+  edicion   EdicionTaller? @relation(fields: [edicion_id], references: [id])
+
+  @@map("course_points")
 }
 
 // ── Course points (earned by being Ayudante; awarded by Coordinadores) ────────

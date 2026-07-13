@@ -6,14 +6,14 @@ import { prisma } from '@/lib/prisma';
 
 function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    draft:     'bg-yellow-100 text-yellow-800',
+    draft: 'bg-yellow-100 text-yellow-800',
     submitted: 'bg-green-100  text-green-800',
-    archived:  'bg-gray-100   text-gray-600',
+    archived: 'bg-gray-100   text-gray-600',
   };
   const labels: Record<string, string> = {
-    draft:     'Borrador',
+    draft: 'Borrador',
     submitted: 'Enviado',
-    archived:  'Archivado',
+    archived: 'Archivado',
   };
   return (
     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? ''}`}>
@@ -22,31 +22,75 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+const inscripcionStatusLabel: Record<string, string> = {
+  postulando: 'Postulando',
+  aceptado: 'Aceptado',
+  en_lista: 'En lista',
+  rechazado: 'Rechazado',
+  no_asiste: 'No asiste',
+  completado: 'Completado',
+  reprobado: 'Reprobado',
+  retirado: 'Retirado',
+  rezagado: 'Rezagado',
+};
+
+const inscripcionStatusColor: Record<string, string> = {
+  postulando: 'bg-yellow-100 text-yellow-700',
+  aceptado: 'bg-blue-100 text-blue-700',
+  en_lista: 'bg-orange-100 text-orange-700',
+  rechazado: 'bg-red-100 text-red-700',
+  no_asiste: 'bg-gray-100 text-gray-500',
+  completado: 'bg-green-100 text-green-800',
+  reprobado: 'bg-red-100 text-red-700',
+  retirado: 'bg-gray-100 text-gray-500',
+  rezagado: 'bg-purple-100 text-purple-700',
+};
+
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  const [avisos, enrollments, profile] = await Promise.all([
+  const [avisos, inscripciones, profile] = await Promise.all([
     prisma.aviso.findMany({
       where: { created_by: user.id },
       orderBy: { updated_at: 'desc' },
       take: 10,
-      select: { id: true, title: true, status: true, tipo: true, location: true, updated_at: true },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        tipo: true,
+        location: true,
+        updated_at: true,
+      },
     }),
-    prisma.courseEnrollment.findMany({
-      where: { user_id: user.id, status: { in: ['enrolled', 'completed'] } },
-      include: { course: { select: { name: true, branch: true } } },
+    prisma.inscripcion.findMany({
+      where: {
+        user_id: user.id,
+        status: { in: ['postulando', 'aceptado', 'en_lista', 'completado'] },
+      },
+      include: {
+        edicion: {
+          include: { taller: { select: { name: true, branch: true } } },
+        },
+      },
+      orderBy: { inscrito_at: 'desc' },
       take: 5,
     }),
-    prisma.profile.findUnique({ where: { id: user.id }, select: { name: true, role: true } }),
+    prisma.profile.findUnique({
+      where: { id: user.id },
+      select: { name: true, role: true },
+    }),
   ]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">
-          Hola, {profile?.name ?? user.email} 👋
+          Hola, {profile?.name ?? user.email}
         </h1>
         <p className="text-gray-500 mt-1">Panel de control</p>
       </div>
@@ -56,10 +100,7 @@ export default async function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-gray-900">Mis Avisos</h2>
-            <Link
-              href="/avisos"
-              className="text-sm text-gray-500 hover:text-blue-600 font-medium"
-            >
+            <Link href="/avisos" className="text-sm text-gray-500 hover:text-blue-600 font-medium">
               Biblioteca →
             </Link>
           </div>
@@ -87,21 +128,26 @@ export default async function DashboardPage() {
           ) : (
             <div className="space-y-2">
               {avisos.map((aviso) => (
-                <div key={aviso.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div
+                  key={aviso.id}
+                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className={`text-xs font-medium px-1.5 py-px rounded ${
-                        (aviso as { tipo?: string }).tipo === 'rapido'
-                          ? 'bg-orange-100 text-orange-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {(aviso as { tipo?: string }).tipo === 'rapido' ? 'Rápido' : 'Largo'}
+                      <span
+                        className={`text-xs font-medium px-1.5 py-px rounded ${
+                          aviso.tipo === 'rapido'
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}
+                      >
+                        {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
                       </span>
                     </div>
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      {(aviso as { location?: string }).location
-                        ? `${aviso.title || 'Aviso'} — ${(aviso as { location?: string }).location}`
-                        : (aviso.title || 'Sin título')}
+                      {aviso.location
+                        ? `${aviso.title || 'Aviso'} — ${aviso.location}`
+                        : aviso.title || 'Sin título'}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
@@ -114,10 +160,10 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* Cursos */}
+        {/* Talleres / Inscripciones */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Mis Cursos</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Mis Talleres</h2>
             <Link
               href="/cursos"
               className="text-sm text-blue-600 hover:text-blue-500 font-medium"
@@ -126,27 +172,36 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {enrollments.length === 0 ? (
+          {inscripciones.length === 0 ? (
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
-              <p className="text-sm">No tienes cursos inscritos.</p>
-              <Link href="/cursos" className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block">
-                Ver ruta de cursos
+              <p className="text-sm">No tienes postulaciones activas.</p>
+              <Link
+                href="/cursos"
+                className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block"
+              >
+                Ver ruta de talleres
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
-              {enrollments.map((e) => (
-                <div key={e.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+              {inscripciones.map((insc) => (
+                <div
+                  key={insc.id}
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{e.course.name}</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {insc.edicion.taller.name}
+                    </p>
                     <p className="text-xs text-gray-400 capitalize mt-0.5">
-                      {e.course.branch.replace('_', '/')}
+                      {insc.edicion.name} ·{' '}
+                      {insc.edicion.taller.branch.replace('_', '/')}
                     </p>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    e.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-700'
-                  }`}>
-                    {e.status === 'completed' ? 'Completado' : 'Inscrito'}
+                  <span
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColor[insc.status] ?? 'bg-gray-100 text-gray-500'}`}
+                  >
+                    {inscripcionStatusLabel[insc.status] ?? insc.status}
                   </span>
                 </div>
               ))}
@@ -155,24 +210,36 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      {profile?.role === 'admin' && (
+      {(profile?.role === 'admin' || profile?.role === 'coordinador') && (
         <section className="mt-10 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <h3 className="text-sm font-semibold text-amber-900 mb-3">Panel de administrador</h3>
+          <h3 className="text-sm font-semibold text-amber-900 mb-3">
+            {profile.role === 'admin' ? 'Panel de administrador' : 'Panel del coordinador'}
+          </h3>
           <div className="flex flex-wrap gap-3">
-            {[
-              { href: '/admin', label: 'Panel Admin' },
-              { href: '/admin/people', label: 'Socios' },
-              { href: '/admin/courses', label: 'Cursos' },
-              { href: '/admin/forms', label: 'Formularios' },
-            ].map((link) => (
+            {profile.role === 'coordinador' && (
               <Link
-                key={link.href}
-                href={link.href}
+                href="/coordinador"
                 className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium"
               >
-                {link.label}
+                Coordinador
               </Link>
-            ))}
+            )}
+            {profile.role === 'admin' &&
+              [
+                { href: '/admin', label: 'Panel Admin' },
+                { href: '/admin/people', label: 'Socios' },
+                { href: '/admin/cursos', label: 'Talleres' },
+                { href: '/admin/forms', label: 'Formularios' },
+                { href: '/coordinador', label: 'Coordinador' },
+              ].map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium"
+                >
+                  {link.label}
+                </Link>
+              ))}
           </div>
         </section>
       )}

@@ -3,26 +3,65 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
+const inscripcionStatusLabel: Record<string, string> = {
+  postulando: 'Postulando',
+  aceptado: 'Aceptado',
+  en_lista: 'En lista',
+  rechazado: 'Rechazado',
+  no_asiste: 'No asiste',
+  completado: 'Completado',
+  reprobado: 'Reprobado',
+  retirado: 'Retirado',
+  rezagado: 'Rezagado',
+};
+
+const inscripcionStatusColor: Record<string, string> = {
+  postulando: 'bg-yellow-100 text-yellow-700',
+  aceptado: 'bg-blue-100 text-blue-700',
+  en_lista: 'bg-orange-100 text-orange-700',
+  rechazado: 'bg-red-100 text-red-700',
+  no_asiste: 'bg-gray-100 text-gray-500',
+  completado: 'bg-green-100 text-green-700',
+  reprobado: 'bg-red-100 text-red-700',
+  retirado: 'bg-gray-100 text-gray-500',
+  rezagado: 'bg-purple-100 text-purple-700',
+};
+
+const roleLabel: Record<string, string> = {
+  admin: 'Administrador',
+  coordinador: 'Coordinador',
+  member: 'Socio',
+};
+
 export default async function PerfilPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
   const now = new Date();
 
-  const [profile, pointsHistory] = await Promise.all([
+  const [profile, inscripciones, pointsHistory] = await Promise.all([
     prisma.profile.findUnique({
       where: { id: user.id },
+    }),
+    prisma.inscripcion.findMany({
+      where: { user_id: user.id },
       include: {
-        course_enrollments: {
-          include: { course: { select: { id: true, name: true, branch: true } } },
-          orderBy: { enrolled_at: 'desc' },
+        edicion: {
+          include: { taller: { select: { id: true, name: true, branch: true } } },
         },
       },
+      orderBy: { inscrito_at: 'desc' },
     }),
     prisma.coursePoints.findMany({
       where: { user_id: user.id },
-      include: { course: { select: { name: true } } },
+      include: {
+        edicion: {
+          include: { taller: { select: { name: true } } },
+        },
+      },
       orderBy: { earned_at: 'desc' },
     }),
   ]);
@@ -33,26 +72,16 @@ export default async function PerfilPage() {
     .filter((p) => new Date(p.expires_at) > now)
     .reduce((sum, p) => sum + p.points, 0);
 
-  const statusLabel: Record<string, string> = {
-    enrolled:   'Inscrito',
-    waitlisted: 'Lista de espera',
-    ayudante:   'Ayudante',
-    completed:  'Completado',
-    cancelled:  'Cancelado',
-  };
-  const statusColor: Record<string, string> = {
-    enrolled:   'bg-blue-100 text-blue-700',
-    waitlisted: 'bg-yellow-100 text-yellow-700',
-    ayudante:   'bg-purple-100 text-purple-700',
-    completed:  'bg-green-100 text-green-700',
-    cancelled:  'bg-gray-100 text-gray-500',
-  };
-
-  const roleLabel: Record<string, string> = {
-    admin:       'Administrador',
-    coordinador: 'Coordinador',
-    member:      'Socio',
-  };
+  // Group inscripciones by taller for the bulletin
+  const tallerMap = new Map<number, { name: string; branch: string; status: string }>();
+  for (const insc of inscripciones) {
+    const t = insc.edicion.taller;
+    const existing = tallerMap.get(t.id);
+    // Prefer "completado" status if any edicion was completed
+    if (!existing || insc.status === 'completado') {
+      tallerMap.set(t.id, { name: t.name, branch: t.branch, status: insc.status });
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
@@ -92,7 +121,9 @@ export default async function PerfilPage() {
           <h2 className="text-lg font-bold text-purple-900">Puntos de Formación</h2>
           <span className="text-3xl font-bold text-purple-700">{activePoints}</span>
         </div>
-        <p className="text-xs text-purple-600 mb-4">Los puntos se obtienen siendo Ayudante en cursos y vencen al año de ser otorgados.</p>
+        <p className="text-xs text-purple-600 mb-4">
+          Los puntos se obtienen siendo Ayudante en talleres y vencen al año de ser otorgados.
+        </p>
 
         {pointsHistory.length === 0 ? (
           <p className="text-sm text-gray-500">Aún no tienes puntos registrados.</p>
@@ -101,10 +132,17 @@ export default async function PerfilPage() {
             {pointsHistory.map((entry) => {
               const expired = new Date(entry.expires_at) <= now;
               return (
-                <div key={entry.id} className={`flex items-center justify-between text-sm rounded-lg px-3 py-2 ${expired ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700'}`}>
+                <div
+                  key={entry.id}
+                  className={`flex items-center justify-between text-sm rounded-lg px-3 py-2 ${expired ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700'}`}
+                >
                   <div>
-                    <span className="font-medium">{entry.course?.name ?? 'Puntos manuales'}</span>
-                    {entry.description && <span className="text-xs ml-2 text-gray-400">— {entry.description}</span>}
+                    <span className="font-medium">
+                      {entry.edicion?.taller?.name ?? 'Puntos manuales'}
+                    </span>
+                    {entry.description && (
+                      <span className="text-xs ml-2 text-gray-400">— {entry.description}</span>
+                    )}
                     <div className="text-xs text-gray-400">
                       Vence: {new Date(entry.expires_at).toLocaleDateString('es-CL')}
                       {expired && ' (vencido)'}
@@ -120,18 +158,52 @@ export default async function PerfilPage() {
         )}
       </div>
 
-      {/* Course enrollments */}
+      {/* Boletín de talleres */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Mis Cursos</h2>
-        {profile.course_enrollments.length === 0 ? (
-          <p className="text-sm text-gray-500">Aún no estás inscrito en ningún curso.</p>
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Boletín de Talleres</h2>
+        {tallerMap.size === 0 ? (
+          <p className="text-sm text-gray-500">Aún no te has postulado a ningún taller.</p>
         ) : (
           <div className="space-y-2">
-            {profile.course_enrollments.map((enroll) => (
-              <div key={enroll.id} className="flex items-center justify-between text-sm">
-                <span className="text-gray-800">{enroll.course.name}</span>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColor[enroll.status] ?? 'bg-gray-100 text-gray-500'}`}>
-                  {statusLabel[enroll.status] ?? enroll.status}
+            {Array.from(tallerMap.entries()).map(([tallerId, info]) => (
+              <div key={tallerId} className="flex items-center justify-between text-sm">
+                <div>
+                  <span className="text-gray-800 font-medium">{info.name}</span>
+                  <span className="ml-2 text-xs text-gray-400 capitalize">
+                    {info.branch.replace('_', '/')}
+                  </span>
+                </div>
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColor[info.status] ?? 'bg-gray-100 text-gray-500'}`}
+                >
+                  {inscripcionStatusLabel[info.status] ?? info.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* All inscripciones */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 className="text-lg font-bold text-gray-900 mb-4">Historial de postulaciones</h2>
+        {inscripciones.length === 0 ? (
+          <p className="text-sm text-gray-500">Sin postulaciones registradas.</p>
+        ) : (
+          <div className="space-y-2">
+            {inscripciones.map((insc) => (
+              <div key={insc.id} className="flex items-center justify-between text-sm py-1">
+                <div>
+                  <span className="text-gray-800">{insc.edicion.taller.name}</span>
+                  <span className="text-xs text-gray-400 ml-2">{insc.edicion.name}</span>
+                  <div className="text-xs text-gray-400">
+                    {new Date(insc.inscrito_at).toLocaleDateString('es-CL')}
+                  </div>
+                </div>
+                <span
+                  className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColor[insc.status] ?? 'bg-gray-100 text-gray-500'}`}
+                >
+                  {inscripcionStatusLabel[insc.status] ?? insc.status}
                 </span>
               </div>
             ))}
