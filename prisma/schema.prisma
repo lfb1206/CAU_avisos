@@ -291,21 +291,3 @@ model CoursePoints {
   @@map("course_points")
 }
 
-// ── Course points (earned by being Ayudante; awarded by Coordinadores) ────────
-
-model CoursePoints {
-  id          Int      @id @default(autoincrement())
-  user_id     String   @db.Uuid
-  course_id   Int?
-  points      Int      @default(1)
-  awarded_by  String   @db.Uuid
-  description String?
-  earned_at   DateTime @default(now())
-  expires_at  DateTime
-
-  recipient Profile  @relation("recipient", fields: [user_id], references: [id], onDelete: Cascade)
-  awarder   Profile  @relation("awarder", fields: [awarded_by], references: [id])
-  course    Course?  @relation(fields: [course_id], references: [id])
-
-  @@map("course_points")
-}
