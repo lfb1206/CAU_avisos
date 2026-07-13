@@ -16,11 +16,5 @@ create policy "Coordinadores can manage points"
     where p.id = auth.uid() and p.role in ('coordinador', 'admin')
   ));
 
--- ── Allow coordinadores to update courses (enrollment_open field) ─────────────
-drop policy if exists "Coordinadores can update course enrollment" on public.courses;
-create policy "Coordinadores can update course enrollment"
-  on public.courses for update
-  using (exists (
-    select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('coordinador', 'admin')
-  ));
+-- courses table replaced by talleres + ediciones_taller (migration 003).
+-- Enrollment management policies for those tables are in 003_talleres_schema.sql.
