@@ -4,48 +4,76 @@ import { prisma } from '@/lib/prisma';
 import CourseCard from '@/resources/courses/CourseCard';
 import type { MemberCourseStatus } from '@/types';
 
-type CourseRow = {
+type OpenEdicionInfo = {
+  id: number;
+  name: string;
+  start_date: Date | null;
+  capacity: number;
+  required_points: number;
+  _count: { inscripciones: number };
+};
+
+type TallerRow = {
   id: number;
   name: string;
   description: string;
   branch: string;
   level: string;
   order_index: number;
-  capacity: number;
-  prerequisite_course_ids: number[];
-  enrollments: { status: string }[];
-  _count: { enrollments: number };
+  prerequisite_taller_ids: number[];
+  ediciones: Array<{
+    id: number;
+    status: string;
+    enrollment_open: boolean;
+    capacity: number;
+    required_points: number;
+    start_date: Date | null;
+    name: string;
+    inscripciones: { status: string }[];
+    ayudantias: { asistio: boolean | null }[];
+    _count: { inscripciones: number };
+  }>;
 };
 
 function resolveMemberStatus(
-  course: CourseRow,
+  taller: TallerRow,
   completedIds: Set<number>,
-  enrolledIds: Set<number>,
   isLoggedIn: boolean
 ): MemberCourseStatus {
   if (!isLoggedIn) return 'bloqueado';
-  if (completedIds.has(course.id)) return 'completado';
-  const prereqsMet = course.prerequisite_course_ids.every((pid) => completedIds.has(pid));
+  if (taller.branch === 'base') return 'completado';
+  if (completedIds.has(taller.id)) return 'completado';
+  const prereqsMet = taller.prerequisite_taller_ids.every((pid) => completedIds.has(pid));
   if (!prereqsMet) return 'bloqueado';
   return 'disponible';
 }
 
+function getOpenEdicion(taller: TallerRow): OpenEdicionInfo | null {
+  const open = taller.ediciones.find(
+    (e) =>
+      e.enrollment_open &&
+      e.status !== 'cancelada' &&
+      e.status !== 'finalizada'
+  );
+  return open ?? null;
+}
+
 function BranchColumn({
   title,
-  courses,
+  talleres,
   completedIds,
-  enrolledIds,
-  allCourses,
+  allTalleres,
   isLoggedIn,
+  userActivePoints,
 }: {
   title: string;
-  courses: CourseRow[];
+  talleres: TallerRow[];
   completedIds: Set<number>;
-  enrolledIds: Set<number>;
-  allCourses: CourseRow[];
+  allTalleres: TallerRow[];
   isLoggedIn: boolean;
+  userActivePoints: number;
 }) {
-  const courseMap = new Map(allCourses.map((c) => [c.id, c.name]));
+  const tallerMap = new Map(allTalleres.map((t) => [t.id, t.name]));
 
   return (
     <div className="flex-1 min-w-0">
@@ -53,31 +81,66 @@ function BranchColumn({
         {title}
       </h2>
       <div className="space-y-3">
-        {courses.map((course, idx) => {
-          const status = resolveMemberStatus(course, completedIds, enrolledIds, isLoggedIn);
-          const missingPrerequisiteNames = status === 'bloqueado'
-            ? course.prerequisite_course_ids
-                .filter((pid) => !completedIds.has(pid))
-                .map((pid) => courseMap.get(pid) ?? `Curso #${pid}`)
-            : [];
+        {talleres.map((taller, idx) => {
+          const status = resolveMemberStatus(taller, completedIds, isLoggedIn);
+          const openEdicion = getOpenEdicion(taller);
+          const userInscripcionStatus = openEdicion
+            ? (taller.ediciones
+                .find((e) => e.id === openEdicion.id)
+                ?.inscripciones[0]?.status ?? null)
+            : null;
+          const isAyudante = openEdicion
+            ? taller.ediciones.some(
+                (e) => e.id === openEdicion.id && e.ayudantias.length > 0
+              )
+            : false;
+
+          const missingPrerequisiteNames =
+            status === 'bloqueado'
+              ? taller.prerequisite_taller_ids
+                  .filter((pid) => !completedIds.has(pid))
+                  .map((pid) => tallerMap.get(pid) ?? `Taller #${pid}`)
+              : [];
 
           return (
-            <div key={course.id} className="relative">
+            <div key={taller.id} className="relative">
               <CourseCard
-                id={course.id}
-                name={course.name}
-                description={course.description}
-                level={course.level}
+                id={taller.id}
+                name={taller.name}
+                description={taller.description}
+                level={taller.level}
                 status={status}
-                enrolledCount={course._count.enrollments}
-                capacity={course.capacity}
+                openEdicion={
+                  openEdicion
+                    ? {
+                        id: openEdicion.id,
+                        name: openEdicion.name,
+                        start_date: openEdicion.start_date?.toISOString() ?? null,
+                        capacity: openEdicion.capacity,
+                        required_points: openEdicion.required_points,
+                        _count: openEdicion._count,
+                      }
+                    : null
+                }
+                userInscripcionStatus={userInscripcionStatus}
+                isAyudante={isAyudante}
                 missingPrerequisiteNames={missingPrerequisiteNames}
+                userActivePoints={userActivePoints}
               />
-              {/* Connector arrow between cards */}
-              {idx < courses.length - 1 && (
+              {idx < talleres.length - 1 && (
                 <div className="flex justify-center my-1">
-                  <svg className="w-4 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-6 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               )}
@@ -91,76 +154,150 @@ function BranchColumn({
 
 export default async function CursosPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const courses = await prisma.course.findMany({
-    orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
-    include: {
-      enrollments: user
-        ? { where: { user_id: user.id }, select: { status: true } }
-        : { where: { id: -1 }, select: { status: true } }, // empty result
-      _count: { select: { enrollments: { where: { status: { in: ['enrolled', 'waitlisted'] } } } } },
-    },
-  }) as CourseRow[];
+  const now = new Date();
 
-  const completedIds = new Set<number>(
-    courses
-      .filter((c) => c.enrollments.some((e) => e.status === 'completed'))
-      .map((c) => c.id)
-  );
-  const enrolledIds = new Set<number>(
-    courses
-      .filter((c) => c.enrollments.some((e) => e.status === 'enrolled' || e.status === 'waitlisted'))
-      .map((c) => c.id)
-  );
+  const [talleres, userActivePoints] = await Promise.all([
+    prisma.taller.findMany({
+      orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
+      include: {
+        ediciones: {
+          where: { status: { not: 'cancelada' } },
+          orderBy: { start_date: 'asc' },
+          include: user
+            ? {
+                inscripciones: {
+                  where: { user_id: user.id },
+                  select: { status: true },
+                },
+                ayudantias: {
+                  where: { user_id: user.id },
+                  select: { asistio: true },
+                },
+                _count: {
+                  select: {
+                    inscripciones: {
+                      where: { status: { in: ['aceptado', 'completado'] } },
+                    },
+                  },
+                },
+              }
+            : {
+                inscripciones: { where: { id: -1 }, select: { status: true } },
+                ayudantias: { where: { id: -1 }, select: { asistio: true } },
+                _count: {
+                  select: {
+                    inscripciones: {
+                      where: { status: { in: ['aceptado', 'completado'] } },
+                    },
+                  },
+                },
+              },
+        },
+      },
+    }) as Promise<TallerRow[]>,
+    user
+      ? prisma.coursePoints
+          .aggregate({
+            where: { user_id: user.id, expires_at: { gt: now } },
+            _sum: { points: true },
+          })
+          .then((r) => r._sum.points ?? 0)
+      : Promise.resolve(0),
+  ]);
 
-  const baseCourses    = courses.filter((c) => c.branch === 'base');
-  const nieveCourses   = courses.filter((c) => c.branch === 'nieve_hielo');
-  const rocaCourses    = courses.filter((c) => c.branch === 'roca');
+  // A taller is "completado" if the user has any Inscripcion with status 'completado'
+  const completedTallerIds = new Set<number>();
+  for (const t of talleres) {
+    if (t.branch === 'base') {
+      // base branch: auto-completed for all logged-in members
+      if (user) completedTallerIds.add(t.id);
+    } else if (t.ediciones.some((e) => e.inscripciones.some((i) => i.status === 'completado'))) {
+      completedTallerIds.add(t.id);
+    }
+  }
+
+  const baseTalleres = talleres.filter((t) => t.branch === 'base');
+  const nieveTalleres = talleres.filter((t) => t.branch === 'nieve_hielo');
+  const rocaTalleres = talleres.filter((t) => t.branch === 'roca');
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Cursos del Club</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Talleres del Club</h1>
         <p className="mt-2 text-gray-600">
-          Ruta de formación CAU — completa los cursos en orden para avanzar en tu camino alpinista.
+          Ruta de formación CAU — completa los talleres en orden para avanzar en tu camino
+          alpinista.
         </p>
         {!user && (
           <p className="mt-3 text-sm text-blue-700 bg-blue-50 inline-block px-4 py-2 rounded-full">
-            <a href="/auth/login" className="font-medium hover:underline">Inicia sesión</a>{' '}
-            para ver tu progreso personal.
+            <a href="/auth/login" className="font-medium hover:underline">
+              Inicia sesión
+            </a>{' '}
+            para ver tu progreso y postular a ediciones.
+          </p>
+        )}
+        {user && userActivePoints > 0 && (
+          <p className="mt-3 text-sm text-purple-700 bg-purple-50 inline-block px-4 py-2 rounded-full">
+            Tienes{' '}
+            <strong>
+              {userActivePoints} punto{userActivePoints !== 1 ? 's' : ''}
+            </strong>{' '}
+            activos
           </p>
         )}
       </div>
 
-      {/* Foundation course — spans both columns */}
-      {baseCourses.map((course) => {
-        const status = resolveMemberStatus(course, completedIds, enrolledIds, Boolean(user));
+      {/* Foundation taller — spans both columns */}
+      {baseTalleres.map((taller) => {
+        const status = resolveMemberStatus(taller, completedTallerIds, Boolean(user));
+        const openEdicion = getOpenEdicion(taller);
+        const userInscripcionStatus = openEdicion
+          ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ??
+            null)
+          : null;
+        const isAyudante = openEdicion
+          ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
+          : false;
+
         return (
-          <div key={course.id} className="mb-6">
+          <div key={taller.id} className="mb-6">
             <div className="max-w-sm mx-auto">
               <CourseCard
-                id={course.id}
-                name={course.name}
-                description={course.description}
-                level={course.level}
+                id={taller.id}
+                name={taller.name}
+                description={taller.description}
+                level={taller.level}
                 status={status}
-                enrolledCount={course._count.enrollments}
-                capacity={course.capacity}
+                openEdicion={
+                  openEdicion
+                    ? {
+                        id: openEdicion.id,
+                        name: openEdicion.name,
+                        start_date: openEdicion.start_date?.toISOString() ?? null,
+                        capacity: openEdicion.capacity,
+                        required_points: openEdicion.required_points,
+                        _count: openEdicion._count,
+                      }
+                    : null
+                }
+                userInscripcionStatus={userInscripcionStatus}
+                isAyudante={isAyudante}
+                userActivePoints={userActivePoints}
               />
             </div>
             <div className="flex justify-center mt-2 mb-4">
               <div className="flex gap-12">
-                <div className="flex flex-col items-center">
-                  <div className="w-px h-4 bg-gray-300" />
-                  <div className="w-24 h-px bg-gray-300" />
-                  <div className="w-px h-4 bg-gray-300" />
-                </div>
-                <div className="flex flex-col items-center">
-                  <div className="w-px h-4 bg-gray-300" />
-                  <div className="w-24 h-px bg-gray-300" />
-                  <div className="w-px h-4 bg-gray-300" />
-                </div>
+                {[0, 1].map((i) => (
+                  <div key={i} className="flex flex-col items-center">
+                    <div className="w-px h-4 bg-gray-300" />
+                    <div className="w-24 h-px bg-gray-300" />
+                    <div className="w-px h-4 bg-gray-300" />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -171,20 +308,20 @@ export default async function CursosPage() {
       <div className="flex gap-6 items-start">
         <BranchColumn
           title="Nieve / Hielo"
-          courses={nieveCourses}
-          completedIds={completedIds}
-          enrolledIds={enrolledIds}
-          allCourses={courses}
+          talleres={nieveTalleres}
+          completedIds={completedTallerIds}
+          allTalleres={talleres}
           isLoggedIn={Boolean(user)}
+          userActivePoints={userActivePoints}
         />
         <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
         <BranchColumn
           title="Roca"
-          courses={rocaCourses}
-          completedIds={completedIds}
-          enrolledIds={enrolledIds}
-          allCourses={courses}
+          talleres={rocaTalleres}
+          completedIds={completedTallerIds}
+          allTalleres={talleres}
           isLoggedIn={Boolean(user)}
+          userActivePoints={userActivePoints}
         />
       </div>
 
@@ -192,8 +329,9 @@ export default async function CursosPage() {
       <div className="mt-10 flex flex-wrap gap-4 justify-center text-xs text-gray-600">
         {[
           { color: 'bg-green-400', label: 'Completado' },
-          { color: 'bg-blue-400',  label: 'Disponible para inscripción' },
-          { color: 'bg-gray-300',  label: 'Bloqueado (prerequisitos pendientes)' },
+          { color: 'bg-blue-400', label: 'Disponible — edición abierta' },
+          { color: 'bg-purple-400', label: 'Ayudante registrado' },
+          { color: 'bg-gray-300', label: 'Bloqueado (prerequisitos pendientes)' },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-2">
             <div className={`w-3 h-3 rounded-full ${color}`} />

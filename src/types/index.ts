@@ -152,34 +152,73 @@ export interface Person {
   email?: string;
 }
 
-// ── Courses ───────────────────────────────────────────────────────────────────
+// ── Talleres & Ediciones ──────────────────────────────────────────────────────
 
-export type CourseBranch = 'base' | 'nieve_hielo' | 'roca';
-export type CourseLevel = 'introductorio' | 'intermedio' | 'intermedio_avanzado' | 'avanzado';
-export type CourseStatus = 'upcoming' | 'active' | 'completed' | 'cancelled';
-export type EnrollmentStatus = 'enrolled' | 'waitlisted' | 'completed' | 'cancelled';
-export type UserRole = 'admin' | 'member';
+export type TallerBranch = 'base' | 'nieve_hielo' | 'roca';
+export type TallerLevel = 'introductorio' | 'intermedio' | 'intermedio_avanzado' | 'avanzado';
+export type EdicionStatus =
+  | 'planificada'
+  | 'inscripciones_abiertas'
+  | 'en_curso'
+  | 'finalizada'
+  | 'cancelada';
+export type InscripcionStatus =
+  | 'postulando'
+  | 'aceptado'
+  | 'en_lista'
+  | 'rechazado'
+  | 'no_asiste'
+  | 'completado'
+  | 'reprobado'
+  | 'retirado'
+  | 'rezagado';
+export type UserRole = 'admin' | 'coordinador' | 'member';
+export type MemberCourseStatus = 'completado' | 'disponible' | 'bloqueado';
 
-export interface Course {
+export interface Taller {
   id: number;
   name: string;
   description: string;
-  instructor_id: number;
-  start_date: string;
-  end_date: string;
-  capacity: number;
-  status: CourseStatus;
-  location: string;
-  price?: number;
+  branch: TallerBranch;
+  level: TallerLevel;
   order_index: number;
-  prerequisite_course_ids: number[];
-  branch: CourseBranch;
-  level: CourseLevel;
+  prerequisite_taller_ids: number[];
+  content_outline?: unknown;
 }
 
-export type MemberCourseStatus = 'completado' | 'disponible' | 'bloqueado';
+export interface EdicionTaller {
+  id: number;
+  taller_id: number;
+  name: string;
+  year: number;
+  semester: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  capacity: number;
+  price?: number | null;
+  status: EdicionStatus;
+  enrollment_open: boolean;
+  required_points: number;
+  coordinador_id?: string | null;
+  location?: string | null;
+}
 
-export interface CourseWithMemberStatus extends Course {
-  memberStatus: MemberCourseStatus;
-  enrolledCount: number;
+export interface Inscripcion {
+  id: number;
+  edicion_id: number;
+  user_id: string;
+  status: InscripcionStatus;
+  aprobado?: boolean | null;
+  inscrito_at: string;
+}
+
+export interface CoursePoints {
+  id: number;
+  user_id: string;
+  edicion_id?: number | null;
+  points: number;
+  awarded_by: string;
+  description?: string | null;
+  earned_at: string;
+  expires_at: string;
 }

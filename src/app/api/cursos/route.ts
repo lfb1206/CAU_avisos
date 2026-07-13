@@ -3,58 +3,75 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
-const createCourseSchema = z.object({
+const createTallerSchema = z.object({
   name: z.string().min(1),
   description: z.string().default(''),
   branch: z.enum(['base', 'nieve_hielo', 'roca']),
   level: z.enum(['introductorio', 'intermedio', 'intermedio_avanzado', 'avanzado']),
   order_index: z.number().int(),
-  prerequisite_course_ids: z.array(z.number().int()).default([]),
-  capacity: z.number().int().default(20),
-  location: z.string().optional(),
-  price: z.number().optional(),
-  start_date: z.string().datetime().optional(),
-  end_date: z.string().datetime().optional(),
+  prerequisite_taller_ids: z.array(z.number().int()).default([]),
+  content_outline: z.unknown().optional(),
 });
 
-// GET /api/cursos — list all courses with optional user enrollment status
+// GET /api/cursos — list all talleres with edicion counts
 export async function GET() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const courses = await prisma.course.findMany({
+  const talleres = await prisma.taller.findMany({
     orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
     include: {
-      enrollments: user
-        ? { where: { user_id: user.id }, select: { status: true } }
-        : false,
-      _count: { select: { enrollments: { where: { status: { in: ['enrolled', 'waitlisted'] } } } } },
+      ediciones: user
+        ? {
+            where: { status: { not: 'cancelada' } },
+            include: {
+              inscripciones: { where: { user_id: user.id }, select: { status: true } },
+              _count: {
+                select: {
+                  inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+                },
+              },
+            },
+          }
+        : {
+            where: { status: { not: 'cancelada' } },
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              enrollment_open: true,
+              capacity: true,
+            },
+          },
     },
   });
 
-  return NextResponse.json(courses);
+  return NextResponse.json(talleres);
 }
 
-// POST /api/cursos — admin: create course
+// POST /api/cursos — admin: create a new Taller catalog entry
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin')
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
 
   const body = await request.json().catch(() => ({}));
-  const parsed = createCourseSchema.safeParse(body);
+  const parsed = createTallerSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const course = await prisma.course.create({
-    data: {
-      ...parsed.data,
-      start_date: parsed.data.start_date ? new Date(parsed.data.start_date) : null,
-      end_date: parsed.data.end_date ? new Date(parsed.data.end_date) : null,
-    },
-  });
+  const taller = await prisma.taller.create({ data: parsed.data });
 
-  return NextResponse.json(course, { status: 201 });
+  return NextResponse.json(taller, { status: 201 });
 }

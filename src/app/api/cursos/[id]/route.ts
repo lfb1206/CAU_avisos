@@ -5,82 +5,108 @@ import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-const updateCourseSchema = z.object({
+const updateTallerSchema = z.object({
   name: z.string().min(1).optional(),
   description: z.string().optional(),
-  status: z.enum(['upcoming', 'active', 'completed', 'cancelled']).optional(),
-  capacity: z.number().int().optional(),
-  location: z.string().optional(),
-  start_date: z.string().datetime().optional(),
-  end_date: z.string().datetime().optional(),
-  price: z.number().optional(),
+  order_index: z.number().int().optional(),
+  prerequisite_taller_ids: z.array(z.number().int()).optional(),
+  content_outline: z.unknown().optional(),
 });
 
-// GET /api/cursos/[id]
+// GET /api/cursos/[id] — taller detail with ediciones
 export async function GET(_request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const course = await prisma.course.findUnique({
+  const taller = await prisma.taller.findUnique({
     where: { id: Number(id) },
     include: {
-      enrollments: user
-        ? { where: { user_id: user.id }, select: { status: true } }
-        : { where: { id: -1 }, select: { status: true } },
-      _count: { select: { enrollments: { where: { status: { in: ['enrolled', 'waitlisted'] } } } } },
+      ediciones: {
+        where: { status: { not: 'cancelada' } },
+        orderBy: { start_date: 'asc' },
+        include: user
+          ? {
+              inscripciones: { where: { user_id: user.id }, select: { status: true } },
+              _count: {
+                select: {
+                  inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+                },
+              },
+            }
+          : {
+              inscripciones: { where: { id: -1 }, select: { status: true } },
+              _count: {
+                select: {
+                  inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+                },
+              },
+            },
+      },
     },
   });
 
-  if (!course) return NextResponse.json({ error: 'Curso no encontrado' }, { status: 404 });
+  if (!taller) return NextResponse.json({ error: 'Taller no encontrado' }, { status: 404 });
 
-  // Resolve prerequisite names
-  const prereqCourses = course.prerequisite_course_ids.length > 0
-    ? await prisma.course.findMany({
-        where: { id: { in: course.prerequisite_course_ids } },
-        select: { id: true, name: true },
-      })
-    : [];
+  const prereqTalleres =
+    taller.prerequisite_taller_ids.length > 0
+      ? await prisma.taller.findMany({
+          where: { id: { in: taller.prerequisite_taller_ids } },
+          select: { id: true, name: true },
+        })
+      : [];
 
-  return NextResponse.json({ ...course, prerequisiteCourses: prereqCourses });
+  return NextResponse.json({ ...taller, prerequisiteTalleres: prereqTalleres });
 }
 
-// PATCH /api/cursos/[id] — admin only
+// PATCH /api/cursos/[id] — admin only: update taller catalog entry
 export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin')
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
 
   const body = await request.json().catch(() => ({}));
-  const parsed = updateCourseSchema.safeParse(body);
+  const parsed = updateTallerSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const course = await prisma.course.update({
+  const taller = await prisma.taller.update({
     where: { id: Number(id) },
-    data: {
-      ...parsed.data,
-      start_date: parsed.data.start_date ? new Date(parsed.data.start_date) : undefined,
-      end_date: parsed.data.end_date ? new Date(parsed.data.end_date) : undefined,
-    },
+    data: parsed.data,
   });
 
-  return NextResponse.json(course);
+  return NextResponse.json(taller);
 }
 
 // DELETE /api/cursos/[id] — admin only
 export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin')
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
 
-  await prisma.course.delete({ where: { id: Number(id) } });
+  await prisma.taller.delete({ where: { id: Number(id) } });
   return new NextResponse(null, { status: 204 });
 }
