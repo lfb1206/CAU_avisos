@@ -127,37 +127,17 @@ BEGIN
 END $$;
 
 -- ============================================================
--- 4. UPDATED_AT triggers
+-- 4. UPDATED_AT triggers (Prisma-managed tables only)
 -- ============================================================
-
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER LANGUAGE plpgsql AS $$
-BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$;
+-- talleres / ediciones_taller / inscripciones / ayudantias are managed by
+-- Prisma which does NOT add an updated_at column to these models.
+-- Triggers on those tables would fail with "record new has no field updated_at".
+-- Only drop any leftover triggers if they were previously created.
 
 DROP TRIGGER IF EXISTS set_talleres_updated_at         ON talleres;
 DROP TRIGGER IF EXISTS set_ediciones_taller_updated_at ON ediciones_taller;
 DROP TRIGGER IF EXISTS set_inscripciones_updated_at    ON inscripciones;
 DROP TRIGGER IF EXISTS set_ayudantias_updated_at       ON ayudantias;
-
-CREATE TRIGGER set_talleres_updated_at
-  BEFORE UPDATE ON talleres
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER set_ediciones_taller_updated_at
-  BEFORE UPDATE ON ediciones_taller
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER set_inscripciones_updated_at
-  BEFORE UPDATE ON inscripciones
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER set_ayudantias_updated_at
-  BEFORE UPDATE ON ayudantias
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================
 -- 5. ROW LEVEL SECURITY
