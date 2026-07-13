@@ -169,9 +169,10 @@ ALTER TABLE inscripciones     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ayudantias        ENABLE ROW LEVEL SECURITY;
 
 -- Helper: check if current user has a given role
+-- profiles.id is uuid (from Prisma @db.Uuid); auth.uid() returns uuid — no cast needed
 CREATE OR REPLACE FUNCTION auth_user_role()
 RETURNS TEXT LANGUAGE sql STABLE AS $$
-  SELECT role FROM profiles WHERE id = auth.uid()::TEXT LIMIT 1;
+  SELECT role::TEXT FROM profiles WHERE id = auth.uid() LIMIT 1;
 $$;
 
 -- ============================================================
@@ -223,11 +224,11 @@ CREATE POLICY "ediciones_taller: staff update"
   TO authenticated
   USING (
     auth_user_role() IN ('admin', 'coordinador')
-    OR coordinador_id = auth.uid()::TEXT
+    OR coordinador_id = auth.uid()
   )
   WITH CHECK (
     auth_user_role() IN ('admin', 'coordinador')
-    OR coordinador_id = auth.uid()::TEXT
+    OR coordinador_id = auth.uid()
   );
 
 -- Only admin can delete ediciones
@@ -245,7 +246,7 @@ CREATE POLICY "inscripciones: own or staff read"
   ON inscripciones FOR SELECT
   TO authenticated
   USING (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     OR auth_user_role() IN ('admin', 'coordinador')
   );
 
@@ -254,7 +255,7 @@ CREATE POLICY "inscripciones: self insert"
   ON inscripciones FOR INSERT
   TO authenticated
   WITH CHECK (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     AND EXISTS (
       SELECT 1 FROM ediciones_taller e
       WHERE e.id = edicion_id AND e.enrollment_open = TRUE
@@ -266,11 +267,11 @@ CREATE POLICY "inscripciones: own update or staff"
   ON inscripciones FOR UPDATE
   TO authenticated
   USING (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     OR auth_user_role() IN ('admin', 'coordinador')
   )
   WITH CHECK (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     OR auth_user_role() IN ('admin', 'coordinador')
   );
 
@@ -289,7 +290,7 @@ CREATE POLICY "ayudantias: own or staff read"
   ON ayudantias FOR SELECT
   TO authenticated
   USING (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     OR auth_user_role() IN ('admin', 'coordinador')
   );
 
@@ -297,14 +298,14 @@ CREATE POLICY "ayudantias: own or staff read"
 CREATE POLICY "ayudantias: self insert"
   ON ayudantias FOR INSERT
   TO authenticated
-  WITH CHECK (user_id = auth.uid()::TEXT);
+  WITH CHECK (user_id = auth.uid());
 
 -- Users can delete their own ayudantia; staff can update any
 CREATE POLICY "ayudantias: own delete"
   ON ayudantias FOR DELETE
   TO authenticated
   USING (
-    user_id = auth.uid()::TEXT
+    user_id = auth.uid()
     OR auth_user_role() IN ('admin', 'coordinador')
   );
 
