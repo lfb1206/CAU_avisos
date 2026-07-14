@@ -1,26 +1,9 @@
+'use client';
 import React from 'react';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
+import useSWR from 'swr';
 
-function StatusBadge({ status }: { status: string }) {
-  const styles: Record<string, string> = {
-    draft: 'bg-yellow-100 text-yellow-800',
-    submitted: 'bg-green-100  text-green-800',
-    archived: 'bg-gray-100   text-gray-600',
-  };
-  const labels: Record<string, string> = {
-    draft: 'Borrador',
-    submitted: 'Enviado',
-    archived: 'Archivado',
-  };
-  return (
-    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? ''}`}>
-      {labels[status] ?? status}
-    </span>
-  );
-}
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const inscripcionStatusLabel: Record<string, string> = {
   postulando: 'Postulando',
@@ -46,53 +29,51 @@ const inscripcionStatusColor: Record<string, string> = {
   rezagado: 'bg-purple-100 text-purple-700',
 };
 
-export default async function DashboardPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    draft: 'bg-yellow-100 text-yellow-800',
+    submitted: 'bg-green-100 text-green-800',
+    archived: 'bg-gray-100 text-gray-600',
+  };
+  const labels: Record<string, string> = {
+    draft: 'Borrador',
+    submitted: 'Enviado',
+    archived: 'Archivado',
+  };
+  return (
+    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? ''}`}>
+      {labels[status] ?? status}
+    </span>
+  );
+}
 
-  const [avisos, inscripciones, profile] = await Promise.all([
-    prisma.aviso.findMany({
-      where: { created_by: user.id },
-      orderBy: { updated_at: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        tipo: true,
-        location: true,
-        updated_at: true,
-      },
-    }),
-    prisma.inscripcion.findMany({
-      where: {
-        user_id: user.id,
-        status: { in: ['postulando', 'aceptado', 'en_lista', 'completado'] },
-      },
-      include: {
-        edicion: {
-          include: { taller: { select: { name: true, branch: true } } },
-        },
-      },
-      orderBy: { inscrito_at: 'desc' },
-      take: 5,
-    }),
-    prisma.profile.findUnique({
-      where: { id: user.id },
-      select: { name: true, role: true },
-    }),
-  ]);
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
+}
+
+export default function DashboardPage() {
+  const { data, isLoading } = useSWR('/api/dashboard', fetcher);
+
+  const profile = data?.profile;
+  const avisos = data?.avisos ?? [];
+  const inscripciones = data?.inscripciones ?? [];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Hola, {profile?.name ?? user.email}
-        </h1>
-        <p className="text-gray-500 mt-1">Panel de control</p>
+        {isLoading ? (
+          <>
+            <Skeleton className="h-8 w-48 mb-2" />
+            <Skeleton className="h-4 w-32" />
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Hola, {profile?.name ?? '—'}
+            </h1>
+            <p className="text-gray-500 mt-1">Panel de control</p>
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -105,7 +86,6 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {/* New aviso CTAs */}
           <div className="flex gap-2 mb-4">
             <Link
               href="/"
@@ -121,13 +101,17 @@ export default async function DashboardPage() {
             </Link>
           </div>
 
-          {avisos.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+            </div>
+          ) : avisos.length === 0 ? (
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
               <p className="text-sm">No tienes avisos aún.</p>
             </div>
           ) : (
             <div className="space-y-2">
-              {avisos.map((aviso) => (
+              {avisos.map((aviso: { id: number; title: string; status: string; tipo: string; location: string | null; updated_at: string }) => (
                 <div
                   key={aviso.id}
                   className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
@@ -160,47 +144,44 @@ export default async function DashboardPage() {
           )}
         </section>
 
-        {/* Talleres / Inscripciones */}
+        {/* Talleres */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Mis Talleres</h2>
-            <Link
-              href="/cursos"
-              className="text-sm text-blue-600 hover:text-blue-500 font-medium"
-            >
+            <Link href="/cursos" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
               Ver todos
             </Link>
           </div>
 
-          {inscripciones.length === 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map((i) => <Skeleton key={i} className="h-20 w-full" />)}
+            </div>
+          ) : inscripciones.length === 0 ? (
             <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
               <p className="text-sm">No tienes postulaciones activas.</p>
-              <Link
-                href="/cursos"
-                className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block"
-              >
+              <Link href="/cursos" className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block">
                 Ver ruta de talleres
               </Link>
             </div>
           ) : (
             <div className="space-y-3">
-              {inscripciones.map((insc) => (
+              {inscripciones.map((insc: {
+                id: number;
+                status: string;
+                edicion: { name: string; taller: { name: string; branch: string } };
+              }) => (
                 <div
                   key={insc.id}
                   className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {insc.edicion.taller.name}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{insc.edicion.taller.name}</p>
                     <p className="text-xs text-gray-400 capitalize mt-0.5">
-                      {insc.edicion.name} ·{' '}
-                      {insc.edicion.taller.branch.replace('_', '/')}
+                      {insc.edicion.name} · {insc.edicion.taller.branch.replace('_', '/')}
                     </p>
                   </div>
-                  <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColor[insc.status] ?? 'bg-gray-100 text-gray-500'}`}
-                  >
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColor[insc.status] ?? 'bg-gray-100 text-gray-500'}`}>
                     {inscripcionStatusLabel[insc.status] ?? insc.status}
                   </span>
                 </div>
@@ -210,17 +191,14 @@ export default async function DashboardPage() {
         </section>
       </div>
 
-      {(profile?.role === 'admin' || profile?.role === 'coordinador') && (
+      {!isLoading && (profile?.role === 'admin' || profile?.role === 'coordinador') && (
         <section className="mt-10 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <h3 className="text-sm font-semibold text-amber-900 mb-3">
             {profile.role === 'admin' ? 'Panel de administrador' : 'Panel del coordinador'}
           </h3>
           <div className="flex flex-wrap gap-3">
             {profile.role === 'coordinador' && (
-              <Link
-                href="/coordinador"
-                className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium"
-              >
+              <Link href="/coordinador" className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
                 Coordinador
               </Link>
             )}
@@ -232,11 +210,7 @@ export default async function DashboardPage() {
                 { href: '/admin/forms', label: 'Formularios' },
                 { href: '/coordinador', label: 'Coordinador' },
               ].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium"
-                >
+                <Link key={link.href} href={link.href} className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
                   {link.label}
                 </Link>
               ))}

@@ -13,8 +13,7 @@ interface EdicionInfo {
   taller_name: string;
   branch: string;
   name: string;
-  year: number;
-  semester: number;
+  max_ayudantes: number;
   status: string;
   enrollment_open: boolean;
   enrollment_opens_at: string | null;
@@ -33,13 +32,20 @@ interface MemberInfo {
   activePoints: number;
 }
 
+interface CompletedCourse {
+  tallerName: string;
+  branch: string;
+  completedAt: string | null;
+}
+
 interface PostulacionRow {
   id: number;
   user_id: string;
   status: string;
-  profile: { name: string; email: string };
+  profile: { name: string; email: string; phone: string | null };
   activePoints: number;
   inscrito_at: string;
+  completedCourses: CompletedCourse[];
 }
 
 interface AyudantiaRow {
@@ -72,6 +78,14 @@ const edicionStatusLabel: Record<string, string> = {
   cancelada: 'Cancelada',
 };
 
+const edicionStatusColor: Record<string, string> = {
+  planificada: 'bg-gray-100 text-gray-600',
+  inscripciones_abiertas: 'bg-blue-100 text-blue-700',
+  en_curso: 'bg-green-100 text-green-700',
+  finalizada: 'bg-purple-100 text-purple-700',
+  cancelada: 'bg-red-100 text-red-600',
+};
+
 const inscripcionStatusColors: Record<string, string> = {
   postulando: 'bg-yellow-100 text-yellow-700',
   aceptado: 'bg-green-100 text-green-700',
@@ -95,6 +109,7 @@ export default function CoordinadorClient({
   const [activeTab, setActiveTab] = useState<Tab>('ediciones');
   const [ediciones, setEdiciones] = useState(initialEdiciones);
   const [toggling, setToggling] = useState<number | null>(null);
+  const [edicionStatusFilter, setEdicionStatusFilter] = useState<'activas' | 'historial' | 'todas'>('activas');
 
   // Postulaciones tab
   const [selectedEdicionId, setSelectedEdicionId] = useState('');
@@ -125,18 +140,22 @@ export default function CoordinadorClient({
   const [createModal, setCreateModal] = useState(false);
   const [newEdicion, setNewEdicion] = useState({
     taller_id: '',
-    name: '',
-    year: new Date().getFullYear(),
-    semester: 1,
     start_date: '',
     end_date: '',
     capacity: 20,
-    price: '',
+    max_ayudantes: 0,
     required_points: 0,
-    location: '',
   });
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+
+  // Member profile modal
+  const [memberModal, setMemberModal] = useState<{
+    name: string;
+    email: string;
+    phone: string | null;
+    completedCourses: CompletedCourse[];
+  } | null>(null);
 
   const toggleEnrollment = async (edicionId: number, currentOpen: boolean) => {
     setToggling(edicionId);
@@ -161,6 +180,17 @@ export default function CoordinadorClient({
       }
     } finally {
       setToggling(null);
+    }
+  };
+
+  const handleStatusChange = async (edicionId: number, status: string) => {
+    const res = await fetch(`/api/coordinador/ediciones/${edicionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      setEdiciones((prev) => prev.map((e) => e.id === edicionId ? { ...e, status } : e));
     }
   };
 
@@ -276,15 +306,11 @@ export default function CoordinadorClient({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           taller_id: Number(newEdicion.taller_id),
-          name: newEdicion.name,
-          year: newEdicion.year,
-          semester: newEdicion.semester,
           start_date: newEdicion.start_date || null,
           end_date: newEdicion.end_date || null,
           capacity: newEdicion.capacity,
-          price: newEdicion.price ? Number(newEdicion.price) : null,
+          max_ayudantes: newEdicion.max_ayudantes,
           required_points: newEdicion.required_points,
-          location: newEdicion.location || null,
         }),
       });
       if (res.ok) {
@@ -307,8 +333,8 @@ export default function CoordinadorClient({
         ]);
         setCreateModal(false);
         setNewEdicion({
-          taller_id: '', name: '', year: new Date().getFullYear(), semester: 1,
-          start_date: '', end_date: '', capacity: 20, price: '', required_points: 0, location: '',
+          taller_id: '', name: '', start_date: '', end_date: '',
+          capacity: 20, max_ayudantes: 0, price: '', required_points: 0, location: '',
         });
       } else {
         const data = await res.json();
@@ -359,70 +385,126 @@ export default function CoordinadorClient({
       </div>
 
       {/* ── Tab: Ediciones ── */}
-      {activeTab === 'ediciones' && (
-        <div className="space-y-4">
-          <div className="flex justify-end">
-            <button
-              onClick={() => setCreateModal(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              + Nueva edición
-            </button>
-          </div>
+      {activeTab === 'ediciones' && (() => {
+        const visibleEdiciones = ediciones.filter((e) => {
+          if (edicionStatusFilter === 'activas') return !['finalizada', 'cancelada'].includes(e.status);
+          if (edicionStatusFilter === 'historial') return ['finalizada', 'cancelada'].includes(e.status);
+          return true;
+        });
 
-          {(['base', 'nieve_hielo', 'roca'] as const).map((branch) => {
-            const branchEdiciones = ediciones.filter((e) => e.branch === branch);
-            if (branchEdiciones.length === 0) return null;
-            return (
-              <section key={branch}>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                  {branchLabel[branch]}
-                </h2>
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
-                  {branchEdiciones.map((edicion) => (
-                    <div
-                      key={edicion.id}
-                      className="flex items-center justify-between px-5 py-4"
-                    >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900">
-                          {edicion.taller_name}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {edicion.name} · {edicion.year} S{edicion.semester} ·{' '}
-                          <span className="capitalize">
-                            {edicionStatusLabel[edicion.status] ?? edicion.status}
-                          </span>{' '}
-                          · {edicion.postulaciones} postulando · {edicion.aceptados} aceptados /{' '}
-                          {edicion.capacity} cupos
-                          {edicion.start_date &&
-                            ` · ${new Date(edicion.start_date).toLocaleDateString('es-CL')}`}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => toggleEnrollment(edicion.id, edicion.enrollment_open)}
-                        disabled={toggling === edicion.id}
-                        title={
-                          edicion.enrollment_open ? 'Cerrar inscripciones' : 'Abrir inscripciones'
-                        }
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                          edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                            edicion.enrollment_open ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            );
-          })}
-        </div>
-      )}
+        return (
+          <div className="space-y-4">
+            {/* Controls row */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+                {(['activas', 'historial', 'todas'] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setEdicionStatusFilter(f)}
+                    className={`px-3 py-1 text-sm rounded-md font-medium transition-colors capitalize ${
+                      edicionStatusFilter === f
+                        ? 'bg-white shadow text-gray-900'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {f === 'activas' ? 'Activas' : f === 'historial' ? 'Historial' : 'Todas'}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setCreateModal(true)}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                + Nueva edición
+              </button>
+            </div>
+
+            {visibleEdiciones.length === 0 && (
+              <p className="text-center text-sm text-gray-400 py-8">Sin ediciones en esta vista.</p>
+            )}
+
+            {(['base', 'nieve_hielo', 'roca'] as const).map((branch) => {
+              const branchEdiciones = visibleEdiciones.filter((e) => e.branch === branch);
+              if (branchEdiciones.length === 0) return null;
+              return (
+                <section key={branch}>
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                    {branchLabel[branch]}
+                  </h2>
+                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+                    {branchEdiciones.map((edicion) => {
+                      const isDone = ['finalizada', 'cancelada'].includes(edicion.status);
+                      return (
+                        <div key={edicion.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                          {/* Info */}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-medium text-gray-900">{edicion.taller_name}</p>
+                              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${edicionStatusColor[edicion.status] ?? 'bg-gray-100 text-gray-500'}`}>
+                                {edicionStatusLabel[edicion.status] ?? edicion.status}
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {edicion.name}
+                              {edicion.start_date && ` · ${new Date(edicion.start_date).toLocaleDateString('es-CL')}`}
+                              {' · '}{edicion.postulaciones} postulando · {edicion.aceptados} aceptados / {edicion.capacity} cupos
+                              {edicion.max_ayudantes > 0 && ` · ${edicion.ayudantes}/${edicion.max_ayudantes} ayudantes`}
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          {!isDone && (
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                              {/* Status progression */}
+                              {(edicion.status === 'planificada' || edicion.status === 'inscripciones_abiertas') && (
+                                <button
+                                  onClick={() => handleStatusChange(edicion.id, 'en_curso')}
+                                  className="text-xs px-2 py-1 border border-green-300 text-green-700 rounded hover:bg-green-50"
+                                >
+                                  → En curso
+                                </button>
+                              )}
+                              {edicion.status === 'en_curso' && (
+                                <button
+                                  onClick={() => handleStatusChange(edicion.id, 'finalizada')}
+                                  className="text-xs px-2 py-1 border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                >
+                                  → Finalizar
+                                </button>
+                              )}
+
+                              {/* Enrollment toggle — hidden once course is running */}
+                              {edicion.status !== 'en_curso' && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-gray-500">
+                                    {edicion.enrollment_open ? 'Inscripciones abiertas' : 'Inscripciones cerradas'}
+                                  </span>
+                                  <button
+                                    onClick={() => toggleEnrollment(edicion.id, edicion.enrollment_open)}
+                                    disabled={toggling === edicion.id}
+                                    aria-label={edicion.enrollment_open ? 'Cerrar inscripciones' : 'Abrir inscripciones'}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                                      edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300'
+                                    }`}
+                                  >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                                      edicion.enrollment_open ? 'translate-x-6' : 'translate-x-1'
+                                    }`} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        );
+      })()}
 
       {/* ── Tab: Postulaciones ── */}
       {activeTab === 'postulaciones' && (
@@ -457,6 +539,7 @@ export default function CoordinadorClient({
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Talleres aprobados</th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Puntos</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Estado</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
@@ -466,8 +549,32 @@ export default function CoordinadorClient({
                   {postulaciones.map((p) => (
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{p.profile.name}</p>
-                        <p className="text-xs text-gray-400">{p.profile.email}</p>
+                        <button
+                          onClick={() => setMemberModal({ name: p.profile.name, email: p.profile.email, phone: p.profile.phone, completedCourses: p.completedCourses })}
+                          className="text-left"
+                        >
+                          <p className="font-medium text-gray-900 hover:text-blue-600">{p.profile.name}</p>
+                          <p className="text-xs text-gray-400">{p.profile.email}</p>
+                        </button>
+                      </td>
+                      <td className="px-4 py-3">
+                        {p.completedCourses.length === 0 ? (
+                          <span className="text-xs text-gray-400">—</span>
+                        ) : (
+                          <div className="space-y-0.5">
+                            {p.completedCourses.map((c, i) => (
+                              <div key={i} className="text-xs text-gray-700 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
+                                {c.tallerName}
+                                {c.completedAt && (
+                                  <span className="text-gray-400">
+                                    ({new Date(c.completedAt).toLocaleDateString('es-CL', { month: 'short', year: 'numeric' })})
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-purple-700">
                         {p.activePoints}
@@ -868,39 +975,6 @@ export default function CoordinadorClient({
                 </select>
               </div>
 
-              <div className="col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Nombre de la edición *</label>
-                <input
-                  type="text"
-                  value={newEdicion.name}
-                  onChange={(e) => setNewEdicion({ ...newEdicion, name: e.target.value })}
-                  placeholder="Ej: Intro 1 2026"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Año *</label>
-                <input
-                  type="number"
-                  value={newEdicion.year}
-                  onChange={(e) => setNewEdicion({ ...newEdicion, year: Number(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Semestre *</label>
-                <select
-                  value={newEdicion.semester}
-                  onChange={(e) => setNewEdicion({ ...newEdicion, semester: Number(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value={1}>1er semestre</option>
-                  <option value={2}>2do semestre</option>
-                </select>
-              </div>
-
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Fecha inicio</label>
                 <input
@@ -933,13 +1007,12 @@ export default function CoordinadorClient({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Precio (CLP)</label>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Máx. ayudantes</label>
                 <input
                   type="number"
                   min={0}
-                  value={newEdicion.price}
-                  onChange={(e) => setNewEdicion({ ...newEdicion, price: e.target.value })}
-                  placeholder="0 = gratuito"
+                  value={newEdicion.max_ayudantes}
+                  onChange={(e) => setNewEdicion({ ...newEdicion, max_ayudantes: Number(e.target.value) })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 />
               </div>
@@ -955,22 +1028,12 @@ export default function CoordinadorClient({
                 />
               </div>
 
-              <div className="col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Lugar</label>
-                <input
-                  type="text"
-                  value={newEdicion.location}
-                  onChange={(e) => setNewEdicion({ ...newEdicion, location: e.target.value })}
-                  placeholder="Ej: Pared Escalada CAU"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
             </div>
 
             <div className="flex gap-3 pt-2">
               <button
                 onClick={createEdicion}
-                disabled={!newEdicion.taller_id || !newEdicion.name || creating}
+                disabled={!newEdicion.taller_id || creating}
                 className="flex-1 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-50"
               >
                 {creating ? 'Creando…' : 'Crear edición'}
@@ -982,6 +1045,55 @@ export default function CoordinadorClient({
                 Cancelar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Member profile modal ── */}
+      {memberModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">{memberModal.name || 'Sin nombre'}</h3>
+                <p className="text-sm text-gray-500">{memberModal.email}</p>
+                {memberModal.phone && <p className="text-sm text-gray-500">{memberModal.phone}</p>}
+              </div>
+              <button onClick={() => setMemberModal(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                Talleres aprobados ({memberModal.completedCourses.length})
+              </p>
+              {memberModal.completedCourses.length === 0 ? (
+                <p className="text-sm text-gray-400">Sin talleres aprobados.</p>
+              ) : (
+                <div className="space-y-2">
+                  {memberModal.completedCourses.map((c, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                        <span className="text-gray-800">{c.tallerName}</span>
+                        <span className="text-xs text-gray-400 capitalize">{c.branch.replace('_', '/')}</span>
+                      </div>
+                      {c.completedAt && (
+                        <span className="text-xs text-gray-400">
+                          {new Date(c.completedAt).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setMemberModal(null)}
+              className="w-full py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}

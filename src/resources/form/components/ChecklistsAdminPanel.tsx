@@ -1,36 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { wikiexploraChecklists, getAvailableChecklists } from '../../constants/wikiexploraChecklists';
-import { exportDataToJSON } from '../../constants/dataExportUtils';
-
 export default function ChecklistsAdminPanel() {
   const [checklists] = useState(getAvailableChecklists());
   const [selectedChecklist, setSelectedChecklist] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
-
-  const handleExportChecklists = () => {
-    const data = {
-      checklists: wikiexploraChecklists,
-      timestamp: new Date().toISOString(),
-      description: 'Checklists de Wikiexplora exportados'
-    };
-    exportDataToJSON(data, 'wikiexplora_checklists_export.json');
-  };
-
-  const handleExportSpecificChecklist = (checklistKey) => {
-    const checklist = wikiexploraChecklists[checklistKey];
-    if (checklist) {
-      const data = {
-        checklist: {
-          key: checklistKey,
-          ...checklist
-        },
-        timestamp: new Date().toISOString(),
-        description: `Checklist "${checklist.name}" exportado`
-      };
-      exportDataToJSON(data, `checklist_${checklistKey}_export.json`);
-    }
-  };
 
   const handleViewDetails = (checklistKey) => {
     setSelectedChecklist(checklistKey);
@@ -52,12 +26,6 @@ export default function ChecklistsAdminPanel() {
               <p className="text-sm text-gray-600">ID: {selectedChecklist}</p>
             </div>
             <div className="flex space-x-2">
-              <button
-                onClick={() => handleExportSpecificChecklist(selectedChecklist)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm"
-              >
-                Exportar Checklist
-              </button>
               <button
                 onClick={() => setShowDetails(false)}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm"
@@ -159,14 +127,8 @@ export default function ChecklistsAdminPanel() {
         <p className="text-gray-600">Administra checklists de Wikiexplora para diferentes tipos de actividades</p>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Checklists Disponibles</h3>
-        <button
-          onClick={handleExportChecklists}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-        >
-          Exportar Todos los Checklists
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -212,12 +174,6 @@ export default function ChecklistsAdminPanel() {
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium"
                 >
                   Ver Detalles
-                </button>
-                <button
-                  onClick={() => handleExportSpecificChecklist(checklist.value)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-xs font-medium"
-                >
-                  Exportar
                 </button>
               </div>
             </div>

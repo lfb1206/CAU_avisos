@@ -23,7 +23,7 @@ export default async function CoordinadorPage() {
       orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
       include: {
         ediciones: {
-          orderBy: [{ year: 'desc' }, { semester: 'desc' }, { start_date: 'desc' }],
+          orderBy: [{ start_date: 'asc' }],
           include: {
             _count: {
               select: {
@@ -65,8 +65,7 @@ export default async function CoordinadorPage() {
       taller_name: t.name,
       branch: t.branch,
       name: e.name,
-      year: e.year,
-      semester: e.semester,
+      max_ayudantes: e.max_ayudantes,
       status: e.status,
       enrollment_open: e.enrollment_open,
       enrollment_opens_at: (e as { enrollment_opens_at?: Date | null }).enrollment_opens_at?.toISOString() ?? null,

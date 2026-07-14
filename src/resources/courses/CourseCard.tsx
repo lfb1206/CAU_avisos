@@ -85,24 +85,6 @@ export default function CourseCard({
 
   const effectiveIsAyudante = isAyudante || ayudanteState === 'done';
 
-  const handleAyudante = async () => {
-    setAyudanteState('loading');
-    try {
-      const res = await fetch(`/api/cursos/${id}/inscribirse`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tipo: 'ayudante' }),
-      });
-      if (res.ok) {
-        setAyudanteState('done');
-      } else {
-        setAyudanteState('error');
-      }
-    } catch {
-      setAyudanteState('error');
-    }
-  };
-
   return (
     <div
       className={`relative border-2 ${borderColor} ${bgColor} rounded-xl p-4 shadow-sm transition-shadow hover:shadow-md`}

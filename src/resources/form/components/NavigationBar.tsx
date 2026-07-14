@@ -68,28 +68,27 @@ export default function NavigationBar() {
             <Link href="/" className="flex items-center space-x-2">
               <img src="/Logo.png" alt="CAU Logo" className="h-8 w-auto" />
               <span className="text-xl font-semibold text-gray-900 hidden sm:block">
-                CAU Avisos
+                Portal CAU
               </span>
             </Link>
           </div>
 
-          {/* Nav links */}
+          {/* Nav links — only shown when logged in */}
           <div className="flex items-center space-x-1">
-            <Link href="/" className={linkClass('/')}>
-              Aviso Largo
-            </Link>
-            <Link href="/aviso/rapido" className={linkClass('/aviso/rapido')}>
-              Aviso Rápido
-            </Link>
-            <Link href="/avisos" className={linkClass('/avisos')}>
-              Biblioteca
-            </Link>
-            <Link href="/cursos" className={linkClass('/cursos')}>
-              Cursos
-            </Link>
-
             {!loading && isLoggedIn && (
               <>
+                <Link href="/" className={linkClass('/')}>
+                  Aviso Largo
+                </Link>
+                <Link href="/aviso/rapido" className={linkClass('/aviso/rapido')}>
+                  Aviso Rápido
+                </Link>
+                <Link href="/avisos" className={linkClass('/avisos')}>
+                  Biblioteca
+                </Link>
+                <Link href="/cursos" className={linkClass('/cursos')}>
+                  Cursos
+                </Link>
                 <Link href="/dashboard" className={linkClass('/dashboard')}>
                   Panel
                 </Link>

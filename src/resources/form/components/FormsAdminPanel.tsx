@@ -5,7 +5,6 @@ import { basicFormOptions } from '../../constants/basicFormOptions';
 import { transportOptions } from '../../constants/transportOptions';
 import { medicalOptions } from '../../constants/medicalOptions';
 import { difficultyAssumptionRecommendations } from '../../constants/difficultyAssumptionRecommendations';
-import { exportDataToJSON } from '../../constants/dataExportUtils';
 
 export default function FormsAdminPanel() {
   const [activeTab, setActiveTab] = useState('basic');
@@ -35,59 +34,6 @@ export default function FormsAdminPanel() {
   const [showAddMedical, setShowAddMedical] = useState(false);
   const [medicalType, setMedicalType] = useState('');
   const [newMedicalItem, setNewMedicalItem] = useState('');
-
-  const handleExportBasic = () => {
-    const data = {
-      basicFormOptions: basicOptions,
-      timestamp: new Date().toISOString(),
-      description: 'Opciones básicas de formulario exportadas'
-    };
-    exportDataToJSON(data, 'basic_form_options_export.json');
-  };
-
-
-
-  const handleExportTransport = () => {
-    const data = {
-      transportOptions: transportOpts,
-      timestamp: new Date().toISOString(),
-      description: 'Opciones de transporte exportadas'
-    };
-    exportDataToJSON(data, 'transport_options_export.json');
-  };
-
-  const handleExportMedical = () => {
-    const data = {
-      medicalOptions: medicalOpts,
-      timestamp: new Date().toISOString(),
-      description: 'Opciones médicas exportadas'
-    };
-    exportDataToJSON(data, 'medical_options_export.json');
-  };
-
-  const handleExportAssumptions = () => {
-    const data = {
-      difficultyAssumptionRecommendations: assumptionRecs,
-      timestamp: new Date().toISOString(),
-      description: 'Recomendaciones de supuestos exportadas'
-    };
-    exportDataToJSON(data, 'assumption_recommendations_export.json');
-  };
-
-  const handleExportAll = () => {
-    const data = {
-      formsData: {
-        basicFormOptions: basicOptions,
-
-        transportOptions: transportOpts,
-        medicalOptions: medicalOpts,
-        difficultyAssumptionRecommendations: assumptionRecs
-      },
-      timestamp: new Date().toISOString(),
-      description: 'Todos los datos de formularios exportados'
-    };
-    exportDataToJSON(data, 'forms_data_export.json');
-  };
 
   const handleSaveAssumption = (assumptionData) => {
     const updatedRecs = { ...assumptionRecs };
@@ -231,12 +177,6 @@ export default function FormsAdminPanel() {
           >
             Agregar Elemento
           </button>
-          <button
-            onClick={handleExportBasic}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Datos Básicos
-          </button>
         </div>
       </div>
 
@@ -337,12 +277,6 @@ export default function FormsAdminPanel() {
           >
             Agregar Elemento
           </button>
-          <button
-            onClick={handleExportTransport}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Sugerencias de Transporte
-          </button>
         </div>
       </div>
 
@@ -400,12 +334,6 @@ export default function FormsAdminPanel() {
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
           >
             Agregar Elemento
-          </button>
-          <button
-            onClick={handleExportMedical}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Sugerencias Médicas
           </button>
         </div>
       </div>
@@ -490,12 +418,6 @@ export default function FormsAdminPanel() {
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
           >
             Agregar Supuesto
-          </button>
-          <button
-            onClick={handleExportAssumptions}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
-          >
-            Exportar Sugerencias de Supuestos
           </button>
         </div>
       </div>
@@ -596,16 +518,6 @@ export default function FormsAdminPanel() {
         {activeTab === 'transport' && renderTransportOptionsTab()}
         {activeTab === 'medical' && renderMedicalOptionsTab()}
         {activeTab === 'assumptions' && renderAssumptionsTab()}
-      </div>
-
-      {/* Export All Button */}
-      <div className="mt-6">
-        <button
-          onClick={handleExportAll}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-        >
-          Exportar Todos los Datos de Autocompletado
-        </button>
       </div>
 
       {/* Modal para agregar dificultad */}

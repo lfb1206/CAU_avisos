@@ -13,56 +13,73 @@ const createTallerSchema = z.object({
   content_outline: z.unknown().optional(),
 });
 
-// GET /api/cursos — list all talleres with edicion counts
+// GET /api/cursos — full data for the cursos page (talleres + user context + active points)
 export async function GET() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getSession().then(async ({ data: { session } }) => ({
+    data: { user: session?.user ?? null },
+  }));
 
-  const talleres = await prisma.taller.findMany({
-    orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
-    include: {
-      ediciones: user
-        ? {
-            where: { status: { not: 'cancelada' } },
-            include: {
-              inscripciones: { where: { user_id: user.id }, select: { status: true } },
-              _count: {
-                select: {
-                  inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+  const now = new Date();
+
+  const [talleres, userActivePoints] = await Promise.all([
+    prisma.taller.findMany({
+      orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
+      include: {
+        ediciones: {
+          where: { status: { not: 'cancelada' } },
+          orderBy: { start_date: 'asc' },
+          include: user
+            ? {
+                inscripciones: {
+                  where: { user_id: user.id },
+                  select: { status: true },
+                },
+                ayudantias: {
+                  where: { user_id: user.id },
+                  select: { asistio: true },
+                },
+                _count: {
+                  select: {
+                    inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+                  },
+                },
+              }
+            : {
+                inscripciones: { where: { id: -1 }, select: { status: true } },
+                ayudantias: { where: { id: -1 }, select: { asistio: true } },
+                _count: {
+                  select: {
+                    inscripciones: { where: { status: { in: ['aceptado', 'completado'] } } },
+                  },
                 },
               },
-            },
-          }
-        : {
-            where: { status: { not: 'cancelada' } },
-            select: {
-              id: true,
-              name: true,
-              status: true,
-              enrollment_open: true,
-              capacity: true,
-            },
-          },
-    },
-  });
+        },
+      },
+    }),
+    user
+      ? prisma.coursePoints
+          .aggregate({
+            where: { user_id: user.id, expires_at: { gt: now } },
+            _sum: { points: true },
+          })
+          .then((r) => r._sum.points ?? 0)
+      : Promise.resolve(0),
+  ]);
 
-  return NextResponse.json(talleres);
+  return NextResponse.json({ talleres, userActivePoints });
 }
 
 // POST /api/cursos — admin: create a new Taller catalog entry
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single();
   if (profile?.role !== 'admin')
     return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
@@ -72,6 +89,5 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const taller = await prisma.taller.create({ data: parsed.data });
-
   return NextResponse.json(taller, { status: 201 });
 }

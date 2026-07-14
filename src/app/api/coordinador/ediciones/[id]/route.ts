@@ -26,6 +26,7 @@ const patchEdicionSchema = z.object({
     .optional(),
   enrollment_open: z.boolean().optional(),
   capacity: z.number().int().optional(),
+  max_ayudantes: z.number().int().optional(),
   price: z.number().nullable().optional(),
   required_points: z.number().int().optional(),
   location: z.string().nullable().optional(),

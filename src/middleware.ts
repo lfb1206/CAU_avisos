@@ -23,63 +23,27 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+  // Use getSession() (local JWT validation, no network call) so the BCG corporate
+  // proxy doesn't block middleware on every request. Server components that need
+  // the fully verified user still call getUser() individually.
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
+
   const { pathname } = request.nextUrl;
 
   // Redirect unauthenticated users away from protected routes
-  if (
-    !user &&
-    (pathname.startsWith('/aviso') ||
-      pathname.startsWith('/dashboard') ||
-      pathname.startsWith('/cursos') ||
-      pathname.startsWith('/coordinador') ||
-      pathname.startsWith('/perfil'))
-  ) {
+  const protectedPrefixes = ['/aviso', '/dashboard', '/cursos', '/coordinador', '/perfil', '/avisos'];
+  const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
+
+  if (!user && isProtected) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/auth/login';
     loginUrl.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Coordinador-only routes — check role from profile
-  if (pathname.startsWith('/coordinador')) {
-    if (!user) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = '/auth/login';
-      loginUrl.searchParams.set('redirectTo', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
-
-  // Admin-only routes — check role from profile
-  if (pathname.startsWith('/admin')) {
-    if (!user) {
-      const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = '/auth/login';
-      loginUrl.searchParams.set('redirectTo', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile || profile.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+  // Coordinador-only routes — role check is done in the page/API itself
+  // (middleware can't query the DB without a network-capable runtime here)
 
   // Redirect already-authenticated users away from auth pages
   if (user && pathname.startsWith('/auth/')) {

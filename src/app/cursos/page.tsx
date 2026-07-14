@@ -1,15 +1,21 @@
+'use client';
 import React from 'react';
-import { createClient } from '@/lib/supabase/server';
-import { prisma } from '@/lib/prisma';
+import useSWR from 'swr';
 import CourseCard from '@/resources/courses/CourseCard';
 import type { MemberCourseStatus } from '@/types';
 
-type OpenEdicionInfo = {
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+type EdicionRow = {
   id: number;
   name: string;
-  start_date: Date | null;
+  status: string;
+  enrollment_open: boolean;
   capacity: number;
   required_points: number;
+  start_date: string | null;
+  inscripciones: { status: string }[];
+  ayudantias: { asistio: boolean | null }[];
   _count: { inscripciones: number };
 };
 
@@ -21,18 +27,7 @@ type TallerRow = {
   level: string;
   order_index: number;
   prerequisite_taller_ids: number[];
-  ediciones: Array<{
-    id: number;
-    status: string;
-    enrollment_open: boolean;
-    capacity: number;
-    required_points: number;
-    start_date: Date | null;
-    name: string;
-    inscripciones: { status: string }[];
-    ayudantias: { asistio: boolean | null }[];
-    _count: { inscripciones: number };
-  }>;
+  ediciones: EdicionRow[];
 };
 
 function resolveMemberStatus(
@@ -44,18 +39,17 @@ function resolveMemberStatus(
   if (taller.branch === 'base') return 'completado';
   if (completedIds.has(taller.id)) return 'completado';
   const prereqsMet = taller.prerequisite_taller_ids.every((pid) => completedIds.has(pid));
-  if (!prereqsMet) return 'bloqueado';
-  return 'disponible';
+  return prereqsMet ? 'disponible' : 'bloqueado';
 }
 
-function getOpenEdicion(taller: TallerRow): OpenEdicionInfo | null {
-  const open = taller.ediciones.find(
-    (e) =>
-      e.enrollment_open &&
-      e.status !== 'cancelada' &&
-      e.status !== 'finalizada'
-  );
-  return open ?? null;
+function getOpenEdicion(taller: TallerRow) {
+  return taller.ediciones.find(
+    (e) => e.enrollment_open && e.status !== 'cancelada' && e.status !== 'finalizada'
+  ) ?? null;
+}
+
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />;
 }
 
 function BranchColumn({
@@ -85,16 +79,11 @@ function BranchColumn({
           const status = resolveMemberStatus(taller, completedIds, isLoggedIn);
           const openEdicion = getOpenEdicion(taller);
           const userInscripcionStatus = openEdicion
-            ? (taller.ediciones
-                .find((e) => e.id === openEdicion.id)
-                ?.inscripciones[0]?.status ?? null)
+            ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ?? null)
             : null;
           const isAyudante = openEdicion
-            ? taller.ediciones.some(
-                (e) => e.id === openEdicion.id && e.ayudantias.length > 0
-              )
+            ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
             : false;
-
           const missingPrerequisiteNames =
             status === 'bloqueado'
               ? taller.prerequisite_taller_ids
@@ -115,7 +104,7 @@ function BranchColumn({
                     ? {
                         id: openEdicion.id,
                         name: openEdicion.name,
-                        start_date: openEdicion.start_date?.toISOString() ?? null,
+                        start_date: openEdicion.start_date,
                         capacity: openEdicion.capacity,
                         required_points: openEdicion.required_points,
                         _count: openEdicion._count,
@@ -129,18 +118,8 @@ function BranchColumn({
               />
               {idx < talleres.length - 1 && (
                 <div className="flex justify-center my-1">
-                  <svg
-                    className="w-4 h-6 text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
+                  <svg className="w-4 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               )}
@@ -152,69 +131,17 @@ function BranchColumn({
   );
 }
 
-export default async function CursosPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function CursosPage() {
+  const { data, isLoading } = useSWR('/api/cursos', fetcher);
 
-  const now = new Date();
+  const talleres: TallerRow[] = data?.talleres ?? [];
+  const userActivePoints: number = data?.userActivePoints ?? 0;
+  const isLoggedIn = data !== undefined && !data?.error;
 
-  const [talleres, userActivePoints] = await Promise.all([
-    prisma.taller.findMany({
-      orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
-      include: {
-        ediciones: {
-          where: { status: { not: 'cancelada' } },
-          orderBy: { start_date: 'asc' },
-          include: user
-            ? {
-                inscripciones: {
-                  where: { user_id: user.id },
-                  select: { status: true },
-                },
-                ayudantias: {
-                  where: { user_id: user.id },
-                  select: { asistio: true },
-                },
-                _count: {
-                  select: {
-                    inscripciones: {
-                      where: { status: { in: ['aceptado', 'completado'] } },
-                    },
-                  },
-                },
-              }
-            : {
-                inscripciones: { where: { id: -1 }, select: { status: true } },
-                ayudantias: { where: { id: -1 }, select: { asistio: true } },
-                _count: {
-                  select: {
-                    inscripciones: {
-                      where: { status: { in: ['aceptado', 'completado'] } },
-                    },
-                  },
-                },
-              },
-        },
-      },
-    }) as Promise<TallerRow[]>,
-    user
-      ? prisma.coursePoints
-          .aggregate({
-            where: { user_id: user.id, expires_at: { gt: now } },
-            _sum: { points: true },
-          })
-          .then((r) => r._sum.points ?? 0)
-      : Promise.resolve(0),
-  ]);
-
-  // A taller is "completado" if the user has any Inscripcion with status 'completado'
   const completedTallerIds = new Set<number>();
   for (const t of talleres) {
     if (t.branch === 'base') {
-      // base branch: auto-completed for all logged-in members
-      if (user) completedTallerIds.add(t.id);
+      if (isLoggedIn) completedTallerIds.add(t.id);
     } else if (t.ediciones.some((e) => e.inscripciones.some((i) => i.status === 'completado'))) {
       completedTallerIds.add(t.id);
     }
@@ -229,106 +156,109 @@ export default async function CursosPage() {
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-gray-900">Talleres del Club</h1>
         <p className="mt-2 text-gray-600">
-          Ruta de formación CAU — completa los talleres en orden para avanzar en tu camino
-          alpinista.
+          Ruta de formación CAU — completa los talleres en orden para avanzar en tu camino alpinista.
         </p>
-        {!user && (
+        {!isLoading && !isLoggedIn && (
           <p className="mt-3 text-sm text-blue-700 bg-blue-50 inline-block px-4 py-2 rounded-full">
-            <a href="/auth/login" className="font-medium hover:underline">
-              Inicia sesión
-            </a>{' '}
+            <a href="/auth/login" className="font-medium hover:underline">Inicia sesión</a>{' '}
             para ver tu progreso y postular a ediciones.
           </p>
         )}
-        {user && userActivePoints > 0 && (
-          <p className="mt-3 text-sm text-purple-700 bg-purple-50 inline-block px-4 py-2 rounded-full">
-            Tienes{' '}
-            <strong>
-              {userActivePoints} punto{userActivePoints !== 1 ? 's' : ''}
-            </strong>{' '}
-            activos
-          </p>
-        )}
-        {user && userActivePoints > 0 && (
+        {!isLoading && isLoggedIn && userActivePoints > 0 && (
           <p className="mt-3 text-sm text-purple-700 bg-purple-50 inline-block px-4 py-2 rounded-full">
             Tienes <strong>{userActivePoints} punto{userActivePoints !== 1 ? 's' : ''}</strong> activos
           </p>
         )}
       </div>
 
-      {/* Foundation taller — spans both columns */}
-      {baseTalleres.map((taller) => {
-        const status = resolveMemberStatus(taller, completedTallerIds, Boolean(user));
-        const openEdicion = getOpenEdicion(taller);
-        const userInscripcionStatus = openEdicion
-          ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ??
-            null)
-          : null;
-        const isAyudante = openEdicion
-          ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
-          : false;
-
-        return (
-          <div key={taller.id} className="mb-6">
-            <div className="max-w-sm mx-auto">
-              <CourseCard
-                id={taller.id}
-                name={taller.name}
-                description={taller.description}
-                level={taller.level}
-                status={status}
-                openEdicion={
-                  openEdicion
-                    ? {
-                        id: openEdicion.id,
-                        name: openEdicion.name,
-                        start_date: openEdicion.start_date?.toISOString() ?? null,
-                        capacity: openEdicion.capacity,
-                        required_points: openEdicion.required_points,
-                        _count: openEdicion._count,
-                      }
-                    : null
-                }
-                userInscripcionStatus={userInscripcionStatus}
-                isAyudante={isAyudante}
-                userActivePoints={userActivePoints}
-              />
+      {isLoading ? (
+        <div className="space-y-6">
+          <Skeleton className="h-40 max-w-sm mx-auto" />
+          <div className="flex gap-6">
+            <div className="flex-1 space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28" />)}
             </div>
-            <div className="flex justify-center mt-2 mb-4">
-              <div className="flex gap-12">
-                {[0, 1].map((i) => (
-                  <div key={i} className="flex flex-col items-center">
-                    <div className="w-px h-4 bg-gray-300" />
-                    <div className="w-24 h-px bg-gray-300" />
-                    <div className="w-px h-4 bg-gray-300" />
-                  </div>
-                ))}
-              </div>
+            <div className="flex-1 space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28" />)}
             </div>
           </div>
         </div>
-      ))}
+      ) : (
+        <>
+          {/* Foundation taller — spans both columns */}
+          {baseTalleres.map((taller) => {
+            const status = resolveMemberStatus(taller, completedTallerIds, isLoggedIn);
+            const openEdicion = getOpenEdicion(taller);
+            const userInscripcionStatus = openEdicion
+              ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ?? null)
+              : null;
+            const isAyudante = openEdicion
+              ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
+              : false;
 
-      {/* Two-column branch view */}
-      <div className="flex gap-6 items-start">
-        <BranchColumn
-          title="Nieve / Hielo"
-          talleres={nieveTalleres}
-          completedIds={completedTallerIds}
-          allTalleres={talleres}
-          isLoggedIn={Boolean(user)}
-          userActivePoints={userActivePoints}
-        />
-        <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
-        <BranchColumn
-          title="Roca"
-          talleres={rocaTalleres}
-          completedIds={completedTallerIds}
-          allTalleres={talleres}
-          isLoggedIn={Boolean(user)}
-          userActivePoints={userActivePoints}
-        />
-      </div>
+            return (
+              <div key={taller.id} className="mb-6">
+                <div className="max-w-sm mx-auto">
+                  <CourseCard
+                    id={taller.id}
+                    name={taller.name}
+                    description={taller.description}
+                    level={taller.level}
+                    status={status}
+                    openEdicion={
+                      openEdicion
+                        ? {
+                            id: openEdicion.id,
+                            name: openEdicion.name,
+                            start_date: openEdicion.start_date,
+                            capacity: openEdicion.capacity,
+                            required_points: openEdicion.required_points,
+                            _count: openEdicion._count,
+                          }
+                        : null
+                    }
+                    userInscripcionStatus={userInscripcionStatus}
+                    isAyudante={isAyudante}
+                    userActivePoints={userActivePoints}
+                  />
+                </div>
+                <div className="flex justify-center mt-2 mb-4">
+                  <div className="flex gap-12">
+                    {[0, 1].map((i) => (
+                      <div key={i} className="flex flex-col items-center">
+                        <div className="w-px h-4 bg-gray-300" />
+                        <div className="w-24 h-px bg-gray-300" />
+                        <div className="w-px h-4 bg-gray-300" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Two-column branch view */}
+          <div className="flex gap-6 items-start">
+            <BranchColumn
+              title="Nieve / Hielo"
+              talleres={nieveTalleres}
+              completedIds={completedTallerIds}
+              allTalleres={talleres}
+              isLoggedIn={isLoggedIn}
+              userActivePoints={userActivePoints}
+            />
+            <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
+            <BranchColumn
+              title="Roca"
+              talleres={rocaTalleres}
+              completedIds={completedTallerIds}
+              allTalleres={talleres}
+              isLoggedIn={isLoggedIn}
+              userActivePoints={userActivePoints}
+            />
+          </div>
+        </>
+      )}
 
       {/* Legend */}
       <div className="mt-10 flex flex-wrap gap-4 justify-center text-xs text-gray-600">

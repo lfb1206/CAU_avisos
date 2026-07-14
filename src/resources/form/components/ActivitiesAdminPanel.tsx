@@ -60,11 +60,6 @@ export default function ActivitiesAdminPanel() {
     await load();
   };
 
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify({ activities, timestamp: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'activities_export.json'; a.click();
-  };
-
   const filtered = activities.filter((a) =>
     !searchQuery || a.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -94,9 +89,6 @@ export default function ActivitiesAdminPanel() {
         />
         <button onClick={() => setShowAddForm(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm">
           Agregar actividad
-        </button>
-        <button onClick={handleExport} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm">
-          Exportar JSON
         </button>
       </div>
 

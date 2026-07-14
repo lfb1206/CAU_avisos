@@ -6,19 +6,19 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 async function guardCoordinador() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return null;
   const profile = await prisma.profile.findUnique({
-    where: { id: user.id },
+    where: { id: session.user.id },
     select: { role: true },
   });
   if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) return null;
-  return user;
+  return session.user;
 }
 
-// GET /api/coordinador/ediciones/[id]/inscripciones — list inscripciones ranked by active points
+// GET /api/coordinador/ediciones/[id]/inscripciones
+// Returns inscripciones for the edicion, sorted by active points descending.
+// Each entry includes the member's completed courses for course history.
 export async function GET(request: NextRequest, { params }: RouteContext) {
   const user = await guardCoordinador();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
@@ -31,7 +31,6 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
   const now = new Date();
 
-  // Get all inscripciones for this edicion
   const inscripciones = await prisma.inscripcion.findMany({
     where: {
       edicion_id: edicionId,
@@ -43,6 +42,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
           id: true,
           name: true,
           email: true,
+          phone: true,
           received_points: {
             where: { expires_at: { gt: now } },
             select: { points: true },
@@ -53,7 +53,32 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
     orderBy: { inscrito_at: 'asc' },
   });
 
-  // Sort by active points descending
+  // Fetch completed courses for all applicants in one query
+  const userIds = inscripciones.map((i) => i.user_id);
+  const completedMap = new Map<string, { tallerName: string; branch: string; completedAt: string | null }[]>();
+
+  if (userIds.length > 0) {
+    const completed = await prisma.inscripcion.findMany({
+      where: { user_id: { in: userIds }, status: 'completado' },
+      select: {
+        user_id: true,
+        aprobado_at: true,
+        edicion: { select: { taller: { select: { name: true, branch: true } } } },
+      },
+      orderBy: { aprobado_at: 'desc' },
+    });
+
+    for (const c of completed) {
+      const list = completedMap.get(c.user_id) ?? [];
+      list.push({
+        tallerName: c.edicion.taller.name,
+        branch: c.edicion.taller.branch,
+        completedAt: c.aprobado_at?.toISOString() ?? null,
+      });
+      completedMap.set(c.user_id, list);
+    }
+  }
+
   const result = inscripciones
     .map((insc) => ({
       id: insc.id,
@@ -70,8 +95,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       profile: {
         name: insc.profile.name,
         email: insc.profile.email,
+        phone: insc.profile.phone,
       },
       activePoints: insc.profile.received_points.reduce((sum, p) => sum + p.points, 0),
+      completedCourses: completedMap.get(insc.user_id) ?? [],
     }))
     .sort((a, b) => b.activePoints - a.activePoints);
 
@@ -101,19 +128,11 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     where: { edicion_id_user_id: { edicion_id: edicionId, user_id: body.user_id } },
     data: {
       status: body.status as 'aceptado',
-      ...(body.notas_coordinador !== undefined
-        ? { notas_coordinador: body.notas_coordinador }
-        : {}),
+      ...(body.notas_coordinador !== undefined ? { notas_coordinador: body.notas_coordinador } : {}),
       ...(body.aprobado !== undefined ? { aprobado: body.aprobado } : {}),
       ...(body.status === 'aceptado' ? { aprobado_at: new Date(), aprobado: true } : {}),
     },
-    select: {
-      id: true,
-      user_id: true,
-      status: true,
-      aprobado: true,
-      notas_coordinador: true,
-    },
+    select: { id: true, user_id: true, status: true, aprobado: true, notas_coordinador: true },
   });
 
   return NextResponse.json(updated);

@@ -64,11 +64,6 @@ export default function EquipmentAdminPanel() {
     await load();
   };
 
-  const handleExport = () => {
-    const blob = new Blob([JSON.stringify({ items, timestamp: new Date().toISOString() }, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'equipment_export.json'; a.click();
-  };
-
   const filtered = items.filter((i) => {
     const matchesCategory = !selectedCategory || i.category === selectedCategory;
     const matchesSearch = !searchQuery || i.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -113,9 +108,6 @@ export default function EquipmentAdminPanel() {
         </select>
         <button onClick={() => setShowAddForm(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm">
           Agregar item
-        </button>
-        <button onClick={handleExport} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm">
-          Exportar JSON
         </button>
       </div>
 

@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -8,17 +9,30 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ── Profiles (extends Supabase auth.users via trigger) ────────────────────────
+// ── Profiles ──────────────────────────────────────────────────────────────────
+// Dual purpose: email whitelist (admin pre-creates with just email, is_registered=false)
+// and personal data store (user fills in after signing up, is_registered=true).
+// The Supabase auth trigger updates the pre-created row on signup instead of inserting.
 
 model Profile {
-  id         String   @id @db.Uuid
-  name       String
-  email      String   @unique
-  rut        String?
-  phone      String?
-  role       UserRole @default(member)
-  avatar_url String?
-  created_at DateTime @default(now())
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String   @default("")
+  email         String   @unique
+  rut           String?
+  phone         String?
+  role          UserRole @default(member)
+  avatar_url    String?
+  is_registered Boolean  @default(false)
+  created_at    DateTime @default(now())
+
+  // Medical / emergency info — filled in by the user for aviso forms
+  blood_type         String?
+  allergies          String?
+  medications        String?
+  medical_conditions String?
+  has_first_aid      Boolean @default(false)
+  emergency_contact  String?
+  emergency_phone    String?
 
   avisos                Aviso[]
   inscripciones         Inscripcion[]
@@ -67,20 +81,6 @@ enum AvisoStatus {
 enum AvisoTipo {
   rapido
   largo
-}
-
-// ── People (club member directory) ───────────────────────────────────────────
-
-model Person {
-  id         Int      @id @default(autoincrement())
-  name       String
-  rut        String?
-  phone      String?
-  email      String?
-  active     Boolean  @default(true)
-  created_at DateTime @default(now())
-
-  @@map("people")
 }
 
 // ── Activities ────────────────────────────────────────────────────────────────
@@ -185,11 +185,10 @@ model EdicionTaller {
   id                  Int           @id @default(autoincrement())
   taller_id           Int
   name                String
-  year                Int
-  semester            Int
   start_date          DateTime?
   end_date            DateTime?
   capacity            Int           @default(20)
+  max_ayudantes       Int           @default(0)
   price               Decimal?      @db.Decimal(10, 2)
   status              EdicionStatus @default(planificada)
   enrollment_open     Boolean       @default(false)

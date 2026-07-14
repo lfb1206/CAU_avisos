@@ -25,6 +25,15 @@ export default function RegisterPage() {
       return;
     }
 
+    // Verify the email is on the admin whitelist before creating the auth user
+    const checkRes = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+    const { allowed } = await checkRes.json().catch(() => ({ allowed: false }));
+    if (!allowed) {
+      setError('Tu correo no está en la lista de socios autorizados. Contacta al administrador del club.');
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signUp({
       email,
