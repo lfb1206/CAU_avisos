@@ -333,8 +333,8 @@ export default function CoordinadorClient({
         ]);
         setCreateModal(false);
         setNewEdicion({
-          taller_id: '', name: '', start_date: '', end_date: '',
-          capacity: 20, max_ayudantes: 0, price: '', required_points: 0, location: '',
+          taller_id: '', start_date: '', end_date: '',
+          capacity: 20, max_ayudantes: 0, required_points: 0,
         });
       } else {
         const data = await res.json();

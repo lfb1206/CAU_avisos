@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 interface SearchParams {
   q?: string;
@@ -23,7 +24,7 @@ export default async function BibliotecaPage({
   const sp = await searchParams;
   const { q, activity, from, to } = sp;
 
-  const where: Parameters<typeof prisma.aviso.findMany>[0]['where'] = {
+  const where: Prisma.AvisoWhereInput = {
     status: 'submitted',
   };
 

@@ -51,7 +51,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
       return {
         ...state,
         [action.section]: {
-          ...(state[action.section as keyof FormState] as Record<string, unknown>),
+          ...(state[action.section as keyof FormState] as unknown as Record<string, unknown>),
           [action.field]: action.value,
         },
       };
@@ -72,7 +72,7 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
 
     case 'UPDATE_ITEM': {
       const arr = Array.isArray(state[action.section as keyof FormState])
-        ? [...(state[action.section as keyof FormState] as Record<string, unknown>[])]
+        ? [...(state[action.section as keyof FormState] as unknown as Record<string, unknown>[])]
         : [];
       if (arr[action.index]) {
         if (action.field !== undefined) {

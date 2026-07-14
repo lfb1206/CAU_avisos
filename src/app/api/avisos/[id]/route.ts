@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const updateAvisoSchema = z.object({
@@ -59,7 +60,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     where: { id: Number(id) },
     data: {
       title: parsed.data.title ?? autoTitle,
-      ...(parsed.data.form_data && { form_data: parsed.data.form_data }),
+      ...(parsed.data.form_data && { form_data: parsed.data.form_data as Prisma.InputJsonValue }),
       ...(parsed.data.status && { status: parsed.data.status }),
     },
   });

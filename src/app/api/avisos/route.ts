@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const createAvisoSchema = z.object({
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
       created_by: user.id,
       title,
       tipo,
-      form_data: formData,
+      form_data: formData as Prisma.InputJsonValue,
       status: 'draft',
     },
   });

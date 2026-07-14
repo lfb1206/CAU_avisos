@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const createTallerSchema = z.object({
@@ -88,6 +89,14 @@ export async function POST(request: NextRequest) {
   const parsed = createTallerSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const taller = await prisma.taller.create({ data: parsed.data });
+  const { content_outline, ...rest } = parsed.data;
+  const taller = await prisma.taller.create({
+    data: {
+      ...rest,
+      ...(content_outline !== undefined
+        ? { content_outline: content_outline as Prisma.InputJsonValue }
+        : {}),
+    },
+  });
   return NextResponse.json(taller, { status: 201 });
 }

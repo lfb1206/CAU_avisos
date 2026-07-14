@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -27,7 +28,16 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const activity = await prisma.activity.update({ where: { id: Number(id) }, data: parsed.data });
+  const { equipment_recommendations, ...rest } = parsed.data;
+  const activity = await prisma.activity.update({
+    where: { id: Number(id) },
+    data: {
+      ...rest,
+      ...(equipment_recommendations !== undefined
+        ? { equipment_recommendations: equipment_recommendations === null ? Prisma.JsonNull : (equipment_recommendations as Prisma.InputJsonValue) }
+        : {}),
+    },
+  });
   return NextResponse.json(activity);
 }
 

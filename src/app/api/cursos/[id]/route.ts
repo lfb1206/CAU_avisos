@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -82,9 +83,15 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const parsed = updateTallerSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
+  const { content_outline, ...rest } = parsed.data;
   const taller = await prisma.taller.update({
     where: { id: Number(id) },
-    data: parsed.data,
+    data: {
+      ...rest,
+      ...(content_outline !== undefined
+        ? { content_outline: content_outline as Prisma.InputJsonValue }
+        : {}),
+    },
   });
 
   return NextResponse.json(taller);

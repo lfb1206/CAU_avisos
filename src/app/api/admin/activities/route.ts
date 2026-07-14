@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
 const activitySchema = z.object({
@@ -33,6 +34,14 @@ export async function POST(request: NextRequest) {
   const parsed = activitySchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const activity = await prisma.activity.create({ data: parsed.data });
+  const { equipment_recommendations, ...rest } = parsed.data;
+  const activity = await prisma.activity.create({
+    data: {
+      ...rest,
+      ...(equipment_recommendations !== undefined
+        ? { equipment_recommendations: equipment_recommendations as Prisma.InputJsonValue }
+        : {}),
+    },
+  });
   return NextResponse.json(activity, { status: 201 });
 }

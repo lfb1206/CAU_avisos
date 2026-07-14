@@ -3,10 +3,10 @@ import React, { useState } from 'react';
 import { wikiexploraChecklists, getAvailableChecklists } from '../../constants/wikiexploraChecklists';
 export default function ChecklistsAdminPanel() {
   const [checklists] = useState(getAvailableChecklists());
-  const [selectedChecklist, setSelectedChecklist] = useState(null);
+  const [selectedChecklist, setSelectedChecklist] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
 
-  const handleViewDetails = (checklistKey) => {
+  const handleViewDetails = (checklistKey: string) => {
     setSelectedChecklist(checklistKey);
     setShowDetails(true);
   };
@@ -14,7 +14,7 @@ export default function ChecklistsAdminPanel() {
   const renderChecklistDetails = () => {
     if (!selectedChecklist) return null;
 
-    const checklist = wikiexploraChecklists[selectedChecklist];
+    const checklist = wikiexploraChecklists[selectedChecklist as keyof typeof wikiexploraChecklists];
     if (!checklist) return null;
 
     return (
@@ -133,7 +133,7 @@ export default function ChecklistsAdminPanel() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {checklists.map((checklist, index) => {
-          const checklistData = wikiexploraChecklists[checklist.value];
+          const checklistData = wikiexploraChecklists[checklist.value as keyof typeof wikiexploraChecklists];
           const totalItems = checklistData.imprescindibles.length + checklistData.aconsejables.length;
           const categories = new Set([
             ...checklistData.imprescindibles.map(i => i.categoria),
