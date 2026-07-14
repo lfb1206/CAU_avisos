@@ -80,7 +80,7 @@ export const carbonEmissionFactors = {
   },
 
   // Factor de ocupación (más pasajeros = menor huella per cápita)
-  getOccupancyFactor: (capacidad, tipo) => {
+  getOccupancyFactor: (capacidad, _tipo) => {
     if (!capacidad) return 1.0;
     const cap = parseInt(capacidad);
     if (cap >= 8) return 0.7;  // Transporte colectivo
