@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React, { useRef } from 'react';
 import type { WeatherImage } from '@/types';

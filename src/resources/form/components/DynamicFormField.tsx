@@ -45,109 +45,112 @@ export default function DynamicFormField({
   const finalPlaceholder = placeholder || defaultPlaceholder;
   const isRequired = required || fieldConfig.required;
 
+  const strValue = typeof value === 'string' ? value : '';
+  const boolValue = typeof value === 'boolean' ? value : false;
+
   const renderField = () => {
     switch (type) {
       case 'text':
         return (
           <input
             type="text"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'email':
         return (
           <input
             type="email"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'tel':
         return (
           <input
             type="tel"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'url':
         return (
           <input
             type="url"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'number':
         return (
           <input
             type="number"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'date':
         return (
           <input
             type="date"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
-            min={min}
+            min={min ?? undefined}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'time':
         return (
           <input
             type="time"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'datetime-local':
         return (
           <input
             type="datetime-local"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
-            min={min}
+            min={min ?? undefined}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
           />
         );
-      
+
       case 'checkbox':
         return (
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
-              checked={value || false}
+              checked={boolValue}
               onChange={(e) => onChange(e.target.checked)}
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
               required={isRequired}
@@ -161,7 +164,7 @@ export default function DynamicFormField({
       case 'select':
         return (
           <select
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
             required={isRequired}
@@ -178,7 +181,7 @@ export default function DynamicFormField({
       case 'textarea':
         return (
           <textarea
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             rows={4}
@@ -191,7 +194,7 @@ export default function DynamicFormField({
         return (
           <input
             type="text"
-            value={value || ''}
+            value={strValue}
             onChange={(e) => onChange(e.target.value)}
             placeholder={finalPlaceholder}
             className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
