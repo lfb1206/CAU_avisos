@@ -5,10 +5,10 @@ import { prisma } from '@/lib/prisma';
 // GET /api/dashboard — current user's profile, recent avisos, active inscripciones
 export async function GET() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   const [profile, avisos, inscripciones] = await Promise.all([
     prisma.profile.findUnique({

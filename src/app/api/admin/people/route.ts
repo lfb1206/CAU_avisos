@@ -8,14 +8,14 @@ const addEmailSchema = z.object({
 });
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
-  return profile?.role === 'admin' ? session.user : null;
+  return profile?.role === 'admin' ? user : null;
 }
 
 // GET /api/admin/people — list all profiles (pre-registered + registered)

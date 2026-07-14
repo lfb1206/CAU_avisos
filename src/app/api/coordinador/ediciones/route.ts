@@ -5,14 +5,14 @@ import { z } from 'zod';
 
 async function guardCoordinador() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
   const profile = await prisma.profile.findUnique({
-    where: { id: session.user.id },
+    where: { id: user.id },
     select: { role: true },
   });
   if (!profile || (profile.role !== 'coordinador' && profile.role !== 'admin')) return null;
-  return session.user;
+  return user;
 }
 
 const createEdicionSchema = z.object({

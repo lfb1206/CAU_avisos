@@ -19,10 +19,10 @@ const updateSchema = z.object({
 // GET /api/perfil — current user's full profile, inscripciones history, points
 export async function GET() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const userId = session.user.id;
+  const userId = user.id;
 
   const [profile, inscripciones, pointsHistory] = await Promise.all([
     prisma.profile.findUnique({ where: { id: userId } }),
@@ -50,15 +50,15 @@ export async function GET() {
 // PATCH /api/perfil — update current user's editable fields
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
   const body = await request.json().catch(() => ({}));
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const profile = await prisma.profile.update({
-    where: { id: session.user.id },
+    where: { id: user.id },
     data: parsed.data,
   });
 
