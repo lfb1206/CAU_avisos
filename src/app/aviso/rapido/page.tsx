@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const CATEGORIAS = [
@@ -62,7 +62,7 @@ const initialForm: FormData = {
 
 const LS_KEY = 'cau_aviso_rapido_draft';
 
-export default function AvisoRapidoPage() {
+function AvisoRapidoContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const avisoId = searchParams.get('id'); // populated when cloning from library
@@ -442,5 +442,13 @@ export default function AvisoRapidoPage() {
         {people.map((p) => <option key={p.nombre} value={p.nombre} />)}
       </datalist>
     </div>
+  );
+}
+
+export default function AvisoRapidoPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Cargando...</p></div>}>
+      <AvisoRapidoContent />
+    </Suspense>
   );
 }
