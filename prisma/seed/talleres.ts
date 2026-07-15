@@ -4,11 +4,60 @@ export async function seedTalleres(prisma: PrismaClient) {
   console.log('Seeding talleres...');
 
   const tallerData = [
-    // Base
+    // M1 sub-talleres (the 6 modules that make up Montañismo Básico M1)
+    {
+      name: 'Técnicas Básicas de Montañismo',
+      description:
+        'Movimiento en terreno de montaña con pendientes hasta 30°, uso de piolet y bastones de trekking. Dos clases teóricas y dos salidas de un día.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 2,
+    },
+    {
+      name: 'Planificación y Gestión del Riesgo',
+      description:
+        'Contexto de la actividad en montaña en Chile, conceptos de riesgo y metodología de planificación y evaluación. Tres clases teóricas, sin salida a terreno.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 3,
+    },
+    {
+      name: 'Técnicas de Campamento y Mínimo Impacto',
+      description:
+        'Instalación segura de campamentos, selección de sitio, principios Leave No Trace, uso y mantención de carpa, saco de dormir y cocinilla. Dos días en terreno.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 4,
+    },
+    {
+      name: 'Primeros Auxilios en Montaña',
+      description:
+        'Evaluación de escena, manejo ABC, lesiones traumáticas, inmovilización y optimización de evacuación. Dos clases teóricas y salida de dos días.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 5,
+    },
+    {
+      name: 'Orientación en Zonas Remotas',
+      description:
+        'Navegación con brújula, mapas topográficos y GPS. Planificación de ruta y navegación con baja visibilidad. Dos días en terreno.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 6,
+    },
+    {
+      name: 'Técnicas Básicas en Nieve',
+      description:
+        'Progresión en terreno invernal y nevado con pendientes bajo 40°. Selección de campamento en nieve, planificación invernal, riesgo de avalanchas básico y auto-detención. Tres días en terreno.',
+      branch: 'base' as const,
+      level: 'introductorio' as const,
+      order_index: 7,
+    },
+    // Legacy base entry (kept for reference, no longer a direct prereq)
     {
       name: 'Montañismo Básico M1',
       description:
-        'Curso introductorio al montañismo. Requisito para todas las líneas avanzadas. Incluye técnicas de marcha, campamento, orientación, primeros auxilios y nieve básica.',
+        'Curso introductorio al montañismo compuesto por 6 módulos: Técnicas Básicas, Gestión del Riesgo, Campamento, Primeros Auxilios, Orientación y Nieve básica.',
       branch: 'base' as const,
       level: 'introductorio' as const,
       order_index: 1,
@@ -136,19 +185,23 @@ export async function seedTalleres(prisma: PrismaClient) {
   const id = (name: string) => byName[name]!;
 
   const prereqs: Record<string, string[]> = {
-    // Roca
-    'Introducción a la Escalada Deportiva': ['Montañismo Básico M1'],
+    // M1 sub-talleres (linear chain with a fork at CAMP)
+    'Planificación y Gestión del Riesgo':      ['Técnicas Básicas de Montañismo'],
+    'Técnicas de Campamento y Mínimo Impacto': ['Planificación y Gestión del Riesgo'],
+    'Primeros Auxilios en Montaña':            ['Técnicas de Campamento y Mínimo Impacto'],
+    'Orientación en Zonas Remotas':            ['Técnicas de Campamento y Mínimo Impacto'],
+    'Técnicas Básicas en Nieve':              ['Primeros Auxilios en Montaña', 'Orientación en Zonas Remotas'],
+
+    // Roca — only direct predecessor to avoid overlapping edges in diagram
+    'Introducción a la Escalada Deportiva': ['Técnicas Básicas en Nieve'],
     'Manejo de Cuerdas': ['Introducción a la Escalada Deportiva'],
     'Aseguramiento y Polipastos': ['Manejo de Cuerdas'],
-    'Evaluación Básica Cuerdas': [
-      'Introducción a la Escalada Deportiva',
-      'Manejo de Cuerdas',
-      'Aseguramiento y Polipastos',
-    ],
+    'Evaluación Básica Cuerdas': ['Aseguramiento y Polipastos'],
     'Escalada en Multilargos': ['Evaluación Básica Cuerdas'],
     'Escalada Tradicional': ['Escalada en Multilargos'],
+
     // Nieve y Hielo
-    'Iniciación a la Alta Montaña': ['Montañismo Básico M1'],
+    'Iniciación a la Alta Montaña': ['Técnicas Básicas en Nieve'],
     Avalanchas: ['Iniciación a la Alta Montaña'],
     'Progresión en Nieve y Hielo': ['Iniciación a la Alta Montaña', 'Evaluación Básica Cuerdas'],
     'Escalada en Hielo': ['Progresión en Nieve y Hielo'],

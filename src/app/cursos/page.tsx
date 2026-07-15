@@ -75,21 +75,37 @@ function getOpenEdicion(taller: TallerRow): EdicionRow | null {
 //   y=265:  M1                        ProgNH
 //   y=375:  IntroEsc  Manejo  Aseg  EvalBásica  Multilargos  EscTrad
 //
+// M1 modules run left (x=-780) to center (x=0), then fan into both branches.
+// 'Montañismo Básico M1' is intentionally absent — not shown as a separate node.
 const POSITIONS: Record<string, { x: number; y: number }> = {
-  'Montañismo Básico M1':                  { x: 0,    y: 265 },
-  'Iniciación a la Alta Montaña':          { x: 195,  y: 150 },
-  'Avalanchas':                            { x: 390,  y: 45  },
-  'Perfeccionamiento de Esquí':            { x: 585,  y: 45  },
-  'Introducción a la Escalada Deportiva':  { x: 195,  y: 375 },
-  'Manejo de Cuerdas':                     { x: 390,  y: 375 },
-  'Aseguramiento y Polipastos':            { x: 585,  y: 375 },
-  'Evaluación Básica Cuerdas':             { x: 780,  y: 375 },
-  'Progresión en Nieve y Hielo':           { x: 975,  y: 265 },
-  'Escalada en Hielo':                     { x: 1170, y: 150 },
-  'Travesía y Autorescate en Glaciar':     { x: 1170, y: 45  },
-  'Técnicas Invernales Avanzadas':         { x: 1365, y: 45  },
-  'Escalada en Multilargos':               { x: 975,  y: 375 },
-  'Escalada Tradicional':                  { x: 1170, y: 375 },
+  // M1 sub-talleres (linear chain with a fork at CAMP)
+  'Técnicas Básicas de Montañismo':          { x: -780, y: 265 },
+  'Planificación y Gestión del Riesgo':       { x: -585, y: 265 },
+  'Técnicas de Campamento y Mínimo Impacto':  { x: -390, y: 265 },
+  'Primeros Auxilios en Montaña':             { x: -195, y: 155 },
+  'Orientación en Zonas Remotas':             { x: -195, y: 375 },
+  'Técnicas Básicas en Nieve':               { x: 0,    y: 265 },
+
+  // Nieve / Hielo branch
+  'Iniciación a la Alta Montaña':            { x: 195,  y: 150 },
+  'Avalanchas':                              { x: 390,  y: 45  },
+  'Perfeccionamiento de Esquí':              { x: 585,  y: 45  },
+
+  // Roca branch
+  'Introducción a la Escalada Deportiva':    { x: 195,  y: 375 },
+  'Manejo de Cuerdas':                       { x: 390,  y: 375 },
+  'Aseguramiento y Polipastos':              { x: 585,  y: 375 },
+  'Evaluación Básica Cuerdas':               { x: 780,  y: 375 },
+
+  // Advanced Nieve / Hielo
+  'Progresión en Nieve y Hielo':             { x: 975,  y: 265 },
+  'Escalada en Hielo':                       { x: 1170, y: 150 },
+  'Travesía y Autorescate en Glaciar':       { x: 1170, y: 45  },
+  'Técnicas Invernales Avanzadas':           { x: 1365, y: 45  },
+
+  // Advanced Roca
+  'Escalada en Multilargos':                 { x: 975,  y: 375 },
+  'Escalada Tradicional':                    { x: 1170, y: 375 },
 };
 
 // ── Custom node ──────────────────────────────────────────────────────────────
@@ -191,7 +207,6 @@ export default function CursosPage() {
           id: `e${prereqId}-${taller.id}`,
           source: String(prereqId),
           target: String(taller.id),
-          type: 'smoothstep',
           animated: status === 'disponible',
           style: { stroke: edgeColor, strokeWidth: 1.5 },
           markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor, width: 14, height: 14 },

@@ -456,9 +456,9 @@ export default function CoordinadorClient({
                           <div className="flex items-center gap-3 flex-shrink-0">
                             <a
                               href={`/coordinador/ediciones/${edicion.id}/ficha`}
-                              className="text-xs px-2 py-1 border border-gray-300 text-gray-600 rounded hover:bg-gray-50"
+                              className="text-xs px-3 py-1.5 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-medium"
                             >
-                              Ficha
+                              Ficha →
                             </a>
                             {!isDone && (
                               <>
