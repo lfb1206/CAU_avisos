@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
 
   // Redirect unauthenticated users away from protected routes
   const protectedPrefixes = ['/aviso', '/dashboard', '/cursos', '/coordinador', '/perfil', '/avisos'];
-  const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
+  const isProtected = pathname === '/' || protectedPrefixes.some((p) => pathname.startsWith(p));
 
   if (!user && isProtected) {
     const loginUrl = request.nextUrl.clone();
@@ -47,7 +47,8 @@ export async function middleware(request: NextRequest) {
   // (middleware can't query the DB without a network-capable runtime here)
 
   // Redirect already-authenticated users away from auth pages
-  if (user && pathname.startsWith('/auth/')) {
+  // Exception: /auth/reset-password/confirm needs a valid session to call updateUser()
+  if (user && pathname.startsWith('/auth/') && pathname !== '/auth/reset-password/confirm') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

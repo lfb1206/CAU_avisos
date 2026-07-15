@@ -1,11 +1,8 @@
-'use client';
-import { FormContextProvider } from '@/resources/contexts/FormContext';
-import MultiStepForm from '@/resources/form/MultiStepForm';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 
-export default function Home() {
-  return (
-    <FormContextProvider>
-      <MultiStepForm />
-    </FormContextProvider>
-  );
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  redirect(user ? '/dashboard' : '/auth/login');
 }

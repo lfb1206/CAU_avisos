@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,9 +28,14 @@ export default function RegisterPage() {
 
     // Verify the email is on the admin whitelist before creating the auth user
     const checkRes = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
-    const { allowed } = await checkRes.json().catch(() => ({ allowed: false }));
+    const { allowed, reason } = await checkRes.json().catch(() => ({ allowed: false, reason: 'error' }));
     if (!allowed) {
-      setError('Tu correo no está en la lista de socios autorizados. Contacta al administrador del club.');
+      if (reason === 'already_registered') {
+        setError('Ya existe una cuenta con ese correo. ¿Olvidaste tu contraseña?');
+        setAlreadyRegistered(true);
+      } else {
+        setError('Tu correo no está en la lista de socios autorizados. Contacta al administrador del club.');
+      }
       setLoading(false);
       return;
     }
@@ -93,6 +99,11 @@ export default function RegisterPage() {
           {error && (
             <div className="rounded-md bg-red-50 border border-red-200 p-4">
               <p className="text-sm text-red-700">{error}</p>
+              {alreadyRegistered && (
+                <Link href="/auth/reset-password" className="text-sm text-blue-600 hover:text-blue-500 font-medium mt-1 inline-block">
+                  Restablecer contraseña →
+                </Link>
+              )}
             </div>
           )}
 

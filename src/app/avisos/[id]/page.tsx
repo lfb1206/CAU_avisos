@@ -13,7 +13,7 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/auth/login');
 
-  const aviso = await prisma.aviso.findUnique({
+  const aviso = await prisma.aviso.findFirst({
     where: { id: Number(id), status: 'submitted' },
     include: { profile: { select: { name: true } } },
   });

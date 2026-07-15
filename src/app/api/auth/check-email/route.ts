@@ -7,10 +7,13 @@ export async function GET(request: NextRequest) {
   const email = request.nextUrl.searchParams.get('email')?.toLowerCase().trim();
   if (!email) return NextResponse.json({ allowed: false });
 
-  const profile = await prisma.profile.findFirst({
-    where: { email, is_registered: false },
-    select: { id: true },
+  const existing = await prisma.profile.findFirst({
+    where: { email },
+    select: { id: true, is_registered: true },
   });
 
-  return NextResponse.json({ allowed: !!profile });
+  if (!existing) return NextResponse.json({ allowed: false, reason: 'not_whitelisted' });
+  if (existing.is_registered) return NextResponse.json({ allowed: false, reason: 'already_registered' });
+
+  return NextResponse.json({ allowed: true });
 }
