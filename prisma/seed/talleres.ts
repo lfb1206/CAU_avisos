@@ -111,6 +111,14 @@ export async function seedTalleres(prisma: PrismaClient) {
       level: 'avanzado' as const,
       order_index: 6,
     },
+    {
+      name: 'Perfeccionamiento de Esquí',
+      description:
+        'Técnica avanzada de esquí en terreno de montaña: control en nieve variable, virajes en pendientes pronunciadas, descenso fuera de pistas y uso del esquí como herramienta de progresión en alta montaña.',
+      branch: 'nieve_hielo' as const,
+      level: 'intermedio_avanzado' as const,
+      order_index: 7,
+    },
   ];
 
   const created: { id: number; name: string }[] = [];
@@ -146,6 +154,7 @@ export async function seedTalleres(prisma: PrismaClient) {
     'Escalada en Hielo': ['Progresión en Nieve y Hielo'],
     'Travesía y Autorescate en Glaciar': ['Progresión en Nieve y Hielo'],
     'Técnicas Invernales Avanzadas': ['Travesía y Autorescate en Glaciar'],
+    'Perfeccionamiento de Esquí': ['Iniciación a la Alta Montaña', 'Avalanchas'],
   };
 
   for (const [name, prereqNames] of Object.entries(prereqs)) {
