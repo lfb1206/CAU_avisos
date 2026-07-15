@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 export async function seedTalleres(prisma: PrismaClient) {
   console.log('Seeding talleres...');
 
-  // Create talleres without prerequisites first
   const tallerData = [
     // Base
     {
@@ -26,7 +25,7 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       name: 'Manejo de Cuerdas',
       description:
-        'Nudos, sistemas de aseguramiento, montaje de rápeles y gestión de la cuerda en distintos terrenos.',
+        'Rappel, ascenso por cuerda, anclajes naturales y resolución de problemas con cuerda en distintos terrenos.',
       branch: 'roca' as const,
       level: 'intermedio' as const,
       order_index: 2,
@@ -34,10 +33,18 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       name: 'Aseguramiento y Polipastos',
       description:
-        'Sistemas de aseguramiento avanzados, polipastos de rescate y autosalvamento en vía.',
+        'Aseguramiento alpino, sistemas de polipastos para rescate e izado de cargas.',
       branch: 'roca' as const,
       level: 'intermedio' as const,
       order_index: 3,
+    },
+    {
+      name: 'Evaluación Básica Cuerdas',
+      description:
+        'Hito evaluativo que valida las competencias adquiridas en los tres talleres iniciales de la línea de roca: ascenso/descenso por cuerda, anclajes naturales, polipastos y aseguramientos alpinos.',
+      branch: 'roca' as const,
+      level: 'intermedio' as const,
+      order_index: 4,
     },
     {
       name: 'Escalada en Multilargos',
@@ -45,7 +52,7 @@ export async function seedTalleres(prisma: PrismaClient) {
         'Gestión de reuniones, comunicación en ruta y técnicas para rutas de varios largos.',
       branch: 'roca' as const,
       level: 'intermedio_avanzado' as const,
-      order_index: 4,
+      order_index: 5,
     },
     {
       name: 'Escalada Tradicional',
@@ -53,7 +60,7 @@ export async function seedTalleres(prisma: PrismaClient) {
         'Colocación de protecciones en fisuras, evaluación de roca y construcción de reuniones tradicionales.',
       branch: 'roca' as const,
       level: 'avanzado' as const,
-      order_index: 5,
+      order_index: 6,
     },
     // Nieve y Hielo
     {
@@ -106,7 +113,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     },
   ];
 
-  // Upsert talleres
   const created: { id: number; name: string }[] = [];
   for (const t of tallerData) {
     const taller = await prisma.taller.upsert({
@@ -118,21 +124,26 @@ export async function seedTalleres(prisma: PrismaClient) {
     created.push(taller);
   }
 
-  // Map names to IDs
   const byName = Object.fromEntries(created.map((t) => [t.name, t.id]));
   const id = (name: string) => byName[name]!;
 
-  // Update prerequisites
   const prereqs: Record<string, string[]> = {
+    // Roca
     'Introducción a la Escalada Deportiva': ['Montañismo Básico M1'],
     'Manejo de Cuerdas': ['Introducción a la Escalada Deportiva'],
     'Aseguramiento y Polipastos': ['Manejo de Cuerdas'],
-    'Escalada en Multilargos': ['Aseguramiento y Polipastos'],
+    'Evaluación Básica Cuerdas': [
+      'Introducción a la Escalada Deportiva',
+      'Manejo de Cuerdas',
+      'Aseguramiento y Polipastos',
+    ],
+    'Escalada en Multilargos': ['Evaluación Básica Cuerdas'],
     'Escalada Tradicional': ['Escalada en Multilargos'],
+    // Nieve y Hielo
     'Iniciación a la Alta Montaña': ['Montañismo Básico M1'],
     Avalanchas: ['Iniciación a la Alta Montaña'],
-    'Progresión en Nieve y Hielo': ['Iniciación a la Alta Montaña'],
-    'Escalada en Hielo': ['Progresión en Nieve y Hielo', 'Escalada en Multilargos'],
+    'Progresión en Nieve y Hielo': ['Iniciación a la Alta Montaña', 'Evaluación Básica Cuerdas'],
+    'Escalada en Hielo': ['Progresión en Nieve y Hielo'],
     'Travesía y Autorescate en Glaciar': ['Progresión en Nieve y Hielo'],
     'Técnicas Invernales Avanzadas': ['Travesía y Autorescate en Glaciar'],
   };
@@ -144,13 +155,11 @@ export async function seedTalleres(prisma: PrismaClient) {
     });
   }
 
-  // Seed sample ediciones for 2026 S1
+  // Sample ediciones for 2026
   const edicionData = [
     {
       taller: 'Montañismo Básico M1',
       name: 'M1 2026-1',
-      year: 2026,
-      semester: 1,
       capacity: 25,
       price: 0,
       start_date: new Date('2026-03-14'),
@@ -161,8 +170,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Introducción a la Escalada Deportiva',
       name: 'Intro 1 2026',
-      year: 2026,
-      semester: 1,
       capacity: 12,
       price: 40000,
       start_date: new Date('2026-04-11'),
@@ -173,8 +180,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Introducción a la Escalada Deportiva',
       name: 'Intro 2 2026',
-      year: 2026,
-      semester: 1,
       capacity: 12,
       price: 40000,
       start_date: new Date('2026-05-09'),
@@ -185,8 +190,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Manejo de Cuerdas',
       name: 'Manejo 1 2026',
-      year: 2026,
-      semester: 1,
       capacity: 10,
       price: 40000,
       start_date: new Date('2026-05-30'),
@@ -197,8 +200,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Aseguramiento y Polipastos',
       name: 'Poli 1 2026',
-      year: 2026,
-      semester: 1,
       capacity: 10,
       price: 40000,
       start_date: new Date('2026-06-27'),
@@ -209,8 +210,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Escalada en Multilargos',
       name: 'Multi 1 2026',
-      year: 2026,
-      semester: 1,
       capacity: 8,
       price: 55000,
       start_date: new Date('2026-04-04'),
@@ -221,8 +220,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Iniciación a la Alta Montaña',
       name: 'IAM 1 2026',
-      year: 2026,
-      semester: 1,
       capacity: 15,
       price: 40000,
       start_date: new Date('2026-05-03'),
@@ -233,8 +230,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Progresión en Nieve y Hielo',
       name: 'PNH 1 2026',
-      year: 2026,
-      semester: 2,
       capacity: 10,
       price: 55000,
       start_date: new Date('2026-08-01'),
@@ -245,8 +240,6 @@ export async function seedTalleres(prisma: PrismaClient) {
     {
       taller: 'Escalada en Hielo',
       name: 'Hielo 1 2026',
-      year: 2026,
-      semester: 2,
       capacity: 8,
       price: 55000,
       start_date: new Date('2026-08-01'),
@@ -260,16 +253,10 @@ export async function seedTalleres(prisma: PrismaClient) {
     const tallerId = id(e.taller);
     await prisma.edicionTaller.upsert({
       where: { taller_id_name: { taller_id: tallerId, name: e.name } },
-      update: {
-        capacity: e.capacity,
-        enrollment_open: e.enrollment_open,
-        required_points: e.required_points,
-      },
+      update: { capacity: e.capacity, enrollment_open: e.enrollment_open },
       create: {
         taller_id: tallerId,
         name: e.name,
-        year: e.year,
-        semester: e.semester,
         start_date: e.start_date,
         end_date: e.end_date,
         capacity: e.capacity,

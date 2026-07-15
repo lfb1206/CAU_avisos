@@ -28,12 +28,13 @@ const patchEdicionSchema = z.object({
   capacity: z.number().int().optional(),
   max_ayudantes: z.number().int().optional(),
   price: z.number().nullable().optional(),
+  price_student: z.number().nullable().optional(),
   required_points: z.number().int().optional(),
-  location: z.string().nullable().optional(),
-  notas: z.string().nullable().optional(),
+  profesor: z.string().nullable().optional(),
+  fecha_clases: z.string().nullable().optional(),
+  fecha_salida: z.string().nullable().optional(),
   start_date: z.string().nullable().optional(),
   end_date: z.string().nullable().optional(),
-  coordinador_id: z.string().uuid().nullable().optional(),
 });
 
 // PATCH /api/coordinador/ediciones/[id] — update edicion settings

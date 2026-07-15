@@ -34,12 +34,11 @@ model Profile {
   emergency_contact  String?
   emergency_phone    String?
 
-  avisos                Aviso[]
-  inscripciones         Inscripcion[]
-  ayudantias            Ayudantia[]
-  coordinadas_ediciones EdicionTaller[] @relation("coordinador_edicion")
-  received_points       CoursePoints[]  @relation("recipient")
-  awarded_points        CoursePoints[]  @relation("awarder")
+  avisos          Aviso[]
+  inscripciones   Inscripcion[]
+  ayudantias      Ayudantia[]
+  received_points CoursePoints[] @relation("recipient")
+  awarded_points  CoursePoints[] @relation("awarder")
 
   @@map("profiles")
 }
@@ -160,6 +159,27 @@ model Taller {
   prerequisite_taller_ids Int[]        @default([])
   content_outline         Json?
 
+  // Curriculum fields (from Excel ficha template)
+  objetivo              String?
+  contenidos            String?
+  habilidades           String?
+  equipo_personal       String?
+  equipo_recomendado    String?
+  equipo_cau            String?
+  evaluacion_metodo     String?
+  lugar_tipico          String?
+  condiciones_lugar     String?
+  requisitos_personales String?
+  observaciones         String?
+  rutas_posibles        String?
+  bibliografia          String?
+  prueba_convalidacion  String?
+  horas_clases          Float?
+  horas_practica        Float?
+  horas_evaluacion      Float?
+  dias_terreno          Float?
+  dias_traslado         Float?
+
   ediciones EdicionTaller[]
 
   @@unique([name, branch])
@@ -190,16 +210,16 @@ model EdicionTaller {
   capacity            Int           @default(20)
   max_ayudantes       Int           @default(0)
   price               Decimal?      @db.Decimal(10, 2)
+  price_student       Decimal?      @db.Decimal(10, 2)
   status              EdicionStatus @default(planificada)
   enrollment_open     Boolean       @default(false)
   enrollment_opens_at DateTime?
   required_points     Int           @default(0)
-  coordinador_id      String?       @db.Uuid
-  location            String?
-  notas               String?
+  profesor            String?
+  fecha_clases        String?
+  fecha_salida        String?
 
   taller        Taller         @relation(fields: [taller_id], references: [id])
-  coordinador   Profile?       @relation("coordinador_edicion", fields: [coordinador_id], references: [id])
   inscripciones Inscripcion[]
   ayudantias    Ayudantia[]
   course_points CoursePoints[]

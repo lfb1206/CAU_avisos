@@ -453,48 +453,56 @@ export default function CoordinadorClient({
                           </div>
 
                           {/* Actions */}
-                          {!isDone && (
-                            <div className="flex items-center gap-3 flex-shrink-0">
-                              {/* Status progression */}
-                              {(edicion.status === 'planificada' || edicion.status === 'inscripciones_abiertas') && (
-                                <button
-                                  onClick={() => handleStatusChange(edicion.id, 'en_curso')}
-                                  className="text-xs px-2 py-1 border border-green-300 text-green-700 rounded hover:bg-green-50"
-                                >
-                                  → En curso
-                                </button>
-                              )}
-                              {edicion.status === 'en_curso' && (
-                                <button
-                                  onClick={() => handleStatusChange(edicion.id, 'finalizada')}
-                                  className="text-xs px-2 py-1 border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
-                                >
-                                  → Finalizar
-                                </button>
-                              )}
-
-                              {/* Enrollment toggle — hidden once course is running */}
-                              {edicion.status !== 'en_curso' && (
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs text-gray-500">
-                                    {edicion.enrollment_open ? 'Inscripciones abiertas' : 'Inscripciones cerradas'}
-                                  </span>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <a
+                              href={`/coordinador/ediciones/${edicion.id}/ficha`}
+                              className="text-xs px-2 py-1 border border-gray-300 text-gray-600 rounded hover:bg-gray-50"
+                            >
+                              Ficha
+                            </a>
+                            {!isDone && (
+                              <>
+                                {/* Status progression */}
+                                {(edicion.status === 'planificada' || edicion.status === 'inscripciones_abiertas') && (
                                   <button
-                                    onClick={() => toggleEnrollment(edicion.id, edicion.enrollment_open)}
-                                    disabled={toggling === edicion.id}
-                                    aria-label={edicion.enrollment_open ? 'Cerrar inscripciones' : 'Abrir inscripciones'}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                                      edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300'
-                                    }`}
+                                    onClick={() => handleStatusChange(edicion.id, 'en_curso')}
+                                    className="text-xs px-2 py-1 border border-green-300 text-green-700 rounded hover:bg-green-50"
                                   >
-                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-                                      edicion.enrollment_open ? 'translate-x-6' : 'translate-x-1'
-                                    }`} />
+                                    → En curso
                                   </button>
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                )}
+                                {edicion.status === 'en_curso' && (
+                                  <button
+                                    onClick={() => handleStatusChange(edicion.id, 'finalizada')}
+                                    className="text-xs px-2 py-1 border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                  >
+                                    → Finalizar
+                                  </button>
+                                )}
+
+                                {/* Enrollment toggle — hidden once course is running */}
+                                {edicion.status !== 'en_curso' && (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-500">
+                                      {edicion.enrollment_open ? 'Inscripciones abiertas' : 'Inscripciones cerradas'}
+                                    </span>
+                                    <button
+                                      onClick={() => toggleEnrollment(edicion.id, edicion.enrollment_open)}
+                                      disabled={toggling === edicion.id}
+                                      aria-label={edicion.enrollment_open ? 'Cerrar inscripciones' : 'Abrir inscripciones'}
+                                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
+                                        edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300'
+                                      }`}
+                                    >
+                                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                                        edicion.enrollment_open ? 'translate-x-6' : 'translate-x-1'
+                                      }`} />
+                                    </button>
+                                  </div>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
