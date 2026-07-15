@@ -1,10 +1,24 @@
 'use client';
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  Handle,
+  Position,
+  MarkerType,
+  type Node,
+  type Edge,
+  type NodeMouseHandler,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import CourseCard from '@/resources/courses/CourseCard';
 import type { MemberCourseStatus } from '@/types';
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+// ── Types ────────────────────────────────────────────────────────────────────
 
 type EdicionRow = {
   id: number;
@@ -30,6 +44,8 @@ type TallerRow = {
   ediciones: EdicionRow[];
 };
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
 function resolveMemberStatus(
   taller: TallerRow,
   completedIds: Set<number>,
@@ -42,238 +58,280 @@ function resolveMemberStatus(
   return prereqsMet ? 'disponible' : 'bloqueado';
 }
 
-function getOpenEdicion(taller: TallerRow) {
-  return taller.ediciones.find(
-    (e) => e.enrollment_open && e.status !== 'cancelada' && e.status !== 'finalizada'
-  ) ?? null;
-}
-
-function Skeleton({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />;
-}
-
-function BranchColumn({
-  title,
-  talleres,
-  completedIds,
-  allTalleres,
-  isLoggedIn,
-  userActivePoints,
-}: {
-  title: string;
-  talleres: TallerRow[];
-  completedIds: Set<number>;
-  allTalleres: TallerRow[];
-  isLoggedIn: boolean;
-  userActivePoints: number;
-}) {
-  const tallerMap = new Map(allTalleres.map((t) => [t.id, t.name]));
-
+function getOpenEdicion(taller: TallerRow): EdicionRow | null {
   return (
-    <div className="flex-1 min-w-0">
-      <h2 className="text-center font-bold text-lg text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">
-        {title}
-      </h2>
-      <div className="space-y-3">
-        {talleres.map((taller, idx) => {
-          const status = resolveMemberStatus(taller, completedIds, isLoggedIn);
-          const openEdicion = getOpenEdicion(taller);
-          const userInscripcionStatus = openEdicion
-            ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ?? null)
-            : null;
-          const isAyudante = openEdicion
-            ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
-            : false;
-          const missingPrerequisiteNames =
-            status === 'bloqueado'
-              ? taller.prerequisite_taller_ids
-                  .filter((pid) => !completedIds.has(pid))
-                  .map((pid) => tallerMap.get(pid) ?? `Taller #${pid}`)
-              : [];
-
-          return (
-            <div key={taller.id} className="relative">
-              <CourseCard
-                id={taller.id}
-                name={taller.name}
-                description={taller.description}
-                level={taller.level}
-                status={status}
-                openEdicion={
-                  openEdicion
-                    ? {
-                        id: openEdicion.id,
-                        name: openEdicion.name,
-                        start_date: openEdicion.start_date,
-                        capacity: openEdicion.capacity,
-                        required_points: openEdicion.required_points,
-                        _count: openEdicion._count,
-                      }
-                    : null
-                }
-                userInscripcionStatus={userInscripcionStatus}
-                isAyudante={isAyudante}
-                missingPrerequisiteNames={missingPrerequisiteNames}
-                userActivePoints={userActivePoints}
-              />
-              {idx < talleres.length - 1 && (
-                <div className="flex justify-center my-1">
-                  <svg className="w-4 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    taller.ediciones.find(
+      (e) => e.enrollment_open && e.status !== 'cancelada' && e.status !== 'finalizada'
+    ) ?? null
   );
 }
 
+// ── Fixed node positions (x, y = top-left corner) ────────────────────────────
+//
+// Layout (each column = 195px, each row = 125px):
+//
+//   y=45:   Avalanchas  PerfEsquí                 Travesía   TecnInv
+//   y=150:  IAM                                   EscHielo
+//   y=265:  M1                        ProgNH
+//   y=375:  IntroEsc  Manejo  Aseg  EvalBásica  Multilargos  EscTrad
+//
+const POSITIONS: Record<string, { x: number; y: number }> = {
+  'Montañismo Básico M1':                  { x: 0,    y: 265 },
+  'Iniciación a la Alta Montaña':          { x: 195,  y: 150 },
+  'Avalanchas':                            { x: 390,  y: 45  },
+  'Perfeccionamiento de Esquí':            { x: 585,  y: 45  },
+  'Introducción a la Escalada Deportiva':  { x: 195,  y: 375 },
+  'Manejo de Cuerdas':                     { x: 390,  y: 375 },
+  'Aseguramiento y Polipastos':            { x: 585,  y: 375 },
+  'Evaluación Básica Cuerdas':             { x: 780,  y: 375 },
+  'Progresión en Nieve y Hielo':           { x: 975,  y: 265 },
+  'Escalada en Hielo':                     { x: 1170, y: 150 },
+  'Travesía y Autorescate en Glaciar':     { x: 1170, y: 45  },
+  'Técnicas Invernales Avanzadas':         { x: 1365, y: 45  },
+  'Escalada en Multilargos':               { x: 975,  y: 375 },
+  'Escalada Tradicional':                  { x: 1170, y: 375 },
+};
+
+// ── Custom node ──────────────────────────────────────────────────────────────
+
+type CourseNodeData = {
+  name: string;
+  status: MemberCourseStatus;
+  requiredPoints: number;
+};
+
+function CourseFlowNode({ data, selected }: { data: CourseNodeData; selected: boolean }) {
+  const border =
+    data.status === 'completado'
+      ? 'border-green-400 bg-green-50'
+      : data.status === 'disponible'
+      ? 'border-blue-400 bg-white'
+      : 'border-gray-200 bg-gray-50';
+
+  const ring = selected ? 'ring-2 ring-offset-1 ring-blue-500' : '';
+  const text = data.status === 'bloqueado' ? 'text-gray-400' : 'text-gray-900';
+
+  return (
+    <>
+      <Handle type="target" position={Position.Left} style={{ opacity: 0, pointerEvents: 'none' }} />
+      <div className={`border-2 rounded-xl px-3 py-2.5 w-[165px] shadow-sm transition-all cursor-pointer select-none ${border} ${ring}`}>
+        <p className={`text-[11px] font-semibold leading-snug ${text}`}>{data.name}</p>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          {data.status === 'completado' && (
+            <span className="text-[10px] font-bold text-green-700">✓ Completado</span>
+          )}
+          {data.status === 'bloqueado' && (
+            <span className="text-[10px] text-gray-400">🔒 Pendiente</span>
+          )}
+          {data.status === 'disponible' && (
+            <span className="text-[10px] font-medium text-blue-600">Disponible</span>
+          )}
+          {data.requiredPoints > 0 && (
+            <span className="ml-auto text-[10px] text-gray-400">{data.requiredPoints} pts</span>
+          )}
+        </div>
+      </div>
+      <Handle type="source" position={Position.Right} style={{ opacity: 0, pointerEvents: 'none' }} />
+    </>
+  );
+}
+
+const nodeTypes = { course: CourseFlowNode };
+
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function CursosPage() {
   const { data, isLoading } = useSWR('/api/cursos', fetcher);
+  const [selectedTaller, setSelectedTaller] = useState<TallerRow | null>(null);
 
   const talleres: TallerRow[] = data?.talleres ?? [];
   const userActivePoints: number = data?.userActivePoints ?? 0;
   const isLoggedIn = data !== undefined && !data?.error;
 
-  const completedTallerIds = new Set<number>();
-  for (const t of talleres) {
-    if (t.branch === 'base') {
-      if (isLoggedIn) completedTallerIds.add(t.id);
-    } else if (t.ediciones.some((e) => e.inscripciones.some((i) => i.status === 'completado'))) {
-      completedTallerIds.add(t.id);
+  const completedIds = useMemo(() => {
+    const s = new Set<number>();
+    for (const t of talleres) {
+      if (t.branch === 'base' && isLoggedIn) s.add(t.id);
+      else if (t.ediciones.some((e) => e.inscripciones.some((i) => i.status === 'completado'))) {
+        s.add(t.id);
+      }
     }
-  }
+    return s;
+  }, [talleres, isLoggedIn]);
 
-  const baseTalleres = talleres.filter((t) => t.branch === 'base');
-  const nieveTalleres = talleres.filter((t) => t.branch === 'nieve_hielo');
-  const rocaTalleres = talleres.filter((t) => t.branch === 'roca');
+  const tallerMap = useMemo(() => new Map(talleres.map((t) => [String(t.id), t])), [talleres]);
+
+  const { nodes, edges } = useMemo<{ nodes: Node[]; edges: Edge[] }>(() => {
+    const nodes: Node[] = [];
+    const edges: Edge[] = [];
+
+    for (const taller of talleres) {
+      const pos = POSITIONS[taller.name];
+      if (!pos) continue;
+
+      const status = resolveMemberStatus(taller, completedIds, isLoggedIn);
+      const openEdicion = getOpenEdicion(taller);
+
+      nodes.push({
+        id: String(taller.id),
+        type: 'course',
+        position: pos,
+        draggable: false,
+        selectable: true,
+        data: {
+          name: taller.name,
+          status,
+          requiredPoints: openEdicion?.required_points ?? 0,
+        },
+      });
+
+      for (const prereqId of taller.prerequisite_taller_ids) {
+        const edgeColor = status === 'bloqueado' ? '#e5e7eb' : '#9ca3af';
+        edges.push({
+          id: `e${prereqId}-${taller.id}`,
+          source: String(prereqId),
+          target: String(taller.id),
+          type: 'smoothstep',
+          animated: status === 'disponible',
+          style: { stroke: edgeColor, strokeWidth: 1.5 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: edgeColor, width: 14, height: 14 },
+        });
+      }
+    }
+
+    return { nodes, edges };
+  }, [talleres, completedIds, isLoggedIn]);
+
+  const handleNodeClick: NodeMouseHandler = useCallback(
+    (_event, node) => {
+      const taller = tallerMap.get(node.id);
+      setSelectedTaller(taller ?? null);
+    },
+    [tallerMap]
+  );
+
+  // Derive props for the detail panel
+  const panelStatus = selectedTaller
+    ? resolveMemberStatus(selectedTaller, completedIds, isLoggedIn)
+    : null;
+  const panelOpenEdicion = selectedTaller ? getOpenEdicion(selectedTaller) : null;
+  const panelInscripcionStatus =
+    panelOpenEdicion
+      ? (selectedTaller?.ediciones.find((e) => e.id === panelOpenEdicion.id)
+          ?.inscripciones[0]?.status ?? null)
+      : null;
+  const panelIsAyudante =
+    panelOpenEdicion
+      ? (selectedTaller?.ediciones.some(
+          (e) => e.id === panelOpenEdicion.id && e.ayudantias.length > 0
+        ) ?? false)
+      : false;
+  const panelMissingPrereqs =
+    panelStatus === 'bloqueado' && selectedTaller
+      ? selectedTaller.prerequisite_taller_ids
+          .filter((pid) => !completedIds.has(pid))
+          .map((pid) => talleres.find((t) => t.id === pid)?.name ?? `Taller #${pid}`)
+      : [];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Talleres del Club</h1>
-        <p className="mt-2 text-gray-600">
-          Ruta de formación CAU — completa los talleres en orden para avanzar en tu camino alpinista.
-        </p>
-        {!isLoading && !isLoggedIn && (
-          <p className="mt-3 text-sm text-blue-700 bg-blue-50 inline-block px-4 py-2 rounded-full">
-            <a href="/auth/login" className="font-medium hover:underline">Inicia sesión</a>{' '}
-            para ver tu progreso y postular a ediciones.
-          </p>
-        )}
-        {!isLoading && isLoggedIn && userActivePoints > 0 && (
-          <p className="mt-3 text-sm text-purple-700 bg-purple-50 inline-block px-4 py-2 rounded-full">
-            Tienes <strong>{userActivePoints} punto{userActivePoints !== 1 ? 's' : ''}</strong> activos
-          </p>
-        )}
+    <div className="relative" style={{ height: 'calc(100vh - 64px)' }}>
+
+      {/* Floating top bar */}
+      <div className="absolute top-3 left-0 right-0 z-10 flex justify-center pointer-events-none">
+        <div className="bg-white/90 backdrop-blur rounded-2xl px-5 py-2.5 shadow-sm text-center pointer-events-auto">
+          <h1 className="text-base font-bold text-gray-900">Talleres del Club Andino Universitario</h1>
+          <p className="text-xs text-gray-500 mt-0.5">Haz clic en un taller para ver detalles · Rueda para hacer zoom · Arrastra para mover</p>
+          {!isLoading && !isLoggedIn && (
+            <p className="text-xs text-blue-700 mt-1">
+              <a href="/auth/login" className="font-semibold hover:underline">Inicia sesión</a> para ver tu progreso y postular
+            </p>
+          )}
+          {!isLoading && isLoggedIn && userActivePoints > 0 && (
+            <p className="text-xs text-purple-700 mt-0.5 font-medium">
+              {userActivePoints} punto{userActivePoints !== 1 ? 's' : ''} activos
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="absolute bottom-16 left-4 z-10 bg-white/90 backdrop-blur rounded-xl px-3 py-2.5 shadow-sm">
+        <div className="space-y-1.5">
+          {[
+            { cls: 'border-green-400 bg-green-50', label: 'Completado' },
+            { cls: 'border-blue-400 bg-white', label: 'Disponible' },
+            { cls: 'border-gray-200 bg-gray-50', label: 'Pendiente de prerequisitos' },
+          ].map(({ cls, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className={`w-4 h-3 rounded border-2 ${cls}`} />
+              <span className="text-[10px] text-gray-600">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="space-y-6">
-          <Skeleton className="h-40 max-w-sm mx-auto" />
-          <div className="flex gap-6">
-            <div className="flex-1 space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28" />)}
-            </div>
-            <div className="flex-1 space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-28" />)}
-            </div>
-          </div>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-sm text-gray-400">Cargando talleres…</div>
         </div>
       ) : (
-        <>
-          {/* Foundation taller — spans both columns */}
-          {baseTalleres.map((taller) => {
-            const status = resolveMemberStatus(taller, completedTallerIds, isLoggedIn);
-            const openEdicion = getOpenEdicion(taller);
-            const userInscripcionStatus = openEdicion
-              ? (taller.ediciones.find((e) => e.id === openEdicion.id)?.inscripciones[0]?.status ?? null)
-              : null;
-            const isAyudante = openEdicion
-              ? taller.ediciones.some((e) => e.id === openEdicion.id && e.ayudantias.length > 0)
-              : false;
-
-            return (
-              <div key={taller.id} className="mb-6">
-                <div className="max-w-sm mx-auto">
-                  <CourseCard
-                    id={taller.id}
-                    name={taller.name}
-                    description={taller.description}
-                    level={taller.level}
-                    status={status}
-                    openEdicion={
-                      openEdicion
-                        ? {
-                            id: openEdicion.id,
-                            name: openEdicion.name,
-                            start_date: openEdicion.start_date,
-                            capacity: openEdicion.capacity,
-                            required_points: openEdicion.required_points,
-                            _count: openEdicion._count,
-                          }
-                        : null
-                    }
-                    userInscripcionStatus={userInscripcionStatus}
-                    isAyudante={isAyudante}
-                    userActivePoints={userActivePoints}
-                  />
-                </div>
-                <div className="flex justify-center mt-2 mb-4">
-                  <div className="flex gap-12">
-                    {[0, 1].map((i) => (
-                      <div key={i} className="flex flex-col items-center">
-                        <div className="w-px h-4 bg-gray-300" />
-                        <div className="w-24 h-px bg-gray-300" />
-                        <div className="w-px h-4 bg-gray-300" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Two-column branch view */}
-          <div className="flex gap-6 items-start">
-            <BranchColumn
-              title="Nieve / Hielo"
-              talleres={nieveTalleres}
-              completedIds={completedTallerIds}
-              allTalleres={talleres}
-              isLoggedIn={isLoggedIn}
-              userActivePoints={userActivePoints}
-            />
-            <div className="w-px bg-gray-200 self-stretch hidden sm:block" />
-            <BranchColumn
-              title="Roca"
-              talleres={rocaTalleres}
-              completedIds={completedTallerIds}
-              allTalleres={talleres}
-              isLoggedIn={isLoggedIn}
-              userActivePoints={userActivePoints}
-            />
-          </div>
-        </>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={nodeTypes}
+          onNodeClick={handleNodeClick}
+          fitView
+          fitViewOptions={{ padding: 0.15 }}
+          minZoom={0.2}
+          maxZoom={2}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          zoomOnDoubleClick={false}
+        >
+          <Background gap={28} size={1} color="#e5e7eb" />
+          <Controls position="bottom-right" showInteractive={false} />
+        </ReactFlow>
       )}
 
-      {/* Legend */}
-      <div className="mt-10 flex flex-wrap gap-4 justify-center text-xs text-gray-600">
-        {[
-          { color: 'bg-green-400', label: 'Completado' },
-          { color: 'bg-blue-400', label: 'Disponible — edición abierta' },
-          { color: 'bg-purple-400', label: 'Ayudante registrado' },
-          { color: 'bg-gray-300', label: 'Bloqueado (prerequisitos pendientes)' },
-        ].map(({ color, label }) => (
-          <div key={label} className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${color}`} />
-            <span>{label}</span>
+      {/* Detail panel */}
+      {selectedTaller && panelStatus && (
+        <div className="absolute right-0 top-0 bottom-0 w-80 z-20 bg-white shadow-2xl border-l border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <span className="text-sm font-semibold text-gray-800">Detalle del taller</span>
+            <button
+              onClick={() => setSelectedTaller(null)}
+              className="text-gray-400 hover:text-gray-700 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"
+            >
+              ×
+            </button>
           </div>
-        ))}
-      </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <CourseCard
+              id={selectedTaller.id}
+              name={selectedTaller.name}
+              description={selectedTaller.description}
+              level={selectedTaller.level}
+              status={panelStatus}
+              openEdicion={
+                panelOpenEdicion
+                  ? {
+                      id: panelOpenEdicion.id,
+                      name: panelOpenEdicion.name,
+                      start_date: panelOpenEdicion.start_date,
+                      capacity: panelOpenEdicion.capacity,
+                      required_points: panelOpenEdicion.required_points,
+                      _count: panelOpenEdicion._count,
+                    }
+                  : null
+              }
+              userInscripcionStatus={panelInscripcionStatus}
+              isAyudante={panelIsAyudante}
+              missingPrerequisiteNames={panelMissingPrereqs}
+              userActivePoints={userActivePoints}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
