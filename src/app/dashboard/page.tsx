@@ -88,7 +88,7 @@ export default function DashboardPage() {
 
           <div className="flex gap-2 mb-4">
             <Link
-              href="/"
+              href="/aviso/largo"
               className="flex-1 text-center text-xs font-semibold py-2 px-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
             >
               + Aviso Largo
@@ -111,35 +111,57 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              {avisos.map((aviso: { id: number; title: string; status: string; tipo: string; location: string | null; updated_at: string }) => (
-                <div
-                  key={aviso.id}
-                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <span
-                        className={`text-xs font-medium px-1.5 py-px rounded ${
-                          aviso.tipo === 'rapido'
-                            ? 'bg-orange-100 text-orange-700'
-                            : 'bg-blue-100 text-blue-700'
-                        }`}
-                      >
-                        {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
-                      </span>
+              {avisos.map((aviso: { id: number; title: string; status: string; tipo: string; location: string | null; updated_at: string }) => {
+                const href =
+                  aviso.status === 'draft'
+                    ? aviso.tipo === 'largo'
+                      ? `/aviso/largo?id=${aviso.id}`
+                      : '/aviso/rapido'
+                    : aviso.status === 'submitted'
+                    ? `/avisos/${aviso.id}`
+                    : null;
+
+                const cardClasses = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors';
+                const inner = (
+                  <>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span
+                          className={`text-xs font-medium px-1.5 py-px rounded ${
+                            aviso.tipo === 'rapido'
+                              ? 'bg-orange-100 text-orange-700'
+                              : 'bg-blue-100 text-blue-700'
+                          }`}
+                        >
+                          {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {aviso.location
+                          ? `${aviso.title || 'Aviso'} — ${aviso.location}`
+                          : aviso.title || 'Sin título'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
+                      </p>
                     </div>
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {aviso.location
-                        ? `${aviso.title || 'Aviso'} — ${aviso.location}`
-                        : aviso.title || 'Sin título'}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
-                    </p>
+                    <StatusBadge status={aviso.status} />
+                  </>
+                );
+
+                if (href) {
+                  return (
+                    <Link key={aviso.id} href={href} className={cardClasses}>
+                      {inner}
+                    </Link>
+                  );
+                }
+                return (
+                  <div key={aviso.id} className={cardClasses}>
+                    {inner}
                   </div>
-                  <StatusBadge status={aviso.status} />
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

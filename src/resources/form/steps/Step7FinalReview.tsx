@@ -5,9 +5,41 @@ import PrintView from '../components/PrintView';
 import EmergencyContactsForm from '../components/EmergencyContactsForm';
 
 export default function Step7FinalReview() {
-  const { formData, checkFormCompletion, updateItem, addItem, removeItem } = useFormContext();
+  const { formData, checkFormCompletion, updateItem, addItem, removeItem, saveToApi, resetForm, isSaving } = useFormContext();
   const [showPrintView, setShowPrintView] = useState(false);
   const [showEmergencyContactsEditor, setShowEmergencyContactsEditor] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      // 1. Save latest state
+      const saved = await saveToApi();
+      if (!saved.success) {
+        setSubmitError(saved.error ?? 'Error al guardar el aviso.');
+        return;
+      }
+      const avisoId = formData.avisoId;
+      if (!avisoId) {
+        setSubmitError('No se pudo identificar el aviso. Intenta de nuevo.');
+        return;
+      }
+      // 2. Submit
+      const res = await fetch(`/api/avisos/${avisoId}/submit`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setSubmitError((data as { error?: string }).error ?? 'Error al enviar el aviso.');
+        return;
+      }
+      // 3. Clear local draft and redirect
+      resetForm();
+      window.location.href = '/avisos';
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
@@ -416,14 +448,37 @@ export default function Step7FinalReview() {
         </div>
       </div>
 
-      {/* Generate Print View Button */}
-      <div className="text-center">
+      {/* Submit and Print Buttons */}
+      <div className="flex flex-col items-center gap-3">
+        {/* Primary CTA: submit aviso */}
+        <button
+          onClick={handleSubmit}
+          disabled={!isFormComplete || isSubmitting || isSaving}
+          className="px-8 py-3 bg-blue-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-blue-700 flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              Enviando…
+            </>
+          ) : (
+            'Enviar Aviso'
+          )}
+        </button>
+        {submitError && (
+          <p className="text-sm text-red-600 font-medium">{submitError}</p>
+        )}
+
+        {/* Secondary: print preview */}
         <button
           onClick={() => setShowPrintView(true)}
           disabled={!isFormComplete}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-green-700 flex items-center gap-2 justify-center mx-auto disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="px-6 py-3 bg-green-600 text-white rounded-lg text-lg font-semibold shadow hover:bg-green-700 flex items-center gap-2 justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V9a2 2 0 012-2h16a2 2 0 012 2v7a2 2 0 01-2 2h-2m-6 0v4m0 0h4m-4 0H8" /></svg>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2V9a2 2 0 012-2v7a2 2 0 01-2 2h-2m-6 0v4m0 0h4m-4 0H8" /></svg>
           Ver aviso para imprimir
         </button>
       </div>

@@ -233,7 +233,7 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
   const updateWeatherImages = (images: WeatherImage[]) =>
     dispatch({ type: 'UPDATE_WEATHER_IMAGES', images });
 
-  const saveToApi = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
+  const saveToApi = useCallback(async (): Promise<{ success: boolean; avisoId?: number; error?: string }> => {
     setIsSaving(true);
     try {
       const basicInfo = formData.basicInfo;
@@ -259,6 +259,7 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
         if (!res.ok) return { success: false, error: 'Error al crear el aviso.' };
         const aviso = await res.json() as { id: number };
         dispatch({ type: 'SET_AVISO_ID', avisoId: aviso.id });
+        return { success: true, avisoId: aviso.id };
       }
       return { success: true };
     } catch {

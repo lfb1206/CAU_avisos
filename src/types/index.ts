@@ -142,7 +142,7 @@ export interface FormContextValue {
   updateWeatherImages: (images: WeatherImage[]) => void;
   isStepValid: (step: number) => boolean;
   checkFormCompletion: () => boolean;
-  saveToApi: () => Promise<{ success: boolean; error?: string }>;
+  saveToApi: () => Promise<{ success: boolean; avisoId?: number; error?: string }>;
   loadData: (data: Partial<FormState>) => void;
   isSaving: boolean;
 }

@@ -1,8 +1,9 @@
 'use client';
 
 import React, { Suspense, useEffect, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { FormContextProvider, useFormContext } from '@/resources/contexts/FormContext';
+import { createClient } from '@/lib/supabase/client';
 import Step1BasicInfo from '@/resources/form/steps/Step1BasicInfo';
 import Step2Participants from '@/resources/form/steps/Step2Participants';
 import Step3ItineraryAssumptions from '@/resources/form/steps/Step3ItineraryAssumptions';
@@ -21,16 +22,24 @@ const STEPS = [
 ] as const;
 
 function AvisoLargoInner() {
-  const { formData, goToStep, isStepValid, loadData } = useFormContext();
+  const { formData, goToStep, isStepValid, loadData, saveToApi, isSaving } = useFormContext();
   const searchParams = useSearchParams();
-  const avisoId = searchParams.get('id');
+  const router = useRouter();
+  const avisoIdParam = searchParams.get('id');
   const loadedRef = useRef(false);
+  const draftCreatedRef = useRef(false);
 
-  // Load existing aviso if ?id= is present (e.g. cloned from library)
+  // Keep a ref to always call the latest saveToApi on unmount
+  const saveToApiRef = useRef(saveToApi);
   useEffect(() => {
-    if (!avisoId || loadedRef.current) return;
+    saveToApiRef.current = saveToApi;
+  }, [saveToApi]);
+
+  // Load existing aviso if ?id= is present (e.g. cloned from library or returning to draft)
+  useEffect(() => {
+    if (!avisoIdParam || loadedRef.current) return;
     loadedRef.current = true;
-    fetch(`/api/avisos/${avisoId}`)
+    fetch(`/api/avisos/${avisoIdParam}`)
       .then((r) => r.json())
       .then((data) => {
         if (data?.form_data) {
@@ -38,15 +47,45 @@ function AvisoLargoInner() {
         }
       })
       .catch(() => {});
-  }, [avisoId, loadData]);
+  }, [avisoIdParam, loadData]);
+
+  // Auto-create draft when opening a fresh form (no ?id= param)
+  useEffect(() => {
+    if (avisoIdParam || draftCreatedRef.current) return;
+    draftCreatedRef.current = true;
+
+    const createDraft = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return; // unauthenticated: localStorage-only mode, no API call
+
+      const result = await saveToApi();
+      if (result.success && result.avisoId) {
+        router.replace(`/aviso/largo?id=${result.avisoId}`);
+      }
+    };
+
+    void createDraft();
+  }, [avisoIdParam, saveToApi, router]);
+
+  // Save to API on SPA unmount (covers in-app navigation away)
+  useEffect(() => {
+    return () => {
+      void saveToApiRef.current();
+    };
+  }, []);
 
   const currentCtxStep = formData.currentStep;
   const stepIdx = STEPS.findIndex((s) => s.ctx === currentCtxStep);
   const effectiveIdx = stepIdx === -1 ? 0 : stepIdx;
   const isLastStep = effectiveIdx === STEPS.length - 1;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (effectiveIdx < STEPS.length - 1) {
+      const result = await saveToApi();
+      if (!result.success) {
+        console.error('Auto-save failed:', result.error);
+      }
       goToStep(STEPS[effectiveIdx + 1].ctx);
     }
   };
@@ -136,10 +175,10 @@ function AvisoLargoInner() {
           )}
           <button
             onClick={handleNext}
-            disabled={!canGoNext}
+            disabled={!canGoNext || isSaving}
             className="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Siguiente: {STEPS[effectiveIdx + 1]?.label} →
+            {isSaving ? 'Guardando…' : `Siguiente: ${STEPS[effectiveIdx + 1]?.label} →`}
           </button>
         </div>
       )}
