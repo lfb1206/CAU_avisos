@@ -1,19 +1,44 @@
 // @ts-nocheck
 'use client';
-import React, { useState } from 'react';
-import { basicFormOptions } from '../../constants/basicFormOptions';
+import React, { useState, useEffect } from 'react';
 
 import { transportOptions } from '../../constants/transportOptions';
 import { medicalOptions } from '../../constants/medicalOptions';
-import { difficultyAssumptionRecommendations } from '../../constants/difficultyAssumptionRecommendations';
 
 export default function FormsAdminPanel() {
   const [activeTab, setActiveTab] = useState('basic');
-  const [basicOptions, setBasicOptions] = useState(basicFormOptions);
+  const [basicOptions, setBasicOptions] = useState({ actividades: [], actividadesEspecificas: [], cerrosSectores: [], tramos: [] });
 
   const [transportOpts, setTransportOpts] = useState(transportOptions);
   const [medicalOpts, setMedicalOpts] = useState(medicalOptions);
-  const [assumptionRecs, setAssumptionRecs] = useState(difficultyAssumptionRecommendations);
+  const [assumptionRecs, setAssumptionRecs] = useState({});
+
+  useEffect(() => {
+    fetch('/api/basicOptions')
+      .then((r) => r.json())
+      .then((data) => { if (data?.options) setBasicOptions(data.options); })
+      .catch(() => {});
+
+    fetch('/api/supuestos')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data?.supuestos)) {
+          const grouped = {};
+          data.supuestos.forEach((s) => {
+            (s.dificultades || []).forEach((d) => {
+              (grouped[d] = grouped[d] || []).push({
+                supuesto: s.supuesto,
+                tipoSupuesto: s.categoria || '',
+                probabilidad: '',
+                impacto: '',
+              });
+            });
+          });
+          setAssumptionRecs(grouped);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [showAddAssumption, setShowAddAssumption] = useState(false);
   const [editingAssumption, setEditingAssumption] = useState(null);
   const [showAddDifficulty, setShowAddDifficulty] = useState(false);

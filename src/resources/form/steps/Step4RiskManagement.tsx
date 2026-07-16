@@ -1,7 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { ASSUMPTION_ACTIONS } from '../../constants/formConstants';
@@ -9,6 +8,19 @@ import type { Causa } from '@/types';
 
 export default function Step4RiskManagement() {
   const { formData, updateItem } = useFormContext();
+
+  const [peligros, setPeligros] = useState<string[]>([]);
+  const [riesgos, setRiesgos] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/riskOptions')
+      .then((r) => r.json())
+      .then((data: { options?: Record<string, { key: string; label: string }[]> }) => {
+        setPeligros(data?.options?.peligro?.map((o) => o.label) ?? []);
+        setRiesgos(data?.options?.riesgo?.map((o) => o.label) ?? []);
+      })
+      .catch(() => {});
+  }, []);
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -273,7 +285,7 @@ export default function Step4RiskManagement() {
                                       updatedPeligros[peligroIndex] = value;
                                       updateCausa(sup.key, causaIndex, 'peligros', updatedPeligros);
                                     }}
-                                    options={riskManagementOptions.peligros}
+                                    options={peligros}
                                     placeholder="Seleccione o escriba el peligro"
                                     required
                                   />
@@ -326,7 +338,7 @@ export default function Step4RiskManagement() {
                                       updatedRiesgos[riesgoIndex] = value;
                                       updateCausa(sup.key, causaIndex, 'riesgos', updatedRiesgos);
                                     }}
-                                    options={riskManagementOptions.riesgos}
+                                    options={riesgos}
                                     placeholder="Describa el riesgo"
                                     required
                                   />

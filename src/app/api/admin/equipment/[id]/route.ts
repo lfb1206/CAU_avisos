@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { apiRequireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 
@@ -11,33 +11,38 @@ const updateSchema = z.object({
   active: z.boolean().optional(),
 });
 
-async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  return profile?.role === 'admin' ? user : null;
-}
-
 export async function PATCH(request: NextRequest, { params }: RouteContext) {
-  const { id } = await params;
-  const supabase = await createClient();
-  const admin = await requireAdmin(supabase);
-  if (!admin) return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  const auth = await apiRequireAdmin(request);
+  if (auth instanceof NextResponse) return auth;
 
+  const { id } = await params;
   const body = await request.json().catch(() => ({}));
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const item = await prisma.equipmentItem.update({ where: { id: Number(id) }, data: parsed.data });
-  return NextResponse.json(item);
+  try {
+    const item = await prisma.equipmentItem.update({
+      where: { id: Number(id) },
+      data: parsed.data,
+    });
+    return NextResponse.json(item);
+  } catch (error) {
+    console.error('[admin equipment PATCH]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteContext) {
-  const { id } = await params;
-  const supabase = await createClient();
-  const admin = await requireAdmin(supabase);
-  if (!admin) return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
+  const auth = await apiRequireAdmin(request);
+  if (auth instanceof NextResponse) return auth;
 
-  await prisma.equipmentItem.delete({ where: { id: Number(id) } });
-  return new NextResponse(null, { status: 204 });
+  const { id } = await params;
+
+  try {
+    await prisma.equipmentItem.delete({ where: { id: Number(id) } });
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error('[admin equipment DELETE]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

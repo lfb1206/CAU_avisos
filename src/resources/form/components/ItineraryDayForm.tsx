@@ -1,9 +1,12 @@
 'use client';
 import React from 'react';
 import type { ItineraryDay } from '@/types';
-import { basicFormOptions } from '../../constants/basicFormOptions';
-import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from './AutocompleteInput';
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
 
 interface ItineraryDayFormProps {
   day: ItineraryDay;
@@ -20,6 +23,14 @@ interface ItineraryDayFormProps {
   getActionColor: (accion: string) => string;
   getActionLabel: (accion: string) => string;
   fechaReporteRegreso?: string;
+  // Options fetched from API by the parent
+  tramos?: string[];
+  actividadesEspecificas?: string[];
+  dificultadesPrincipales?: string[];
+  supuestosOpciones?: string[];
+  tipoSupuestos?: SelectOption[];
+  probabilidades?: SelectOption[];
+  impactos?: SelectOption[];
 }
 
 export default function ItineraryDayForm({
@@ -36,7 +47,14 @@ export default function ItineraryDayForm({
   onAddSuggestedAssumptions,
   getActionColor,
   getActionLabel,
-  fechaReporteRegreso
+  fechaReporteRegreso,
+  tramos = [],
+  actividadesEspecificas = [],
+  dificultadesPrincipales = [],
+  supuestosOpciones = [],
+  tipoSupuestos = [],
+  probabilidades = [],
+  impactos = [],
 }: ItineraryDayFormProps) {
   return (
     <details
@@ -85,7 +103,7 @@ export default function ItineraryDayForm({
             label="Tramo"
             value={day.tramo || ''}
             onChange={(value) => onUpdate(dayIndex, 'tramo', value)}
-            options={basicFormOptions.tramos}
+            options={tramos}
             placeholder="Seleccione o escriba el tramo"
             required
           />
@@ -128,7 +146,7 @@ export default function ItineraryDayForm({
                         updatedActividades[actividadIndex] = value;
                         onUpdate(dayIndex, 'actividades', updatedActividades);
                       }}
-                      options={basicFormOptions.actividadesEspecificas}
+                      options={actividadesEspecificas}
                       placeholder="Ej: Ascenso al campamento"
                       required
                     />
@@ -193,7 +211,7 @@ export default function ItineraryDayForm({
                     <AutocompleteInput
                       value={difficulty}
                       onChange={(value) => onUpdateDifficulty(dayIndex, difficultyIndex, value)}
-                      options={riskManagementOptions.dificultadesPrincipales || []}
+                      options={dificultadesPrincipales}
                       placeholder="Seleccione o escriba una dificultad"
                       className="text-sm"
                     />
@@ -270,7 +288,7 @@ export default function ItineraryDayForm({
                     label="Supuesto clave"
                     value={sup.supuesto || ''}
                     onChange={(value) => onUpdateAssumption(dayIndex, supIdx, 'supuesto', value)}
-                    options={riskManagementOptions.supuestos}
+                    options={supuestosOpciones}
                     placeholder="Seleccione o escriba el supuesto clave"
                     required
                   />
@@ -281,7 +299,7 @@ export default function ItineraryDayForm({
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 >
                   <option value="">Seleccionar tipo</option>
-                  {riskManagementOptions.tipoSupuestos.map(option => (
+                  {tipoSupuestos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -294,7 +312,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar probabilidad que se cumpla</option>
-                  {riskManagementOptions.probabilidades.map(option => (
+                  {probabilidades.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>
@@ -307,7 +325,7 @@ export default function ItineraryDayForm({
                   required
                 >
                   <option value="">Seleccionar impacto si no se cumple</option>
-                  {riskManagementOptions.impactos.map(option => (
+                  {impactos.map(option => (
                     <option key={option.value} value={option.value}>
                       {option.label}
                     </option>

@@ -24,27 +24,32 @@ export async function GET() {
 
   const userId = user.id;
 
-  const [profile, inscripciones, pointsHistory] = await Promise.all([
-    prisma.profile.findUnique({ where: { id: userId } }),
-    prisma.inscripcion.findMany({
-      where: { user_id: userId },
-      include: {
-        edicion: {
-          include: { taller: { select: { id: true, name: true, branch: true } } },
+  try {
+    const [profile, inscripciones, pointsHistory] = await Promise.all([
+      prisma.profile.findUnique({ where: { id: userId } }),
+      prisma.inscripcion.findMany({
+        where: { user_id: userId },
+        include: {
+          edicion: {
+            include: { taller: { select: { id: true, name: true, branch: true } } },
+          },
         },
-      },
-      orderBy: { inscrito_at: 'desc' },
-    }),
-    prisma.coursePoints.findMany({
-      where: { user_id: userId },
-      include: {
-        edicion: { include: { taller: { select: { name: true } } } },
-      },
-      orderBy: { earned_at: 'desc' },
-    }),
-  ]);
+        orderBy: { inscrito_at: 'desc' },
+      }),
+      prisma.coursePoints.findMany({
+        where: { user_id: userId },
+        include: {
+          edicion: { include: { taller: { select: { name: true } } } },
+        },
+        orderBy: { earned_at: 'desc' },
+      }),
+    ]);
 
-  return NextResponse.json({ profile, inscripciones, pointsHistory });
+    return NextResponse.json({ profile, inscripciones, pointsHistory });
+  } catch (error) {
+    console.error('[perfil GET]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }
 
 // PATCH /api/perfil — update current user's editable fields
@@ -57,10 +62,15 @@ export async function PATCH(request: NextRequest) {
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
-  const profile = await prisma.profile.update({
-    where: { id: user.id },
-    data: parsed.data,
-  });
+  try {
+    const profile = await prisma.profile.update({
+      where: { id: user.id },
+      data: parsed.data,
+    });
 
-  return NextResponse.json(profile);
+    return NextResponse.json(profile);
+  } catch (error) {
+    console.error('[perfil PATCH]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

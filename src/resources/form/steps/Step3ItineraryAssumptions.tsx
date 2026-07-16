@@ -1,12 +1,32 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { difficultyAssumptionRecommendations } from '../../constants/difficultyAssumptionRecommendations';
 import ItineraryDayForm from '../components/ItineraryDayForm';
 import type { Assumption } from '@/types';
 
+type SupuestoDB = { id: number; supuesto: string; categoria: string; dificultades: string[] };
+type RiskOptionItem = { key: string; label: string };
+
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+
+  const [supuestosDB, setSupuestosDB] = useState<SupuestoDB[]>([]);
+  const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
+  const [riskOptions, setRiskOptions] = useState<Record<string, RiskOptionItem[]>>({});
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/supuestos').then((r) => r.json()),
+      fetch('/api/basicOptions').then((r) => r.json()),
+      fetch('/api/riskOptions').then((r) => r.json()),
+    ])
+      .then(([supData, basicData, riskData]) => {
+        setSupuestosDB(supData?.supuestos ?? []);
+        setBasicOptions(basicData?.options ?? {});
+        setRiskOptions(riskData?.options ?? {});
+      })
+      .catch(() => {});
+  }, []);
 
   // Lógica para evaluación de supuestos (condiciones que favorecen el éxito)
   const calculateRiskAction = (probability: string, impact: string): Assumption['accion'] => {
@@ -58,22 +78,24 @@ export default function Step3ItineraryAssumptions() {
     removeItem('itinerario', dayIndex);
   };
 
-  // Suggest assumptions based on selected difficulties
+  // Suggest assumptions based on selected difficulties — matches against DB supuestos
   const getSuggestedAssumptions = (selectedDifficulties: string[]): Assumption[] => {
     const suggestions: Assumption[] = [];
-    const validDifficulties = selectedDifficulties.filter(d => d && d.trim());
+    const validDifficulties = selectedDifficulties.filter((d) => d && d.trim());
 
-    validDifficulties.forEach(difficulty => {
-      const key = difficulty as keyof typeof difficultyAssumptionRecommendations;
-      if (difficultyAssumptionRecommendations[key]) {
-        difficultyAssumptionRecommendations[key].forEach(recommendation => {
+    validDifficulties.forEach((difficulty) => {
+      supuestosDB
+        .filter((s) => s.dificultades.includes(difficulty))
+        .forEach((s) => {
           suggestions.push({
-            ...recommendation,
+            supuesto: s.supuesto,
+            tipoSupuesto: s.categoria ?? '',
+            probabilidad: '',
+            impacto: '',
             incluir: false,
-            accion: ''
+            accion: '',
           });
         });
-      }
     });
 
     return suggestions;
@@ -222,6 +244,13 @@ export default function Step3ItineraryAssumptions() {
             getActionColor={getActionColor}
             getActionLabel={getActionLabel}
             fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
+            tramos={basicOptions.tramos ?? []}
+            actividadesEspecificas={basicOptions.actividadesEspecificas ?? []}
+            dificultadesPrincipales={riskOptions.dificultad?.map((o) => o.label) ?? []}
+            supuestosOpciones={riskOptions.supuesto?.map((o) => o.label) ?? []}
+            tipoSupuestos={riskOptions.tipoSupuesto?.map((o) => ({ value: o.key, label: o.label })) ?? []}
+            probabilidades={riskOptions.probabilidad?.map((o) => ({ value: o.key, label: o.label })) ?? []}
+            impactos={riskOptions.impacto?.map((o) => ({ value: o.key, label: o.label })) ?? []}
           />
         ))}
       </div>

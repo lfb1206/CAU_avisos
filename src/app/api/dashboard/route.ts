@@ -10,38 +10,43 @@ export async function GET() {
 
   const userId = user.id;
 
-  const [profile, avisos, inscripciones] = await Promise.all([
-    prisma.profile.findUnique({
-      where: { id: userId },
-      select: { name: true, role: true },
-    }),
-    prisma.aviso.findMany({
-      where: { created_by: userId },
-      orderBy: { updated_at: 'desc' },
-      take: 10,
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        tipo: true,
-        location: true,
-        updated_at: true,
-      },
-    }),
-    prisma.inscripcion.findMany({
-      where: {
-        user_id: userId,
-        status: { in: ['postulando', 'aceptado', 'en_lista', 'completado'] },
-      },
-      include: {
-        edicion: {
-          include: { taller: { select: { name: true, branch: true } } },
+  try {
+    const [profile, avisos, inscripciones] = await Promise.all([
+      prisma.profile.findUnique({
+        where: { id: userId },
+        select: { name: true, role: true },
+      }),
+      prisma.aviso.findMany({
+        where: { created_by: userId },
+        orderBy: { updated_at: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          tipo: true,
+          location: true,
+          updated_at: true,
         },
-      },
-      orderBy: { inscrito_at: 'desc' },
-      take: 5,
-    }),
-  ]);
+      }),
+      prisma.inscripcion.findMany({
+        where: {
+          user_id: userId,
+          status: { in: ['postulando', 'aceptado', 'en_lista', 'completado'] },
+        },
+        include: {
+          edicion: {
+            include: { taller: { select: { name: true, branch: true } } },
+          },
+        },
+        orderBy: { inscrito_at: 'desc' },
+        take: 5,
+      }),
+    ]);
 
-  return NextResponse.json({ profile, avisos, inscripciones });
+    return NextResponse.json({ profile, avisos, inscripciones });
+  } catch (error) {
+    console.error('[dashboard GET]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

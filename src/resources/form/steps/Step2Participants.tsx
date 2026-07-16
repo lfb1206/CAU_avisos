@@ -1,11 +1,22 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { peopleData } from '../../constants/peopleData';
 import ParticipantForm from '../components/ParticipantForm';
 
 export default function Step2Participants() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+  const [memberNames, setMemberNames] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/members')
+      .then((r) => r.json())
+      .then((data: { members?: { name: string; email: string }[] }) => {
+        if (Array.isArray(data?.members)) {
+          setMemberNames(data.members.map((m) => m.name));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Ensure participantes is always an array
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
@@ -39,23 +50,13 @@ export default function Step2Participants() {
       updateItem('participantes', index, { ...participantes[index], isDuplicate: true });
       return;
     }
-    
+
     // Update name and clear duplicate flag
     updateItem('participantes', index, { ...participantes[index], nombre: participantName, isDuplicate: false });
-    
-    // Auto-fill data if it's a saved participant
-    if (peopleData[participantName as keyof typeof peopleData]) {
-      const saved = peopleData[participantName as keyof typeof peopleData];
-      updateItem('participantes', index, {
-        ...saved,
-        nombre: participantName,
-        isDuplicate: false
-      });
-    }
   };
 
   const getSavedParticipantNames = () => {
-    return Object.keys(peopleData);
+    return memberNames;
   };
 
   // Auto-add first participant if none exists

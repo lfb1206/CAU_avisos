@@ -1,8 +1,10 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth';
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await requireAdmin();
+
   const adminSections = [
     {
       title: 'Gestión de Personas',
@@ -128,4 +130,4 @@ export default function AdminPage() {
       </div>
     </div>
   );
-} 
+}

@@ -70,7 +70,7 @@ function AvisoRapidoContent() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormData>(initialForm);
   const [submitting, setSubmitting] = useState(false);
-  const [people, setPeople] = useState<{ nombre: string; rut?: string; telefono?: string; email?: string }[]>([]);
+  const [people, setPeople] = useState<{ name: string; email: string }[]>([]);
 
   // Load draft from localStorage or from existing aviso (clone case)
   useEffect(() => {
@@ -86,9 +86,11 @@ function AvisoRapidoContent() {
       if (saved) setForm(JSON.parse(saved) as FormData);
     }
 
-    fetch('/api/admin/people?limit=200')
+    fetch('/api/members')
       .then((r) => r.json())
-      .then((data) => setPeople(Array.isArray(data) ? data : []))
+      .then((data: { members?: { name: string; email: string }[] }) =>
+        setPeople(Array.isArray(data?.members) ? data.members : [])
+      )
       .catch(() => {});
   }, [avisoId]);
 
@@ -115,15 +117,15 @@ function AvisoRapidoContent() {
     });
 
   const fillFromPerson = (idx: number, personName: string) => {
-    const p = people.find((p) => p.nombre === personName);
+    const p = people.find((p) => p.name === personName);
     if (!p) return;
     setForm((prev) => {
       const arr = [...prev.participantes];
       arr[idx] = {
-        nombre: p.nombre,
-        rut: p.rut ?? '',
-        telefono: p.telefono ?? '',
-        email: p.email ?? '',
+        nombre: p.name,
+        rut: '',
+        telefono: '',
+        email: p.email,
       };
       return { ...prev, participantes: arr };
     });
@@ -163,7 +165,9 @@ function AvisoRapidoContent() {
         localStorage.removeItem(LS_KEY);
         router.push('/dashboard');
       }
-    } catch {
+    } catch (error) {
+      console.error('[aviso rapido submit]:', error);
+    } finally {
       setSubmitting(false);
     }
   };
@@ -270,7 +274,7 @@ function AvisoRapidoContent() {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <datalist id="people-list">
-              {people.map((p) => <option key={p.nombre} value={p.nombre} />)}
+              {people.map((p) => <option key={p.name} value={p.name} />)}
             </datalist>
           </div>
 
@@ -439,7 +443,7 @@ function AvisoRapidoContent() {
       )}
 
       <datalist id="people-list">
-        {people.map((p) => <option key={p.nombre} value={p.nombre} />)}
+        {people.map((p) => <option key={p.name} value={p.name} />)}
       </datalist>
     </div>
   );

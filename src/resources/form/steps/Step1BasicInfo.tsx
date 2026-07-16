@@ -1,8 +1,6 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { peopleData } from '../../constants/peopleData';
-import { basicFormOptions } from '../../constants/basicFormOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import WeatherImageUpload from '../components/WeatherImageUpload';
 import InReachSection from '../components/InReachSection';
@@ -10,6 +8,26 @@ import DynamicFormField from '../components/DynamicFormField';
 
 export default function Step1BasicInfo() {
   const { formData, updateFormField } = useFormContext();
+  const [memberNames, setMemberNames] = useState<string[]>([]);
+  const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
+
+  useEffect(() => {
+    fetch('/api/members')
+      .then((r) => r.json())
+      .then((data: { members?: { name: string; email: string }[] }) => {
+        if (Array.isArray(data?.members)) {
+          setMemberNames(data.members.map((m) => m.name));
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/basicOptions')
+      .then((r) => r.json())
+      .then((data: { options?: Record<string, string[]> }) => {
+        if (data?.options) setBasicOptions(data.options);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleFieldChange = (field: string, value: unknown) => {
     updateFormField('basicInfo', field, value);
@@ -17,19 +35,6 @@ export default function Step1BasicInfo() {
 
   const handleContactChange = (value: string) => {
     handleFieldChange('contactoCAU', value);
-    
-    // Autocompletar todos los datos si el contacto existe en peopleData
-    if (value && peopleData[value as keyof typeof peopleData]) {
-      const contactData = peopleData[value as keyof typeof peopleData];
-      handleFieldChange('telefonoContacto', contactData.telefono);
-      handleFieldChange('emailContacto', contactData.email);
-      // También autocompletar datos médicos si están disponibles
-      if (contactData.grupoSanguineo) handleFieldChange('grupoSanguineo', contactData.grupoSanguineo);
-      if (contactData.alergias) handleFieldChange('alergias', contactData.alergias);
-      if (contactData.enfermedades) handleFieldChange('enfermedades', contactData.enfermedades);
-      if (contactData.medicamentos) handleFieldChange('medicamentos', contactData.medicamentos);
-      if (contactData.condicionesEspeciales) handleFieldChange('condicionesEspeciales', contactData.condicionesEspeciales);
-    }
   };
 
   const handleImageUpload = (newImage: import('@/types').WeatherImage) => {
@@ -75,7 +80,7 @@ export default function Step1BasicInfo() {
             label="Contacto CAU"
             value={formData.basicInfo.contactoCAU || ''}
             onChange={handleContactChange}
-            options={Object.keys(peopleData)}
+            options={memberNames}
             placeholder="Seleccione o escriba el nombre del contacto CAU"
             required
           />
@@ -123,16 +128,16 @@ export default function Step1BasicInfo() {
           label="Actividad"
           value={formData.basicInfo.actividad || ''}
           onChange={(value) => handleFieldChange('actividad', value)}
-                      options={basicFormOptions.actividades}
+          options={basicOptions.actividades ?? []}
           placeholder="Seleccione o escriba el tipo de actividad"
           required
         />
-        
+
         <AutocompleteInput
           label="Cerro o Sector"
           value={formData.basicInfo.cerroOSector || ''}
           onChange={(value) => handleFieldChange('cerroOSector', value)}
-                      options={basicFormOptions.cerrosSectores}
+          options={basicOptions.cerrosSectores ?? []}
           placeholder="Seleccione o escriba el cerro o sector"
           required
         />

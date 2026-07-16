@@ -45,24 +45,29 @@ export async function POST(_request: NextRequest, { params }: RouteContext) {
 
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const aviso = await prisma.aviso.findFirst({ where: { id: Number(id), created_by: user.id } });
-  if (!aviso) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
-  if (aviso.status === 'submitted') return NextResponse.json({ error: 'Ya enviado' }, { status: 409 });
+  try {
+    const aviso = await prisma.aviso.findFirst({ where: { id: Number(id), created_by: user.id } });
+    if (!aviso) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+    if (aviso.status === 'submitted') return NextResponse.json({ error: 'Ya enviado' }, { status: 409 });
 
-  const searchFields = extractSearchFields(aviso.tipo, aviso.form_data as Record<string, unknown>);
+    const searchFields = extractSearchFields(aviso.tipo, aviso.form_data as Record<string, unknown>);
 
-  const updated = await prisma.aviso.update({
-    where: { id: Number(id) },
-    data: {
-      status: 'submitted',
-      submitted_at: new Date(),
-      ...searchFields,
-    },
-  });
+    const updated = await prisma.aviso.update({
+      where: { id: Number(id) },
+      data: {
+        status: 'submitted',
+        submitted_at: new Date(),
+        ...searchFields,
+      },
+    });
 
-  sendAvisoEmail(aviso.id, aviso.tipo, aviso.form_data as Record<string, unknown>).catch(console.error);
+    sendAvisoEmail(aviso.id, aviso.tipo, aviso.form_data as Record<string, unknown>).catch(console.error);
 
-  return NextResponse.json(updated);
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('[aviso submit POST]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }
 
 async function sendAvisoEmail(avisoId: number, tipo: string, formData: Record<string, unknown>) {

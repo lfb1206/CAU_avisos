@@ -1,37 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { apiRequireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-async function requireAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-  return profile?.role === 'admin' ? user : null;
-}
-
 // DELETE /api/admin/people/[id] — remove a whitelist entry (only pre-registered)
-export async function DELETE(_request: NextRequest, { params }: RouteContext) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
+  const auth = await apiRequireAdmin(request);
+  if (auth instanceof NextResponse) return auth;
+
   const { id } = await params;
-  const supabase = await createClient();
-  const admin = await requireAdmin(supabase);
-  if (!admin) return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
 
-  const profile = await prisma.profile.findUnique({ where: { id }, select: { id: true, is_registered: true } });
-  if (!profile) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { id },
+      select: { id: true, is_registered: true },
+    });
+    if (!profile) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
 
-  if (profile.is_registered) {
-    return NextResponse.json(
-      { error: 'No se puede eliminar un socio que ya se ha registrado.' },
-      { status: 409 }
-    );
+    if (profile.is_registered) {
+      return NextResponse.json(
+        { error: 'No se puede eliminar un socio que ya se ha registrado.' },
+        { status: 409 }
+      );
+    }
+
+    await prisma.profile.delete({ where: { id } });
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error('[admin people DELETE]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
-
-  await prisma.profile.delete({ where: { id } });
-  return new NextResponse(null, { status: 204 });
 }

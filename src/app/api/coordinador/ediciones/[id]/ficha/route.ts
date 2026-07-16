@@ -1,39 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { apiRequireCoordinador } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-async function guardCoordinador() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-  const profile = await prisma.profile.findUnique({ where: { id: user.id }, select: { role: true } });
-  return profile && (profile.role === 'coordinador' || profile.role === 'admin') ? user : null;
-}
-
 // GET /api/coordinador/ediciones/[id]/ficha — full ficha data (taller template + edition specifics)
-export async function GET(_request: NextRequest, { params }: RouteContext) {
-  const user = await guardCoordinador();
-  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
+export async function GET(request: NextRequest, { params }: RouteContext) {
+  const auth = await apiRequireCoordinador(request);
+  if (auth instanceof NextResponse) return auth;
 
   const { id } = await params;
 
-  const edicion = await prisma.edicionTaller.findUnique({
-    where: { id: Number(id) },
-    include: {
-      taller: true,
-      inscripciones: {
-        where: { status: { in: ['aceptado', 'completado', 'en_lista'] } },
-        select: { id: true, status: true, profile: { select: { name: true, email: true, phone: true } } },
+  try {
+    const edicion = await prisma.edicionTaller.findUnique({
+      where: { id: Number(id) },
+      include: {
+        taller: true,
+        inscripciones: {
+          where: { status: { in: ['aceptado', 'completado', 'en_lista'] } },
+          select: { id: true, status: true, profile: { select: { name: true, email: true, phone: true } } },
+        },
+        ayudantias: {
+          select: { id: true, profile: { select: { name: true, email: true } } },
+        },
       },
-      ayudantias: {
-        select: { id: true, profile: { select: { name: true, email: true } } },
-      },
-    },
-  });
+    });
 
-  if (!edicion) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+    if (!edicion) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
 
-  return NextResponse.json(edicion);
+    return NextResponse.json(edicion);
+  } catch (error) {
+    console.error('[coordinador ficha GET]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

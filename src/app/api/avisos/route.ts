@@ -16,13 +16,17 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
-  const avisos = await prisma.aviso.findMany({
-    where: { created_by: user.id },
-    orderBy: { updated_at: 'desc' },
-    select: { id: true, title: true, status: true, tipo: true, created_at: true, updated_at: true, submitted_at: true },
-  });
-
-  return NextResponse.json(avisos);
+  try {
+    const avisos = await prisma.aviso.findMany({
+      where: { created_by: user.id },
+      orderBy: { updated_at: 'desc' },
+      select: { id: true, title: true, status: true, tipo: true, created_at: true, updated_at: true, submitted_at: true },
+    });
+    return NextResponse.json(avisos);
+  } catch (error) {
+    console.error('[avisos GET]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -51,15 +55,19 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const aviso = await prisma.aviso.create({
-    data: {
-      created_by: user.id,
-      title,
-      tipo,
-      form_data: formData as Prisma.InputJsonValue,
-      status: 'draft',
-    },
-  });
-
-  return NextResponse.json(aviso, { status: 201 });
+  try {
+    const aviso = await prisma.aviso.create({
+      data: {
+        created_by: user.id,
+        title,
+        tipo,
+        form_data: formData as Prisma.InputJsonValue,
+        status: 'draft',
+      },
+    });
+    return NextResponse.json(aviso, { status: 201 });
+  } catch (error) {
+    console.error('[avisos POST]:', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+  }
 }

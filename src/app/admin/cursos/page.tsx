@@ -1,7 +1,6 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { requireAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
 const branchLabels: Record<string, string> = {
@@ -32,18 +31,7 @@ const edicionStatusLabels: Record<string, string> = {
 };
 
 export default async function AdminCursosPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect('/auth/login');
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-  if (profile?.role !== 'admin') redirect('/');
+  await requireAdmin();
 
   const talleres = await prisma.taller.findMany({
     orderBy: [{ branch: 'asc' }, { order_index: 'asc' }],
