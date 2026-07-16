@@ -38,7 +38,7 @@ function StatusBadge({ status }: { status: string }) {
   const labels: Record<string, string> = {
     draft: 'Borrador',
     submitted: 'Enviado',
-    archived: 'Archivado',
+    archived: 'Regresado',
   };
   return (
     <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${styles[status] ?? ''}`}>

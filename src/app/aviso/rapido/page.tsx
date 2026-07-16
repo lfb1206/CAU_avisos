@@ -1,6 +1,7 @@
 'use client';
 import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import AutocompleteInput from '@/resources/form/components/AutocompleteInput';
 
 const CATEGORIAS = [
   'Alta montaña',
@@ -265,17 +266,14 @@ function AvisoRapidoContent() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contacto CAU *</label>
-            <input
+            <AutocompleteInput
+              label="Contacto CAU *"
               value={form.contactoCau}
-              onChange={(e) => set('contactoCau', e.target.value)}
+              onChange={(val) => set('contactoCau', val)}
+              options={people.map((p) => p.name)}
               placeholder="Nombre del socio de guardia"
-              list="people-list"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
-            <datalist id="people-list">
-              {people.map((p) => <option key={p.name} value={p.name} />)}
-            </datalist>
           </div>
 
           <div>

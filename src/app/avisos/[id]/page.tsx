@@ -4,6 +4,7 @@ import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import UseAsDraftButton from './UseAsDraftButton';
+import ReturnButton from './ReturnButton';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -14,7 +15,7 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
   if (!user) redirect('/auth/login');
 
   const aviso = await prisma.aviso.findFirst({
-    where: { id: Number(id), status: 'submitted' },
+    where: { id: Number(id), status: { in: ['submitted', 'archived'] } },
     include: { profile: { select: { name: true } } },
   });
 
@@ -22,6 +23,7 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
 
   const fd = aviso.form_data as Record<string, unknown>;
   const isRapido = aviso.tipo === 'rapido';
+  const isOwner = aviso.created_by === user.id;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
@@ -47,7 +49,12 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
             )}
           </p>
         </div>
-        <UseAsDraftButton avisoId={aviso.id} tipo={aviso.tipo} />
+        <div className="flex items-center gap-2">
+          {isOwner && aviso.status === 'submitted' && (
+            <ReturnButton avisoId={aviso.id} />
+          )}
+          <UseAsDraftButton avisoId={aviso.id} tipo={aviso.tipo} />
+        </div>
       </div>
 
       {/* Content */}

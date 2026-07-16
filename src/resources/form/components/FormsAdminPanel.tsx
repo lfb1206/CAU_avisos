@@ -486,7 +486,7 @@ export default function FormsAdminPanel() {
               </button>
             </div>
             <div className="space-y-3">
-              {recommendations.map((rec, index) => (
+              {(Array.isArray(recommendations) ? recommendations : []).map((rec, index) => (
                 <div key={index} className="p-3 bg-gray-50 rounded border">
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">

@@ -25,6 +25,7 @@ function AvisoLargoInner() {
   const searchParams = useSearchParams();
   const avisoIdParam = searchParams.get('id');
   const loadedRef = useRef(false);
+  const isLoadingFromApiRef = useRef(false);
   const [isDirty, setIsDirty] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
@@ -36,6 +37,7 @@ function AvisoLargoInner() {
       .then((r) => r.json())
       .then((data: { form_data?: Record<string, unknown> }) => {
         if (data?.form_data) {
+          isLoadingFromApiRef.current = true;
           loadData(data.form_data);
           setIsDirty(false);
         }
@@ -47,6 +49,12 @@ function AvisoLargoInner() {
   const formDataRef = useRef(formData);
   useEffect(() => {
     if (formDataRef.current !== formData) {
+      if (isLoadingFromApiRef.current) {
+        // This change was caused by loadData() — skip dirty flag
+        isLoadingFromApiRef.current = false;
+        formDataRef.current = formData;
+        return;
+      }
       formDataRef.current = formData;
       setIsDirty(true);
     }

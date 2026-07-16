@@ -6,6 +6,7 @@ import { seedBasicOptions } from './basicOptions';
 import { seedTalleres } from './talleres';
 import { seedFichas } from './fichas';
 import { seedSupuestos } from './supuestos';
+import { seedRiskOptions } from './riskOptions';
 import { setupRLS } from './rls';
 import { seedChecklistsAndOptions } from './checklistsAndOptions';
 
@@ -20,6 +21,7 @@ async function main() {
   await seedTalleres(prisma);
   await seedFichas(prisma);
   await seedSupuestos(prisma);
+  await seedRiskOptions(prisma);
   await setupRLS(prisma);
   await seedChecklistsAndOptions(prisma);
 

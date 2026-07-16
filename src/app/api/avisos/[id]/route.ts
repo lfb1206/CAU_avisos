@@ -46,13 +46,20 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const existing = await getAvisoForUser(Number(id), user.id);
     if (!existing) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
 
-    if (existing.status === 'submitted') {
-      return NextResponse.json({ error: 'El aviso ya fue enviado' }, { status: 409 });
-    }
-
     const body = await request.json().catch(() => ({}));
     const parsed = updateAvisoSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+
+    if (existing.status === 'submitted') {
+      // Allow status-only transition from submitted → archived (notificar regreso)
+      const isArchiveTransition =
+        parsed.data.status === 'archived' &&
+        !parsed.data.form_data &&
+        !parsed.data.title;
+      if (!isArchiveTransition) {
+        return NextResponse.json({ error: 'El aviso ya fue enviado' }, { status: 409 });
+      }
+    }
 
     // Build title from form_data if not supplied
     const formData = parsed.data.form_data ?? existing.form_data as Record<string, unknown>;

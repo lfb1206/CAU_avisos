@@ -15,11 +15,12 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }:
   const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch('/api/admin/equipment')
+    fetch('/api/equipment')
       .then((r) => r.json())
       .then((data: unknown) => {
-        if (Array.isArray(data)) {
-          const cats = [...new Set(data.map((item: { category: string }) => item.category))] as string[];
+        if (data && typeof data === 'object' && 'equipment' in data) {
+          const items = (data as { equipment: { category: string }[] }).equipment;
+          const cats = [...new Set(items.map((item) => item.category))] as string[];
           setCategoryOptions(cats);
         }
       })
