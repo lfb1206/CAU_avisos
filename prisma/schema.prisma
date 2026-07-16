@@ -291,6 +291,17 @@ model Ayudantia {
   @@map("ayudantias")
 }
 
+// ── Checklists (wikiexplora equipment checklists by route type) ───────────────
+
+model Checklist {
+  id    Int    @id @default(autoincrement())
+  key   String @unique
+  name  String
+  items Json
+
+  @@map("checklists")
+}
+
 // ── Course points (earned by ayudantias, awarded by coordinadores) ────────────
 
 model CoursePoints {

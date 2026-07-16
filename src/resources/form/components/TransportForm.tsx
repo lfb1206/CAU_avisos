@@ -1,8 +1,12 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Transport } from '@/types';
-import { transportOptions } from '../../constants/transportOptions';
 import AutocompleteInput from './AutocompleteInput';
+
+interface TransportOptions {
+  transportTypes: string[];
+  vehicleBrands: string[];
+}
 
 interface TransportFormProps {
   transport: Transport;
@@ -19,6 +23,22 @@ export default function TransportForm({
   onRemove,
   getConductorOptions
 }: TransportFormProps) {
+  const [transportOptions, setTransportOptions] = useState<TransportOptions>({
+    transportTypes: [],
+    vehicleBrands: [],
+  });
+
+  useEffect(() => {
+    fetch('/api/transportOptions')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (data && typeof data === 'object' && 'transportTypes' in data) {
+          setTransportOptions(data as TransportOptions);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const isAutoParticular = transport.tipo?.toLowerCase() === 'auto particular';
 
   // Clear auto-particular fields when switching away from that type
@@ -54,16 +74,11 @@ export default function TransportForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <AutocompleteInput
           label="Tipo"
-          value={(() => {
-            const selectedOption = transportOptions.transportTypes.find(option => option.value === transport.tipo);
-            return selectedOption ? selectedOption.label : transport.tipo || '';
-          })()}
+          value={transport.tipo || ''}
           onChange={(value) => {
-            const selectedOption = transportOptions.transportTypes.find(option => option.label === value);
-            const actualValue = selectedOption ? selectedOption.value : value;
-            onUpdate(index, 'tipo', actualValue);
+            onUpdate(index, 'tipo', value);
           }}
-          options={transportOptions.transportTypes.map(t => t.label)}
+          options={transportOptions.transportTypes}
           placeholder="Seleccione o escriba el tipo de transporte"
           required
         />

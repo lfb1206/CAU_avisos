@@ -2,15 +2,40 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-import { transportOptions } from '../../constants/transportOptions';
-import { medicalOptions } from '../../constants/medicalOptions';
+interface TransportTypeOption {
+  value: string;
+  label: string;
+}
+
+interface TransportOpts {
+  transportTypes: TransportTypeOption[];
+  vehicleBrands: string[];
+}
+
+interface BloodTypeOption {
+  value: string;
+  label: string;
+}
+
+interface MedicalOpts {
+  bloodTypes: BloodTypeOption[];
+  allergies: string[];
+  medicalConditions: string[];
+}
 
 export default function FormsAdminPanel() {
   const [activeTab, setActiveTab] = useState('basic');
   const [basicOptions, setBasicOptions] = useState({ actividades: [], actividadesEspecificas: [], cerrosSectores: [], tramos: [] });
 
-  const [transportOpts, setTransportOpts] = useState(transportOptions);
-  const [medicalOpts, setMedicalOpts] = useState(medicalOptions);
+  const [transportOpts, setTransportOpts] = useState<TransportOpts>({
+    transportTypes: [],
+    vehicleBrands: [],
+  });
+  const [medicalOpts, setMedicalOpts] = useState<MedicalOpts>({
+    bloodTypes: [],
+    allergies: [],
+    medicalConditions: [],
+  });
   const [assumptionRecs, setAssumptionRecs] = useState({});
 
   useEffect(() => {
@@ -38,24 +63,50 @@ export default function FormsAdminPanel() {
         }
       })
       .catch(() => {});
+
+    // Fetch transport options from API and convert to legacy format for display
+    fetch('/api/transportOptions')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.transportTypes && data?.vehicleBrands) {
+          setTransportOpts({
+            transportTypes: data.transportTypes.map((v: string) => ({ value: v, label: v })),
+            vehicleBrands: data.vehicleBrands,
+          });
+        }
+      })
+      .catch(() => {});
+
+    // Fetch medical options from API and convert to legacy format for display
+    fetch('/api/medicalOptions')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.bloodTypes) {
+          setMedicalOpts({
+            bloodTypes: data.bloodTypes.map((v: string) => ({ value: v, label: v })),
+            allergies: data.allergies || [],
+            medicalConditions: data.medicalConditions || [],
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
+
   const [showAddAssumption, setShowAddAssumption] = useState(false);
   const [editingAssumption, setEditingAssumption] = useState(null);
   const [showAddDifficulty, setShowAddDifficulty] = useState(false);
   const [newDifficulty, setNewDifficulty] = useState('');
-  
+
   // Estados para agregar datos básicos
   const [showAddBasic, setShowAddBasic] = useState(false);
   const [basicType, setBasicType] = useState('');
   const [newBasicItem, setNewBasicItem] = useState('');
-  
 
-  
   // Estados para agregar datos de transporte
   const [showAddTransport, setShowAddTransport] = useState(false);
   const [transportType, setTransportType] = useState('');
   const [newTransportItem, setNewTransportItem] = useState('');
-  
+
   // Estados para agregar datos médicos
   const [showAddMedical, setShowAddMedical] = useState(false);
   const [medicalType, setMedicalType] = useState('');
@@ -63,9 +114,8 @@ export default function FormsAdminPanel() {
 
   const handleSaveAssumption = (assumptionData) => {
     const updatedRecs = { ...assumptionRecs };
-    
+
     if (editingAssumption) {
-      // Editando supuesto existente
       updatedRecs[editingAssumption.difficulty][editingAssumption.index] = {
         supuesto: assumptionData.supuesto,
         tipoSupuesto: assumptionData.tipoSupuesto,
@@ -73,7 +123,6 @@ export default function FormsAdminPanel() {
         impacto: assumptionData.impacto
       };
     } else {
-      // Agregando nuevo supuesto
       if (!updatedRecs[assumptionData.difficulty]) {
         updatedRecs[assumptionData.difficulty] = [];
       }
@@ -84,7 +133,7 @@ export default function FormsAdminPanel() {
         impacto: assumptionData.impacto
       });
     }
-    
+
     setAssumptionRecs(updatedRecs);
     setShowAddAssumption(false);
     setEditingAssumption(null);
@@ -138,9 +187,7 @@ export default function FormsAdminPanel() {
     }
   };
 
-
-
-  // Funciones para datos de transporte
+  // Funciones para datos de transporte (local display only — changes are not persisted back to DB here)
   const handleAddTransportItem = () => {
     if (newTransportItem.trim() && transportType) {
       const updatedOptions = { ...transportOpts };
@@ -166,7 +213,7 @@ export default function FormsAdminPanel() {
     }
   };
 
-  // Funciones para datos médicos
+  // Funciones para datos médicos (local display only)
   const handleAddMedicalItem = () => {
     if (newMedicalItem.trim() && medicalType) {
       const updatedOptions = { ...medicalOpts };
@@ -289,8 +336,6 @@ export default function FormsAdminPanel() {
       </div>
     </div>
   );
-
-
 
   const renderTransportOptionsTab = () => (
     <div className="space-y-6">
@@ -517,7 +562,6 @@ export default function FormsAdminPanel() {
         <nav className="flex space-x-8">
           {[
             { id: 'basic', label: 'Datos Básicos' },
-
             { id: 'transport', label: 'Transporte' },
             { id: 'medical', label: 'Médico' },
             { id: 'assumptions', label: 'Supuestos' }
@@ -540,7 +584,6 @@ export default function FormsAdminPanel() {
       {/* Content */}
       <div className="bg-white rounded-lg shadow">
         {activeTab === 'basic' && renderBasicOptionsTab()}
-
         {activeTab === 'transport' && renderTransportOptionsTab()}
         {activeTab === 'medical' && renderMedicalOptionsTab()}
         {activeTab === 'assumptions' && renderAssumptionsTab()}
@@ -565,10 +608,7 @@ export default function FormsAdminPanel() {
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowAddDifficulty(false);
-                    setNewDifficulty('');
-                  }}
+                  onClick={() => { setShowAddDifficulty(false); setNewDifficulty(''); }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
@@ -619,11 +659,7 @@ export default function FormsAdminPanel() {
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowAddBasic(false);
-                    setNewBasicItem('');
-                    setBasicType('');
-                  }}
+                  onClick={() => { setShowAddBasic(false); setNewBasicItem(''); setBasicType(''); }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
@@ -639,8 +675,6 @@ export default function FormsAdminPanel() {
           </div>
         </div>
       )}
-
-
 
       {/* Modal para agregar datos de transporte */}
       {showAddTransport && (
@@ -674,11 +708,7 @@ export default function FormsAdminPanel() {
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowAddTransport(false);
-                    setNewTransportItem('');
-                    setTransportType('');
-                  }}
+                  onClick={() => { setShowAddTransport(false); setNewTransportItem(''); setTransportType(''); }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
@@ -728,11 +758,7 @@ export default function FormsAdminPanel() {
               </div>
               <div className="flex justify-end space-x-3 pt-4">
                 <button
-                  onClick={() => {
-                    setShowAddMedical(false);
-                    setNewMedicalItem('');
-                    setMedicalType('');
-                  }}
+                  onClick={() => { setShowAddMedical(false); setNewMedicalItem(''); setMedicalType(''); }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancelar
@@ -804,7 +830,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           ))}
         </select>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Supuesto</label>
         <textarea
@@ -815,7 +841,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           required
         />
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Tipo de Supuesto</label>
         <select
@@ -830,7 +856,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           <option value="itinerario">Itinerario</option>
         </select>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Probabilidad</label>
         <select
@@ -846,7 +872,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           <option value="muy_probable">Muy probable</option>
         </select>
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Impacto</label>
         <select
@@ -862,7 +888,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           <option value="critico">Crítico</option>
         </select>
       </div>
-      
+
       <div className="flex justify-end space-x-2">
         <button
           type="button"
@@ -880,4 +906,4 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
       </div>
     </form>
   );
-} 
+}

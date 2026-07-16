@@ -1,8 +1,7 @@
 // @ts-nocheck
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { EquipmentItem } from '@/types';
-import { equipmentData } from '../../constants/equipmentData';
 import AutocompleteInput from './AutocompleteInput';
 
 interface EquipmentTableProps {
@@ -13,6 +12,20 @@ interface EquipmentTableProps {
 }
 
 export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }: EquipmentTableProps) {
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/equipment')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          const cats = [...new Set(data.map((item: { category: string }) => item.category))] as string[];
+          setCategoryOptions(cats);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const handleToggleChecked = (index: number) => {
     const updatedEquipment = [...equipment];
     updatedEquipment[index].checked = !updatedEquipment[index].checked;
@@ -95,7 +108,7 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }:
                     <AutocompleteInput
                       value={item.categoria || ''}
                       onChange={(value) => handleInputChange(index, 'categoria', value)}
-                      options={equipmentData.categories.map(cat => cat.name)}
+                      options={categoryOptions}
                       placeholder="Seleccionar o escribir categoría"
                       className="w-full"
                     />
@@ -156,4 +169,4 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }:
       </div>
     </div>
   );
-} 
+}

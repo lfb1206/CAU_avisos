@@ -1,10 +1,40 @@
 'use client';
-import React, { useState } from 'react';
-import { wikiexploraChecklists, getAvailableChecklists } from '../../constants/wikiexploraChecklists';
+import React, { useState, useEffect } from 'react';
+
+interface ChecklistItem {
+  categoria: string;
+  item: string;
+  cantidad: number;
+  observaciones: string;
+}
+
+interface ChecklistItems {
+  imprescindibles: ChecklistItem[];
+  aconsejables: ChecklistItem[];
+}
+
+interface Checklist {
+  id: number;
+  key: string;
+  name: string;
+  items: ChecklistItems;
+}
+
 export default function ChecklistsAdminPanel() {
-  const [checklists] = useState(getAvailableChecklists());
+  const [checklists, setChecklists] = useState<Checklist[]>([]);
   const [selectedChecklist, setSelectedChecklist] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/checklists')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (data && typeof data === 'object' && 'checklists' in data) {
+          setChecklists((data as { checklists: Checklist[] }).checklists);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleViewDetails = (checklistKey: string) => {
     setSelectedChecklist(checklistKey);
@@ -14,7 +44,7 @@ export default function ChecklistsAdminPanel() {
   const renderChecklistDetails = () => {
     if (!selectedChecklist) return null;
 
-    const checklist = wikiexploraChecklists[selectedChecklist as keyof typeof wikiexploraChecklists];
+    const checklist = checklists.find((c) => c.key === selectedChecklist);
     if (!checklist) return null;
 
     return (
@@ -23,7 +53,7 @@ export default function ChecklistsAdminPanel() {
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{checklist.name}</h3>
-              <p className="text-sm text-gray-600">ID: {selectedChecklist}</p>
+              <p className="text-sm text-gray-600">ID: {checklist.key}</p>
             </div>
             <div className="flex space-x-2">
               <button
@@ -42,10 +72,10 @@ export default function ChecklistsAdminPanel() {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                Items Imprescindibles ({checklist.imprescindibles.length})
+                Items Imprescindibles ({checklist.items.imprescindibles.length})
               </h4>
               <div className="space-y-3">
-                {checklist.imprescindibles.map((item, index) => (
+                {checklist.items.imprescindibles.map((item, index) => (
                   <div key={index} className="bg-white p-3 rounded border">
                     <div className="flex justify-between items-start mb-2">
                       <h5 className="font-medium text-sm text-gray-900">{item.item}</h5>
@@ -68,10 +98,10 @@ export default function ChecklistsAdminPanel() {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
-                Items Aconsejables ({checklist.aconsejables.length})
+                Items Aconsejables ({checklist.items.aconsejables.length})
               </h4>
               <div className="space-y-3">
-                {checklist.aconsejables.map((item, index) => (
+                {checklist.items.aconsejables.map((item, index) => (
                   <div key={index} className="bg-white p-3 rounded border">
                     <div className="flex justify-between items-start mb-2">
                       <h5 className="font-medium text-sm text-gray-900">{item.item}</h5>
@@ -94,22 +124,25 @@ export default function ChecklistsAdminPanel() {
             <h4 className="font-semibold text-gray-900 mb-3">Resumen del Checklist</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-600">{checklist.imprescindibles.length}</div>
+                <div className="text-2xl font-bold text-red-600">{checklist.items.imprescindibles.length}</div>
                 <div className="text-gray-600">Imprescindibles</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{checklist.aconsejables.length}</div>
+                <div className="text-2xl font-bold text-blue-600">{checklist.items.aconsejables.length}</div>
                 <div className="text-gray-600">Aconsejables</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {checklist.imprescindibles.length + checklist.aconsejables.length}
+                  {checklist.items.imprescindibles.length + checklist.items.aconsejables.length}
                 </div>
                 <div className="text-gray-600">Total Items</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-purple-600">
-                  {new Set([...checklist.imprescindibles.map(i => i.categoria), ...checklist.aconsejables.map(i => i.categoria)]).size}
+                  {new Set([
+                    ...checklist.items.imprescindibles.map((i) => i.categoria),
+                    ...checklist.items.aconsejables.map((i) => i.categoria),
+                  ]).size}
                 </div>
                 <div className="text-gray-600">Categorías</div>
               </div>
@@ -131,55 +164,60 @@ export default function ChecklistsAdminPanel() {
         <h3 className="text-lg font-semibold text-gray-900">Checklists Disponibles</h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {checklists.map((checklist, index) => {
-          const checklistData = wikiexploraChecklists[checklist.value as keyof typeof wikiexploraChecklists];
-          const totalItems = checklistData.imprescindibles.length + checklistData.aconsejables.length;
-          const categories = new Set([
-            ...checklistData.imprescindibles.map(i => i.categoria),
-            ...checklistData.aconsejables.map(i => i.categoria)
-          ]);
+      {checklists.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <p>Cargando checklists...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {checklists.map((checklist) => {
+            const totalItems = checklist.items.imprescindibles.length + checklist.items.aconsejables.length;
+            const categories = new Set([
+              ...checklist.items.imprescindibles.map((i) => i.categoria),
+              ...checklist.items.aconsejables.map((i) => i.categoria),
+            ]);
 
-          return (
-            <div key={index} className="bg-white p-4 rounded-lg border shadow-sm">
-              <div className="flex justify-between items-start mb-3">
-                <h4 className="font-semibold text-gray-900 text-sm leading-tight">{checklist.label}</h4>
-                <span className="inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                  {checklist.value}
-                </span>
-              </div>
-              
-              <div className="space-y-2 text-xs text-gray-600 mb-4">
-                <div className="flex justify-between">
-                  <span>Items imprescindibles:</span>
-                  <span className="font-medium text-red-600">{checklistData.imprescindibles.length}</span>
+            return (
+              <div key={checklist.key} className="bg-white p-4 rounded-lg border shadow-sm">
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-semibold text-gray-900 text-sm leading-tight">{checklist.name}</h4>
+                  <span className="inline-block px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                    {checklist.key}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Items aconsejables:</span>
-                  <span className="font-medium text-blue-600">{checklistData.aconsejables.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Total items:</span>
-                  <span className="font-medium text-green-600">{totalItems}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Categorías:</span>
-                  <span className="font-medium text-purple-600">{categories.size}</span>
-                </div>
-              </div>
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handleViewDetails(checklist.value)}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium"
-                >
-                  Ver Detalles
-                </button>
+                <div className="space-y-2 text-xs text-gray-600 mb-4">
+                  <div className="flex justify-between">
+                    <span>Items imprescindibles:</span>
+                    <span className="font-medium text-red-600">{checklist.items.imprescindibles.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Items aconsejables:</span>
+                    <span className="font-medium text-blue-600">{checklist.items.aconsejables.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total items:</span>
+                    <span className="font-medium text-green-600">{totalItems}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Categorías:</span>
+                    <span className="font-medium text-purple-600">{categories.size}</span>
+                  </div>
+                </div>
+
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleViewDetails(checklist.key)}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-xs font-medium"
+                  >
+                    Ver Detalles
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex">
@@ -194,12 +232,12 @@ export default function ChecklistsAdminPanel() {
             </h3>
             <div className="mt-2 text-sm text-blue-700">
               <p>
-                Los checklists de Wikiexplora son listas predefinidas de equipamiento optimizadas para diferentes tipos de expediciones y condiciones. 
-                Cada checklist incluye <strong>items imprescindibles</strong> (obligatorios) e <strong>items aconsejables</strong> (recomendados) 
+                Los checklists de Wikiexplora son listas predefinidas de equipamiento optimizadas para diferentes tipos de expediciones y condiciones.
+                Cada checklist incluye <strong>items imprescindibles</strong> (obligatorios) e <strong>items aconsejables</strong> (recomendados)
                 organizados por categorías como calzado, ropa, protección solar, hidratación, alimentación, equipo, campamento, etc.
               </p>
               <p className="mt-2">
-                <strong>Funcionalidades:</strong> Puedes ver los detalles completos de cada checklist, exportar checklists individuales 
+                <strong>Funcionalidades:</strong> Puedes ver los detalles completos de cada checklist, exportar checklists individuales
                 o exportar todos los checklists para su uso en otras aplicaciones.
               </p>
             </div>
@@ -210,4 +248,4 @@ export default function ChecklistsAdminPanel() {
       {showDetails && renderChecklistDetails()}
     </div>
   );
-} 
+}

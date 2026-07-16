@@ -1,15 +1,75 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
-import { getEquipmentForActivity as getActivityEquipment, getEquipmentForSpecificActivity } from '../../constants/activityEquipmentData';
-import { getAvailableChecklists, applyChecklistToEquipment } from '../../constants/wikiexploraChecklists';
-import { carbonEmissionFactors } from '../../constants/transportOptions';
+import { carbonEmissionFactors } from '../../constants/carbonFactors';
 import EquipmentTable from '../components/EquipmentTable';
 import TransportForm from '../components/TransportForm';
+
+// ── Types for API responses ───────────────────────────────────────────────────
+
+interface EquipmentEntry {
+  item: string;
+  category: string;
+  essential: boolean;
+}
+
+interface ActivityEquipmentRecommendations {
+  basicEquipment?: EquipmentEntry[];
+  [key: string]: unknown;
+}
+
+interface Activity {
+  id: number;
+  name: string;
+  equipment_recommendations: ActivityEquipmentRecommendations | null;
+}
+
+interface ChecklistItem {
+  categoria: string;
+  item: string;
+  cantidad: number;
+  observaciones: string;
+}
+
+interface ChecklistItems {
+  imprescindibles: ChecklistItem[];
+  aconsejables: ChecklistItem[];
+}
+
+interface Checklist {
+  id: number;
+  key: string;
+  name: string;
+  items: ChecklistItems;
+}
+
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export default function Step5EquipmentTransport() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
   const [selectedChecklist, setSelectedChecklist] = useState('');
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [checklists, setChecklists] = useState<Checklist[]>([]);
+
+  useEffect(() => {
+    fetch('/api/activities')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (data && typeof data === 'object' && 'activities' in data) {
+          setActivities((data as { activities: Activity[] }).activities);
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/checklists')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (data && typeof data === 'object' && 'checklists' in data) {
+          setChecklists((data as { checklists: Checklist[] }).checklists);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const addEquipment = () => {
     addItem('equipo', {
@@ -47,7 +107,6 @@ export default function Step5EquipmentTransport() {
 
     const transport = formData.transporte[index];
     const updatedTransport = { ...transport, [field]: value };
-    const tipoNormalizado = updatedTransport.tipo?.toLowerCase();
     const carbonTriggers = ['distancia', 'tipo', 'tipoCombustible', 'tipoAuto', 'anioVehiculo', 'capacidad'];
 
     if (carbonTriggers.includes(field)) {
@@ -66,9 +125,11 @@ export default function Step5EquipmentTransport() {
 
     if (tipoNormalizado === 'auto particular') {
       if (!transport.tipoCombustible) return '';
-      const fuelFactor = carbonEmissionFactors.fuelFactors[transport.tipoCombustible as keyof typeof carbonEmissionFactors.fuelFactors] || 0;
-      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
-      const vehicleFactor = transport.tipoAuto ? (carbonEmissionFactors.vehicleFactors[transport.tipoAuto as keyof typeof carbonEmissionFactors.vehicleFactors] || 0) : 0;
+      const fuelFactor = carbonEmissionFactors.fuelFactors[transport.tipoCombustible as keyof typeof carbonEmissionFactors.fuelFactors] ?? 0;
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] ?? 0;
+      const vehicleFactor = transport.tipoAuto
+        ? (carbonEmissionFactors.vehicleFactors[transport.tipoAuto as keyof typeof carbonEmissionFactors.vehicleFactors] ?? 0)
+        : 0;
       const efficiencyFactor = carbonEmissionFactors.getEfficiencyFactor(transport.anioVehiculo);
       const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
       const baseEmission = distancia * (fuelFactor + transportFactor + vehicleFactor);
@@ -76,78 +137,64 @@ export default function Step5EquipmentTransport() {
     }
 
     if (tipoNormalizado === 'bus') {
-      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] ?? 0;
       const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
       return (distancia * transportFactor * occupancyFactor).toFixed(2);
     }
 
-    const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
+    const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] ?? 0;
     return (distancia * transportFactor).toFixed(2);
   };
 
   const getConductorOptions = () => {
     const externalDrivers = ['Conductor externo', 'Guía de montaña', 'Chofer contratado', 'Transporte público', 'Otro'];
-    return [...formData.participantes.map(p => p.nombre), ...externalDrivers];
+    return [...formData.participantes.map((p: { nombre: string }) => p.nombre), ...externalDrivers];
   };
 
-  type RawEquipmentItem = { item: string; category: string; essential: boolean };
-  type EquipmentSuggestion = { categoria: string; item: string; cantidad: number; observaciones: string };
+  /** Look up equipment suggestions for an activity name from the API-fetched list */
+  const getEquipmentSuggestionsForActivity = (actividadName: string): Array<{ categoria: string; item: string; cantidad: number; observaciones: string }> => {
+    if (!actividadName) return [];
 
-  const getEquipmentForActivity = (actividad: string): EquipmentSuggestion[] => {
-    if (!actividad) return [];
-    const suggestions: EquipmentSuggestion[] = [];
+    // Try exact match first (case-insensitive), then partial
+    const match = activities.find(
+      (a) => a.name.toLowerCase() === actividadName.toLowerCase()
+    ) ?? activities.find(
+      (a) => actividadName.toLowerCase().includes(a.name.toLowerCase()) ||
+             a.name.toLowerCase().includes(actividadName.toLowerCase())
+    );
 
-    const specificEquipment = getEquipmentForSpecificActivity(actividad) as RawEquipmentItem[];
-    if (specificEquipment && specificEquipment.length > 0) {
-      specificEquipment.forEach((item: RawEquipmentItem) => {
-        suggestions.push({
-          categoria: item.category,
-          item: item.item,
-          cantidad: 1,
-          observaciones: `Esencial: ${item.essential ? 'Sí' : 'No'} (Sugerido por actividad específica)`
-        });
-      });
-      return suggestions;
-    }
+    if (!match?.equipment_recommendations?.basicEquipment) return [];
 
-    const generalEquipment = getActivityEquipment(actividad) as RawEquipmentItem[] | null;
-    if (generalEquipment) {
-      const equipmentItems: RawEquipmentItem[] = Array.isArray(generalEquipment) ? generalEquipment : [];
-      equipmentItems.forEach((item: RawEquipmentItem) => {
-        suggestions.push({
-          categoria: item.category,
-          item: item.item,
-          cantidad: 1,
-          observaciones: `Esencial: ${item.essential ? 'Sí' : 'No'} (Sugerido por actividad general)`
-        });
-      });
-    }
-
-    return suggestions;
+    return match.equipment_recommendations.basicEquipment.map((entry) => ({
+      categoria: entry.category,
+      item: entry.item,
+      cantidad: 1,
+      observaciones: `Esencial: ${entry.essential ? 'Sí' : 'No'} (Sugerido por actividad)`,
+    }));
   };
 
   const loadActivityRecommendations = () => {
-    const suggestions = [];
-    const processedActivities = new Set();
+    const suggestions: Array<{ categoria: string; item: string; cantidad: number; observaciones: string }> = [];
+    const processedActivities = new Set<string>();
 
-    formData.itinerario?.forEach((day) => {
-      day.actividades?.forEach(actividad => {
+    formData.itinerario?.forEach((day: { actividades?: string[] }) => {
+      day.actividades?.forEach((actividad: string) => {
         if (!processedActivities.has(actividad)) {
-          suggestions.push(...getEquipmentForActivity(actividad));
+          suggestions.push(...getEquipmentSuggestionsForActivity(actividad));
           processedActivities.add(actividad);
         }
       });
     });
 
     if (formData.basicInfo?.actividad && !processedActivities.has(formData.basicInfo.actividad)) {
-      suggestions.push(...getEquipmentForActivity(formData.basicInfo.actividad));
+      suggestions.push(...getEquipmentSuggestionsForActivity(formData.basicInfo.actividad));
     }
 
     const existingItems = new Set(
-      formData.equipo.map(e => `${e.item.toLowerCase()}-${e.categoria.toLowerCase()}`)
+      formData.equipo.map((e: { item: string; categoria: string }) => `${e.item.toLowerCase()}-${e.categoria.toLowerCase()}`)
     );
 
-    suggestions.forEach(item => {
+    suggestions.forEach((item) => {
       const key = `${item.item.toLowerCase()}-${item.categoria.toLowerCase()}`;
       if (!existingItems.has(key)) {
         addItem('equipo', {
@@ -164,33 +211,43 @@ export default function Step5EquipmentTransport() {
 
   const applyWikiexploraChecklist = () => {
     if (!selectedChecklist) return;
-    const equipment = applyChecklistToEquipment(selectedChecklist, true);
-    equipment.forEach(item => {
+
+    const checklist = checklists.find((c) => c.key === selectedChecklist);
+    if (!checklist) return;
+
+    const allItems: ChecklistItem[] = [
+      ...checklist.items.imprescindibles,
+      ...checklist.items.aconsejables,
+    ];
+
+    allItems.forEach((item) => {
       const exists = formData.equipo.some(
-        e => e.item.toLowerCase() === item.item.toLowerCase() &&
-             e.categoria.toLowerCase() === item.categoria.toLowerCase()
+        (e: { item: string; categoria: string }) =>
+          e.item.toLowerCase() === item.item.toLowerCase() &&
+          e.categoria.toLowerCase() === item.categoria.toLowerCase()
       );
       if (!exists) {
         addItem('equipo', {
           categoria: item.categoria,
           item: item.item,
           cantidad: item.cantidad.toString(),
-          observaciones: item.observaciones,
+          observaciones: `${item.observaciones} (Checklist: ${checklist.name})`,
           checked: false
         });
       }
     });
+
     setSelectedChecklist('');
   };
 
-  // FIX BUG-3: remove from last index to first so indices don't shift
+  // Remove from last index to first so indices don't shift
   const clearAllEquipment = () => {
     for (let i = formData.equipo.length - 1; i >= 0; i--) {
       removeItem('equipo', i);
     }
   };
 
-  const availableChecklists = getAvailableChecklists();
+  const availableChecklists = checklists.map((c) => ({ value: c.key, label: c.name }));
 
   return (
     <div className="space-y-6">
@@ -215,7 +272,7 @@ export default function Step5EquipmentTransport() {
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Seleccionar checklist</option>
-                {availableChecklists.map(checklist => (
+                {availableChecklists.map((checklist) => (
                   <option key={checklist.value} value={checklist.value}>
                     {checklist.label}
                   </option>
@@ -275,13 +332,13 @@ export default function Step5EquipmentTransport() {
           </div>
 
           <div className="space-y-4">
-            {formData.transporte?.map((transport, index) => (
+            {formData.transporte?.map((transport: import('@/types').Transport, index: number) => (
               <TransportForm
                 key={index}
                 transport={transport}
                 index={index}
                 onUpdate={updateTransport}
-                onRemove={(index) => removeItem('transporte', index)}
+                onRemove={(idx) => removeItem('transporte', idx)}
                 getConductorOptions={getConductorOptions}
               />
             ))}

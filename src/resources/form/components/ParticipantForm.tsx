@@ -1,8 +1,14 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import type { Participant } from '@/types';
-import { medicalOptions } from '../../constants/medicalOptions';
 import AutocompleteInput from './AutocompleteInput';
+
+interface MedicalOptions {
+  bloodTypes: string[];
+  allergies: string[];
+  medicalConditions: string[];
+  medications: string[];
+}
 
 interface ParticipantFormProps {
   participant: Participant;
@@ -19,6 +25,24 @@ export default function ParticipantForm({
   onNameChange,
   getSavedParticipantNames
 }: ParticipantFormProps) {
+  const [medicalOptions, setMedicalOptions] = useState<MedicalOptions>({
+    bloodTypes: [],
+    allergies: [],
+    medicalConditions: [],
+    medications: [],
+  });
+
+  useEffect(() => {
+    fetch('/api/medicalOptions')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (data && typeof data === 'object' && 'bloodTypes' in data) {
+          setMedicalOptions(data as MedicalOptions);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const formatRUT = (rut: string): string => {
     let value = rut.replace(/[^0-9kK]/g, '');
     if (value.length > 9) {
@@ -139,9 +163,9 @@ export default function ParticipantForm({
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Seleccionar grupo sanguíneo</option>
-                            {medicalOptions.bloodTypes.map(option => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+          {medicalOptions.bloodTypes.map((bt) => (
+            <option key={bt} value={bt}>
+              {bt}
             </option>
           ))}
         </select>
@@ -151,7 +175,7 @@ export default function ParticipantForm({
         label="Alergias"
         value={participant.alergias || ''}
         onChange={(value) => onUpdate(index, 'alergias', value)}
-                    options={medicalOptions.allergies}
+        options={medicalOptions.allergies}
         placeholder="Seleccione o escriba las alergias"
       />
 
@@ -159,7 +183,7 @@ export default function ParticipantForm({
         label="Enfermedades o condiciones"
         value={participant.enfermedades || ''}
         onChange={(value) => onUpdate(index, 'enfermedades', value)}
-                    options={medicalOptions.medicalConditions}
+        options={medicalOptions.medicalConditions}
         placeholder="Seleccione o escriba las condiciones"
       />
 
@@ -167,7 +191,7 @@ export default function ParticipantForm({
         label="Medicamentos que toma"
         value={participant.medicamentos || ''}
         onChange={(value) => onUpdate(index, 'medicamentos', value)}
-                    options={medicalOptions.medications}
+        options={medicalOptions.medications}
         placeholder="Seleccione o escriba los medicamentos"
       />
 
@@ -175,9 +199,9 @@ export default function ParticipantForm({
         label="Condiciones especiales"
         value={participant.condicionesEspeciales || ''}
         onChange={(value) => onUpdate(index, 'condicionesEspeciales', value)}
-                    options={medicalOptions.specialConditions}
+        options={medicalOptions.medicalConditions}
         placeholder="Seleccione o escriba las condiciones especiales"
       />
     </div>
   );
-} 
+}

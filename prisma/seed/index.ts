@@ -7,6 +7,7 @@ import { seedTalleres } from './talleres';
 import { seedFichas } from './fichas';
 import { seedSupuestos } from './supuestos';
 import { setupRLS } from './rls';
+import { seedChecklistsAndOptions } from './checklistsAndOptions';
 
 const prisma = new PrismaClient();
 
@@ -20,6 +21,7 @@ async function main() {
   await seedFichas(prisma);
   await seedSupuestos(prisma);
   await setupRLS(prisma);
+  await seedChecklistsAndOptions(prisma);
 
   console.log('\nSeed complete.');
 }

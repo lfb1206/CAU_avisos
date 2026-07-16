@@ -1,9 +1,8 @@
 // @ts-nocheck
 'use client';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import type { EquipmentItem } from '@/types';
 import AutocompleteInput from './AutocompleteInput';
-import { equipmentData } from '../../constants/equipmentData';
 
 interface EquipmentFormProps {
   equipment: EquipmentItem;
@@ -14,6 +13,19 @@ interface EquipmentFormProps {
 
 export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: EquipmentFormProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch('/api/admin/equipment')
+      .then((r) => r.json())
+      .then((data: unknown) => {
+        if (Array.isArray(data)) {
+          const cats = [...new Set(data.map((item: { category: string }) => item.category))] as string[];
+          setCategoryOptions(cats);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleInputChange = useCallback((field: string, value: unknown) => {
     onUpdate(index, field, value);
@@ -41,10 +53,10 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
             onClick={handleToggleExpanded}
             className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0"
           >
-            <svg 
-              className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform ${isExpanded ? 'rotate-90' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className={`w-4 h-4 sm:w-5 sm:h-5 transform transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -59,7 +71,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
             </span>
           )}
         </div>
-        
+
         {/* Botones - Apilados en móvil, en línea en desktop */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           <div className="flex items-center space-x-2">
@@ -100,7 +112,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
               <AutocompleteInput
                 value={equipment.categoria || ''}
                 onChange={(value) => handleInputChange('categoria', value)}
-                options={equipmentData.categories.map(cat => cat.name)}
+                options={categoryOptions}
                 placeholder="Ej: Equipo de Escalada"
               />
             </div>
@@ -117,7 +129,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
               />
             </div>
           </div>
-          
+
           {/* Cantidad y Observaciones en una sola columna en móvil */}
           <div className="space-y-4">
             <div className="space-y-1">
@@ -150,4 +162,4 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
       )}
     </div>
   );
-} 
+}
