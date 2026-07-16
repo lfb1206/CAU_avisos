@@ -15,7 +15,7 @@ export default function Step7FinalReview() {
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
   const cuerposRescate = Array.isArray(formData.cuerposRescate) ? formData.cuerposRescate : [];
 
-  const formatDateTime = (dateTimeString) => {
+  const formatDateTime = (dateTimeString: string) => {
     if (!dateTimeString) return 'No especificada';
     return new Date(dateTimeString).toLocaleString('es-CL', {
       year: 'numeric',
@@ -26,8 +26,8 @@ export default function Step7FinalReview() {
     });
   };
 
-  const getEquipmentSummary = () => {
-    const categories = {};
+  const getEquipmentSummary = (): Record<string, string[]> => {
+    const categories: Record<string, string[]> = {};
     // Only show checked equipment
     const checkedEquipment = equipo.filter(item => item.checked);
     checkedEquipment.forEach(item => {
@@ -159,11 +159,11 @@ export default function Step7FinalReview() {
   const isFormComplete = validationErrors.length === 0;
 
   // Emergency contacts management functions
-  const updateEmergencyContact = (index, field, value) => {
+  const updateEmergencyContact = (index: number, field: string, value: unknown) => {
     updateItem('cuerposRescate', index, { [field]: value });
   };
 
-  const addEmergencyContact = (newContact) => {
+  const addEmergencyContact = (newContact: import('@/types').RescueBody) => {
     addItem('cuerposRescate', newContact);
   };
 

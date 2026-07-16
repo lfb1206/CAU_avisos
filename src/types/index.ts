@@ -47,16 +47,18 @@ export interface Causa {
   accionConsecuencias: string;
   peligros: string[];
   riesgos: string[];
+  [key: string]: unknown;
 }
 
 export interface Assumption {
   supuesto: string;
-  accion: 'gestionar' | 'monitoreo_intenso' | 'monitoreo_normal' | 'aceptar';
+  accion: 'gestionar' | 'monitoreo_intenso' | 'monitoreo_normal' | 'aceptar' | '';
   incluir?: boolean;
   tipoSupuesto?: string;
   probabilidad?: string;
   impacto?: string;
   causas?: Causa[];
+  [key: string]: unknown;
 }
 
 export interface ItineraryDay {
@@ -69,6 +71,7 @@ export interface ItineraryDay {
   altitudFin?: string;
   supuestos: Assumption[];
   dificultadesPrincipales?: string[];
+  [key: string]: unknown;
 }
 
 export interface EquipmentItem {

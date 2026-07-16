@@ -5,11 +5,18 @@ import { riskManagementOptions } from '../../constants/riskManagementOptions';
 import AutocompleteInput from '../components/AutocompleteInput';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { ASSUMPTION_ACTIONS } from '../../constants/formConstants';
+import type { Causa } from '@/types';
 
 export default function Step4RiskManagement() {
   const { formData, updateItem } = useFormContext();
 
-  const [modalState, setModalState] = useState({
+  const [modalState, setModalState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: (() => void) | null;
+    type: 'info' | 'danger' | 'warning';
+  }>({
     isOpen: false,
     title: '',
     message: '',
@@ -17,7 +24,7 @@ export default function Step4RiskManagement() {
     type: 'danger'
   });
 
-  const showConfirmationModal = (title: string, message: string, onConfirm: () => void, type = 'danger') => {
+  const showConfirmationModal = (title: string, message: string, onConfirm: () => void, type: 'info' | 'danger' | 'warning' = 'danger') => {
     setModalState({ isOpen: true, title, message, onConfirm, type });
   };
 
@@ -30,7 +37,14 @@ export default function Step4RiskManagement() {
     closeModal();
   };
 
-  const supuestosGestionar = [];
+  const supuestosGestionar: Array<{
+    key: string;
+    tramo: string;
+    supuesto: string;
+    indexItinerario: number;
+    indexSupuesto: number;
+    causas: Causa[];
+  }> = [];
   formData.itinerario.forEach((day, dayIndex) => {
     (day.supuestos || []).forEach((assumption, assumptionIndex) => {
       if (

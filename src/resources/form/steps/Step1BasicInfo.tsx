@@ -19,8 +19,8 @@ export default function Step1BasicInfo() {
     handleFieldChange('contactoCAU', value);
     
     // Autocompletar todos los datos si el contacto existe en peopleData
-    if (value && peopleData[value]) {
-      const contactData = peopleData[value];
+    if (value && peopleData[value as keyof typeof peopleData]) {
+      const contactData = peopleData[value as keyof typeof peopleData];
       handleFieldChange('telefonoContacto', contactData.telefono);
       handleFieldChange('emailContacto', contactData.email);
       // También autocompletar datos médicos si están disponibles

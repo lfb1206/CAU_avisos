@@ -44,8 +44,8 @@ export default function Step2Participants() {
     updateItem('participantes', index, { ...participantes[index], nombre: participantName, isDuplicate: false });
     
     // Auto-fill data if it's a saved participant
-    if (peopleData[participantName]) {
-      const saved = peopleData[participantName];
+    if (peopleData[participantName as keyof typeof peopleData]) {
+      const saved = peopleData[participantName as keyof typeof peopleData];
       updateItem('participantes', index, {
         ...saved,
         nombre: participantName,

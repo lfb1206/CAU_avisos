@@ -3,12 +3,13 @@ import React from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import { difficultyAssumptionRecommendations } from '../../constants/difficultyAssumptionRecommendations';
 import ItineraryDayForm from '../components/ItineraryDayForm';
+import type { Assumption } from '@/types';
 
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
 
   // Lógica para evaluación de supuestos (condiciones que favorecen el éxito)
-  const calculateRiskAction = (probability: string, impact: string): string => {
+  const calculateRiskAction = (probability: string, impact: string): Assumption['accion'] => {
     if (!probability || !impact) return '';
     
     // Nueva lógica basada en la fórmula: 
@@ -58,26 +59,28 @@ export default function Step3ItineraryAssumptions() {
   };
 
   // Suggest assumptions based on selected difficulties
-  const getSuggestedAssumptions = (selectedDifficulties: string[]) => {
-    const suggestions = [];
+  const getSuggestedAssumptions = (selectedDifficulties: string[]): Assumption[] => {
+    const suggestions: Assumption[] = [];
     const validDifficulties = selectedDifficulties.filter(d => d && d.trim());
-    
+
     validDifficulties.forEach(difficulty => {
-      if (difficultyAssumptionRecommendations[difficulty]) {
-        difficultyAssumptionRecommendations[difficulty].forEach(recommendation => {
+      const key = difficulty as keyof typeof difficultyAssumptionRecommendations;
+      if (difficultyAssumptionRecommendations[key]) {
+        difficultyAssumptionRecommendations[key].forEach(recommendation => {
           suggestions.push({
             ...recommendation,
-            incluir: false
+            incluir: false,
+            accion: ''
           });
         });
       }
     });
-    
+
     return suggestions;
   };
 
   const addAssumption = (itineraryIndex: number) => {
-    const newAssumption = {
+    const newAssumption: Assumption = {
       supuesto: '',
       tipoSupuesto: '',
       probabilidad: '',
@@ -111,7 +114,7 @@ export default function Step3ItineraryAssumptions() {
       );
       
       if (!alreadyExists) {
-        suggestion.accion = calculateRiskAction(suggestion.probabilidad, suggestion.impacto);
+        suggestion.accion = calculateRiskAction(suggestion.probabilidad ?? '', suggestion.impacto ?? '');
         
         // Auto-include in aviso if action is 'gestionar'
         if (suggestion.accion === 'gestionar') {
@@ -154,7 +157,7 @@ export default function Step3ItineraryAssumptions() {
     
     // Auto-calculate action if probability or impact changed
     if (field === 'probabilidad' || field === 'impacto') {
-      assumption.accion = calculateRiskAction(assumption.probabilidad, assumption.impacto);
+      assumption.accion = calculateRiskAction(assumption.probabilidad ?? '', assumption.impacto ?? '');
       
       // Auto-include in aviso if action is 'gestionar'
       if (assumption.accion === 'gestionar') {

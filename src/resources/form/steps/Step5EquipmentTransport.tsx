@@ -66,9 +66,9 @@ export default function Step5EquipmentTransport() {
 
     if (tipoNormalizado === 'auto particular') {
       if (!transport.tipoCombustible) return '';
-      const fuelFactor = carbonEmissionFactors.fuelFactors[transport.tipoCombustible] || 0;
-      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
-      const vehicleFactor = transport.tipoAuto ? (carbonEmissionFactors.vehicleFactors[transport.tipoAuto] || 0) : 0;
+      const fuelFactor = carbonEmissionFactors.fuelFactors[transport.tipoCombustible as keyof typeof carbonEmissionFactors.fuelFactors] || 0;
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
+      const vehicleFactor = transport.tipoAuto ? (carbonEmissionFactors.vehicleFactors[transport.tipoAuto as keyof typeof carbonEmissionFactors.vehicleFactors] || 0) : 0;
       const efficiencyFactor = carbonEmissionFactors.getEfficiencyFactor(transport.anioVehiculo);
       const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
       const baseEmission = distancia * (fuelFactor + transportFactor + vehicleFactor);
@@ -76,12 +76,12 @@ export default function Step5EquipmentTransport() {
     }
 
     if (tipoNormalizado === 'bus') {
-      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
+      const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
       const occupancyFactor = carbonEmissionFactors.getOccupancyFactor(transport.capacidad, tipoNormalizado);
       return (distancia * transportFactor * occupancyFactor).toFixed(2);
     }
 
-    const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado] || 0;
+    const transportFactor = carbonEmissionFactors.transportTypeFactors[tipoNormalizado as keyof typeof carbonEmissionFactors.transportTypeFactors] || 0;
     return (distancia * transportFactor).toFixed(2);
   };
 
@@ -90,13 +90,16 @@ export default function Step5EquipmentTransport() {
     return [...formData.participantes.map(p => p.nombre), ...externalDrivers];
   };
 
-  const getEquipmentForActivity = (actividad: string) => {
-    if (!actividad) return [];
-    const suggestions = [];
+  type RawEquipmentItem = { item: string; category: string; essential: boolean };
+  type EquipmentSuggestion = { categoria: string; item: string; cantidad: number; observaciones: string };
 
-    const specificEquipment = getEquipmentForSpecificActivity(actividad);
+  const getEquipmentForActivity = (actividad: string): EquipmentSuggestion[] => {
+    if (!actividad) return [];
+    const suggestions: EquipmentSuggestion[] = [];
+
+    const specificEquipment = getEquipmentForSpecificActivity(actividad) as RawEquipmentItem[];
     if (specificEquipment && specificEquipment.length > 0) {
-      specificEquipment.forEach(item => {
+      specificEquipment.forEach((item: RawEquipmentItem) => {
         suggestions.push({
           categoria: item.category,
           item: item.item,
@@ -107,10 +110,10 @@ export default function Step5EquipmentTransport() {
       return suggestions;
     }
 
-    const generalEquipment = getActivityEquipment(actividad);
+    const generalEquipment = getActivityEquipment(actividad) as RawEquipmentItem[] | null;
     if (generalEquipment) {
-      const equipmentItems = generalEquipment.basicEquipment || (Array.isArray(generalEquipment) ? generalEquipment : []);
-      equipmentItems.forEach(item => {
+      const equipmentItems: RawEquipmentItem[] = Array.isArray(generalEquipment) ? generalEquipment : [];
+      equipmentItems.forEach((item: RawEquipmentItem) => {
         suggestions.push({
           categoria: item.category,
           item: item.item,
