@@ -244,8 +244,8 @@ export default function Step3ItineraryAssumptions() {
             getActionColor={getActionColor}
             getActionLabel={getActionLabel}
             fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
-            tramos={basicOptions.tramos ?? []}
-            actividadesEspecificas={basicOptions.actividadesEspecificas ?? []}
+            tramos={basicOptions.tramo ?? []}
+            actividadesEspecificas={basicOptions.actividad ?? []}
             dificultadesPrincipales={riskOptions.dificultad?.map((o) => o.label) ?? []}
             supuestosOpciones={riskOptions.supuesto?.map((o) => o.label) ?? []}
             tipoSupuestos={riskOptions.tipoSupuesto?.map((o) => ({ value: o.key, label: o.label })) ?? []}

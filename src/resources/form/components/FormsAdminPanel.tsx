@@ -25,7 +25,7 @@ interface MedicalOpts {
 
 export default function FormsAdminPanel() {
   const [activeTab, setActiveTab] = useState('basic');
-  const [basicOptions, setBasicOptions] = useState({ actividades: [], actividadesEspecificas: [], cerrosSectores: [], tramos: [] });
+  const [basicOptions, setBasicOptions] = useState({ actividad: [], cerroSector: [], tramo: [], dificultad: [] });
 
   const [transportOpts, setTransportOpts] = useState<TransportOpts>({
     transportTypes: [],
@@ -255,35 +255,15 @@ export default function FormsAdminPanel() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Actividades Generales</h4>
+          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Actividades</h4>
           <div className="space-y-2">
-            {basicOptions.actividades.map((actividad, index) => (
+            {basicOptions.actividad.map((actividad, index) => (
               <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                 <span className="text-sm">{actividad}</span>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-gray-500">Sugerencia</span>
                   <button
-                    onClick={() => handleDeleteBasicItem('actividades', index)}
-                    className="text-red-600 hover:text-red-800 text-xs"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Actividades Específicas</h4>
-          <div className="space-y-2">
-            {basicOptions.actividadesEspecificas.map((actividad, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
-                <span className="text-sm">{actividad}</span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
-                  <button
-                    onClick={() => handleDeleteBasicItem('actividadesEspecificas', index)}
+                    onClick={() => handleDeleteBasicItem('actividad', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
                   >
                     Eliminar
@@ -297,13 +277,13 @@ export default function FormsAdminPanel() {
         <div className="bg-white p-4 rounded-lg border shadow-sm">
           <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Cerros y Sectores</h4>
           <div className="space-y-2">
-            {basicOptions.cerrosSectores.map((cerro, index) => (
+            {basicOptions.cerroSector.map((cerro, index) => (
               <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                 <span className="text-sm">{cerro}</span>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-gray-500">Sugerencia</span>
                   <button
-                    onClick={() => handleDeleteBasicItem('cerrosSectores', index)}
+                    onClick={() => handleDeleteBasicItem('cerroSector', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
                   >
                     Eliminar
@@ -317,13 +297,13 @@ export default function FormsAdminPanel() {
         <div className="bg-white p-4 rounded-lg border shadow-sm">
           <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Tramos de Ruta</h4>
           <div className="space-y-2">
-            {basicOptions.tramos.map((tramo, index) => (
+            {basicOptions.tramo.map((tramo, index) => (
               <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
                 <span className="text-sm">{tramo}</span>
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-gray-500">Sugerencia</span>
                   <button
-                    onClick={() => handleDeleteBasicItem('tramos', index)}
+                    onClick={() => handleDeleteBasicItem('tramo', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
                   >
                     Eliminar
@@ -640,10 +620,9 @@ export default function FormsAdminPanel() {
                   required
                 >
                   <option value="">Seleccionar tipo</option>
-                  <option value="actividades">Actividades Generales</option>
-                  <option value="actividadesEspecificas">Actividades Específicas</option>
-                  <option value="cerrosSectores">Cerros y Sectores</option>
-                  <option value="tramos">Tramos de Ruta</option>
+                  <option value="actividad">Actividades</option>
+                  <option value="cerroSector">Cerros y Sectores</option>
+                  <option value="tramo">Tramos de Ruta</option>
                 </select>
               </div>
               <div>

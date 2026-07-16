@@ -128,7 +128,7 @@ export default function Step1BasicInfo() {
           label="Actividad"
           value={formData.basicInfo.actividad || ''}
           onChange={(value) => handleFieldChange('actividad', value)}
-          options={basicOptions.actividades ?? []}
+          options={basicOptions.actividad ?? []}
           placeholder="Seleccione o escriba el tipo de actividad"
           required
         />
@@ -137,7 +137,7 @@ export default function Step1BasicInfo() {
           label="Cerro o Sector"
           value={formData.basicInfo.cerroOSector || ''}
           onChange={(value) => handleFieldChange('cerroOSector', value)}
-          options={basicOptions.cerrosSectores ?? []}
+          options={basicOptions.cerroSector ?? []}
           placeholder="Seleccione o escriba el cerro o sector"
           required
         />

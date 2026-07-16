@@ -1,9 +1,8 @@
 'use client';
 
-import React, { Suspense, useEffect, useRef } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { Suspense, useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { FormContextProvider, useFormContext } from '@/resources/contexts/FormContext';
-import { createClient } from '@/lib/supabase/client';
 import Step1BasicInfo from '@/resources/form/steps/Step1BasicInfo';
 import Step2Participants from '@/resources/form/steps/Step2Participants';
 import Step3ItineraryAssumptions from '@/resources/form/steps/Step3ItineraryAssumptions';
@@ -24,68 +23,63 @@ const STEPS = [
 function AvisoLargoInner() {
   const { formData, goToStep, isStepValid, loadData, saveToApi, isSaving } = useFormContext();
   const searchParams = useSearchParams();
-  const router = useRouter();
   const avisoIdParam = searchParams.get('id');
   const loadedRef = useRef(false);
-  const draftCreatedRef = useRef(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saved' | 'error'>('idle');
 
-  // Keep a ref to always call the latest saveToApi on unmount
-  const saveToApiRef = useRef(saveToApi);
-  useEffect(() => {
-    saveToApiRef.current = saveToApi;
-  }, [saveToApi]);
-
-  // Load existing aviso if ?id= is present (e.g. cloned from library or returning to draft)
+  // Load existing aviso when ?id= is present (returning to a draft or cloning from library)
   useEffect(() => {
     if (!avisoIdParam || loadedRef.current) return;
     loadedRef.current = true;
     fetch(`/api/avisos/${avisoIdParam}`)
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: { form_data?: Record<string, unknown> }) => {
         if (data?.form_data) {
           loadData(data.form_data);
+          setIsDirty(false);
         }
       })
       .catch(() => {});
   }, [avisoIdParam, loadData]);
 
-  // Auto-create draft when opening a fresh form (no ?id= param)
+  // Mark form as dirty whenever formData changes after initial load
+  const formDataRef = useRef(formData);
   useEffect(() => {
-    if (avisoIdParam || draftCreatedRef.current) return;
-    draftCreatedRef.current = true;
+    if (formDataRef.current !== formData) {
+      formDataRef.current = formData;
+      setIsDirty(true);
+    }
+  }, [formData]);
 
-    const createDraft = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return; // unauthenticated: localStorage-only mode, no API call
-
-      const result = await saveToApi();
-      if (result.success && result.avisoId) {
-        router.replace(`/aviso/largo?id=${result.avisoId}`);
-      }
-    };
-
-    void createDraft();
-  }, [avisoIdParam, saveToApi, router]);
-
-  // Save to API on SPA unmount (covers in-app navigation away)
+  // Warn browser on close/refresh when there are unsaved changes
   useEffect(() => {
-    return () => {
-      void saveToApiRef.current();
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
     };
-  }, []);
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  const handleSave = useCallback(async () => {
+    const result = await saveToApi();
+    if (result.success) {
+      setIsDirty(false);
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } else {
+      setSaveStatus('error');
+    }
+  }, [saveToApi]);
 
   const currentCtxStep = formData.currentStep;
   const stepIdx = STEPS.findIndex((s) => s.ctx === currentCtxStep);
   const effectiveIdx = stepIdx === -1 ? 0 : stepIdx;
   const isLastStep = effectiveIdx === STEPS.length - 1;
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (effectiveIdx < STEPS.length - 1) {
-      const result = await saveToApi();
-      if (!result.success) {
-        console.error('Auto-save failed:', result.error);
-      }
       goToStep(STEPS[effectiveIdx + 1].ctx);
     }
   };
@@ -107,10 +101,32 @@ function AvisoLargoInner() {
           <span>/</span>
           <span className="text-gray-800 font-medium">Aviso Largo</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Aviso de Salida</h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Para actividades con pernocte, expediciones y salidas de alta montaña.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Aviso de Salida</h1>
+            <p className="text-gray-500 text-sm mt-1">
+              Para actividades con pernocte, expediciones y salidas de alta montaña.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {saveStatus === 'saved' && (
+              <span className="text-xs text-green-600 font-medium">Guardado</span>
+            )}
+            {saveStatus === 'error' && (
+              <span className="text-xs text-red-600 font-medium">Error al guardar</span>
+            )}
+            {isDirty && saveStatus === 'idle' && (
+              <span className="text-xs text-gray-400">Cambios sin guardar</span>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={isSaving || !isDirty}
+              className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isSaving ? 'Guardando…' : 'Guardar borrador'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Step indicator */}
@@ -175,10 +191,10 @@ function AvisoLargoInner() {
           )}
           <button
             onClick={handleNext}
-            disabled={!canGoNext || isSaving}
+            disabled={!canGoNext}
             className="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {isSaving ? 'Guardando…' : `Siguiente: ${STEPS[effectiveIdx + 1]?.label} →`}
+            Siguiente: {STEPS[effectiveIdx + 1]?.label} →
           </button>
         </div>
       )}
