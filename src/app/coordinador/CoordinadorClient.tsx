@@ -79,23 +79,23 @@ const edicionStatusLabel: Record<string, string> = {
 };
 
 const edicionStatusColor: Record<string, string> = {
-  planificada: 'bg-gray-100 text-gray-600',
-  inscripciones_abiertas: 'bg-blue-100 text-blue-700',
-  en_curso: 'bg-green-100 text-green-700',
-  finalizada: 'bg-purple-100 text-purple-700',
-  cancelada: 'bg-red-100 text-red-600',
+  planificada: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+  inscripciones_abiertas: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
+  en_curso: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+  finalizada: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
+  cancelada: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
 };
 
 const inscripcionStatusColors: Record<string, string> = {
-  postulando: 'bg-yellow-100 text-yellow-700',
-  aceptado: 'bg-green-100 text-green-700',
-  en_lista: 'bg-blue-100 text-blue-700',
-  rechazado: 'bg-red-100 text-red-700',
-  completado: 'bg-green-100 text-green-800',
-  reprobado: 'bg-red-100 text-red-800',
-  no_asiste: 'bg-gray-100 text-gray-500',
-  retirado: 'bg-gray-100 text-gray-500',
-  rezagado: 'bg-purple-100 text-purple-700',
+  postulando: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
+  aceptado: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+  en_lista: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
+  rechazado: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+  completado: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+  reprobado: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+  no_asiste: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+  retirado: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+  rezagado: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300',
 };
 
 type Tab = 'ediciones' | 'postulaciones' | 'resultados' | 'ayudantes' | 'puntos';
@@ -362,11 +362,11 @@ export default function CoordinadorClient({
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Panel del Coordinador</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Panel del Coordinador</h1>
       </div>
 
       {/* Tab navigation */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex gap-1 -mb-px">
           {tabs.map((tab) => (
             <button
@@ -375,7 +375,7 @@ export default function CoordinadorClient({
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                 activeTab === tab.key
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
               }`}
             >
               {tab.label}
@@ -396,15 +396,15 @@ export default function CoordinadorClient({
           <div className="space-y-4">
             {/* Controls row */}
             <div className="flex items-center justify-between gap-3">
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
                 {(['activas', 'historial', 'todas'] as const).map((f) => (
                   <button
                     key={f}
                     onClick={() => setEdicionStatusFilter(f)}
                     className={`px-3 py-1 text-sm rounded-md font-medium transition-colors capitalize ${
                       edicionStatusFilter === f
-                        ? 'bg-white shadow text-gray-900'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white dark:bg-gray-600 shadow text-gray-900 dark:text-gray-100'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                     }`}
                   >
                     {f === 'activas' ? 'Activas' : f === 'historial' ? 'Historial' : 'Todas'}
@@ -420,7 +420,7 @@ export default function CoordinadorClient({
             </div>
 
             {visibleEdiciones.length === 0 && (
-              <p className="text-center text-sm text-gray-400 py-8">Sin ediciones en esta vista.</p>
+              <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-8">Sin ediciones en esta vista.</p>
             )}
 
             {(['base', 'nieve_hielo', 'roca'] as const).map((branch) => {
@@ -428,10 +428,10 @@ export default function CoordinadorClient({
               if (branchEdiciones.length === 0) return null;
               return (
                 <section key={branch}>
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
                     {branchLabel[branch]}
                   </h2>
-                  <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
+                  <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm divide-y divide-gray-100 dark:divide-gray-700">
                     {branchEdiciones.map((edicion) => {
                       const isDone = ['finalizada', 'cancelada'].includes(edicion.status);
                       return (
@@ -439,12 +439,12 @@ export default function CoordinadorClient({
                           {/* Info */}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-sm font-medium text-gray-900">{edicion.taller_name}</p>
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{edicion.taller_name}</p>
                               <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${edicionStatusColor[edicion.status] ?? 'bg-gray-100 text-gray-500'}`}>
                                 {edicionStatusLabel[edicion.status] ?? edicion.status}
                               </span>
                             </div>
-                            <p className="text-xs text-gray-400 mt-0.5">
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                               {edicion.name}
                               {edicion.start_date && ` · ${new Date(edicion.start_date).toLocaleDateString('es-CL')}`}
                               {' · '}{edicion.postulaciones} postulando · {edicion.aceptados} aceptados / {edicion.capacity} cupos
@@ -466,7 +466,7 @@ export default function CoordinadorClient({
                                 {(edicion.status === 'planificada' || edicion.status === 'inscripciones_abiertas') && (
                                   <button
                                     onClick={() => handleStatusChange(edicion.id, 'en_curso')}
-                                    className="text-xs px-2 py-1 border border-green-300 text-green-700 rounded hover:bg-green-50"
+                                    className="text-xs px-2 py-1 border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 rounded hover:bg-green-50 dark:hover:bg-green-900/20"
                                   >
                                     → En curso
                                   </button>
@@ -474,7 +474,7 @@ export default function CoordinadorClient({
                                 {edicion.status === 'en_curso' && (
                                   <button
                                     onClick={() => handleStatusChange(edicion.id, 'finalizada')}
-                                    className="text-xs px-2 py-1 border border-purple-300 text-purple-700 rounded hover:bg-purple-50"
+                                    className="text-xs px-2 py-1 border border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-400 rounded hover:bg-purple-50 dark:hover:bg-purple-900/20"
                                   >
                                     → Finalizar
                                   </button>
@@ -483,7 +483,7 @@ export default function CoordinadorClient({
                                 {/* Enrollment toggle — hidden once course is running */}
                                 {edicion.status !== 'en_curso' && (
                                   <div className="flex items-center gap-2">
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
                                       {edicion.enrollment_open ? 'Inscripciones abiertas' : 'Inscripciones cerradas'}
                                     </span>
                                     <button
@@ -491,7 +491,7 @@ export default function CoordinadorClient({
                                       disabled={toggling === edicion.id}
                                       aria-label={edicion.enrollment_open ? 'Cerrar inscripciones' : 'Abrir inscripciones'}
                                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-                                        edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300'
+                                        edicion.enrollment_open ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'
                                       }`}
                                     >
                                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
@@ -518,13 +518,13 @@ export default function CoordinadorClient({
       {activeTab === 'postulaciones' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Seleccionar edición
             </label>
             <select
               value={selectedEdicionId}
               onChange={(e) => loadPostulaciones(e.target.value)}
-              className="w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full max-w-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Selecciona una edición --</option>
               {ediciones.map((e) => (
@@ -542,40 +542,40 @@ export default function CoordinadorClient({
           )}
 
           {!loadingPostulaciones && postulaciones.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Nombre</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Talleres aprobados</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Puntos</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Estado</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nombre</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Talleres aprobados</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Puntos</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Estado</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {postulaciones.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
+                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setMemberModal({ name: p.profile.name, email: p.profile.email, phone: p.profile.phone, completedCourses: p.completedCourses })}
                           className="text-left"
                         >
-                          <p className="font-medium text-gray-900 hover:text-blue-600">{p.profile.name}</p>
-                          <p className="text-xs text-gray-400">{p.profile.email}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600">{p.profile.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">{p.profile.email}</p>
                         </button>
                       </td>
                       <td className="px-4 py-3">
                         {p.completedCourses.length === 0 ? (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">—</span>
                         ) : (
                           <div className="space-y-0.5">
                             {p.completedCourses.map((c, i) => (
-                              <div key={i} className="text-xs text-gray-700 flex items-center gap-1">
+                              <div key={i} className="text-xs text-gray-700 dark:text-gray-300 flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />
                                 {c.tallerName}
                                 {c.completedAt && (
-                                  <span className="text-gray-400">
+                                  <span className="text-gray-400 dark:text-gray-500">
                                     ({new Date(c.completedAt).toLocaleDateString('es-CL', { month: 'short', year: 'numeric' })})
                                   </span>
                                 )}
@@ -589,7 +589,7 @@ export default function CoordinadorClient({
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColors[p.status] ?? 'bg-gray-100 text-gray-500'}`}
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColors[p.status] ?? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}
                         >
                           {p.status}
                         </span>
@@ -621,7 +621,7 @@ export default function CoordinadorClient({
                           {p.status !== 'postulando' && (
                             <button
                               onClick={() => updateInscripcion(selectedEdicionId, p.user_id, 'postulando')}
-                              className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                              className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600"
                             >
                               Revertir
                             </button>
@@ -636,7 +636,7 @@ export default function CoordinadorClient({
           )}
 
           {!loadingPostulaciones && selectedEdicionId && postulaciones.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-8">No hay postulaciones para esta edición.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No hay postulaciones para esta edición.</p>
           )}
         </div>
       )}
@@ -645,13 +645,13 @@ export default function CoordinadorClient({
       {activeTab === 'resultados' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Seleccionar edición (en curso o finalizada)
             </label>
             <select
               value={selectedResultadoEdicionId}
               onChange={(e) => loadResultados(e.target.value)}
-              className="w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full max-w-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Selecciona una edición --</option>
               {finalizedEdiciones.map((e) => (
@@ -669,25 +669,25 @@ export default function CoordinadorClient({
           )}
 
           {!loadingResultados && resultadosInscripciones.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Participante</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Estado actual</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Resultado</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Participante</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Estado actual</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Resultado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {resultadosInscripciones.map((p) => (
-                    <tr key={p.id} className="hover:bg-gray-50">
+                    <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{p.profile.name}</p>
-                        <p className="text-xs text-gray-400">{p.profile.email}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{p.profile.name}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{p.profile.email}</p>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColors[p.status] ?? 'bg-gray-100 text-gray-500'}`}
+                          className={`text-xs font-medium px-2 py-0.5 rounded-full ${inscripcionStatusColors[p.status] ?? 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}
                         >
                           {p.status}
                         </span>
@@ -728,7 +728,7 @@ export default function CoordinadorClient({
           )}
 
           {!loadingResultados && selectedResultadoEdicionId && resultadosInscripciones.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-8">No hay participantes aceptados en esta edición.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No hay participantes aceptados en esta edición.</p>
           )}
         </div>
       )}
@@ -737,13 +737,13 @@ export default function CoordinadorClient({
       {activeTab === 'ayudantes' && (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Seleccionar edición
             </label>
             <select
               value={selectedAyudanteEdicionId}
               onChange={(e) => loadAyudantias(e.target.value)}
-              className="w-full max-w-sm border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full max-w-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             >
               <option value="">-- Selecciona una edición --</option>
               {ediciones.map((e) => (
@@ -761,22 +761,22 @@ export default function CoordinadorClient({
           )}
 
           {!loadingAyudantias && ayudantias.length > 0 && (
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ayudante</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Asistió</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Punto otorgado</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Ayudante</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Asistió</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Punto otorgado</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {ayudantias.map((a) => (
-                    <tr key={a.id} className="hover:bg-gray-50">
+                    <tr key={a.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-gray-900">{a.profile.name}</p>
-                        <p className="text-xs text-gray-400">{a.profile.email}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{a.profile.name}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">{a.profile.email}</p>
                       </td>
                       <td className="px-4 py-3 text-center">
                         {a.asistio === null
@@ -788,21 +788,21 @@ export default function CoordinadorClient({
                       <td className="px-4 py-3 text-center">
                         {a.puntos_otorgados
                           ? <span className="text-green-600 font-medium">Sí</span>
-                          : <span className="text-gray-400">No</span>}
+                          : <span className="text-gray-400 dark:text-gray-500">No</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex gap-1 justify-center">
                           <button
                             onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { asistio: true })}
                             disabled={a.asistio === true}
-                            className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
+                            className="text-xs px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400 rounded hover:bg-green-200 dark:hover:bg-green-900/30 disabled:opacity-50"
                           >
                             Asistió
                           </button>
                           <button
                             onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { asistio: false })}
                             disabled={a.asistio === false}
-                            className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
+                            className="text-xs px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400 rounded hover:bg-red-200 dark:hover:bg-red-900/30 disabled:opacity-50"
                           >
                             No asistió
                           </button>
@@ -824,7 +824,7 @@ export default function CoordinadorClient({
           )}
 
           {!loadingAyudantias && selectedAyudanteEdicionId && ayudantias.length === 0 && (
-            <p className="text-sm text-gray-500 text-center py-8">No hay ayudantes registrados.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-8">No hay ayudantes registrados.</p>
           )}
         </div>
       )}
@@ -833,11 +833,11 @@ export default function CoordinadorClient({
       {activeTab === 'puntos' && (
         <div className="space-y-6">
           {/* Members overview */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-gray-900">Puntos por Socio</h2>
-                <p className="text-xs text-gray-500 mt-0.5">Solo se muestran puntos activos (no vencidos).</p>
+                <h2 className="font-semibold text-gray-900 dark:text-gray-100">Puntos por Socio</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Solo se muestran puntos activos (no vencidos).</p>
               </div>
               <button
                 onClick={() => { setAwardModal(true); setAwardSuccess(''); setAwardError(''); }}
@@ -846,15 +846,15 @@ export default function CoordinadorClient({
                 Otorgar Puntos
               </button>
             </div>
-            <div className="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+            <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-96 overflow-y-auto">
               {members.map((member) => (
                 <div key={member.id} className="flex items-center justify-between px-6 py-3">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{member.name}</p>
-                    <p className="text-xs text-gray-400">{member.email}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{member.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{member.email}</p>
                   </div>
                   <span
-                    className={`text-sm font-bold ${member.activePoints > 0 ? 'text-purple-700' : 'text-gray-400'}`}
+                    className={`text-sm font-bold ${member.activePoints > 0 ? 'text-purple-700' : 'text-gray-400 dark:text-gray-500'}`}
                   >
                     {member.activePoints} pts
                   </span>
@@ -868,27 +868,27 @@ export default function CoordinadorClient({
       {/* ── Award points modal ── */}
       {awardModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
-            <h3 className="font-bold text-gray-900 text-lg">Otorgar Puntos</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Otorgar Puntos</h3>
 
             {awardSuccess && (
-              <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+              <div className="text-sm text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
                 {awardSuccess}
               </div>
             )}
             {awardError && (
-              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <div className="text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
                 {awardError}
               </div>
             )}
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Socio *</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Socio *</label>
                 <select
                   value={selectedMember}
                   onChange={(e) => setSelectedMember(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Seleccionar socio…</option>
                   {members.map((m) => (
@@ -898,11 +898,11 @@ export default function CoordinadorClient({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Edición (opcional)</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Edición (opcional)</label>
                 <select
                   value={selectedEdicionForPoints}
                   onChange={(e) => setSelectedEdicionForPoints(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Sin edición específica</option>
                   {ediciones.map((e) => (
@@ -912,25 +912,25 @@ export default function CoordinadorClient({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Puntos *</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Puntos *</label>
                 <input
                   type="number"
                   min={1}
                   max={10}
                   value={pointsAmount}
                   onChange={(e) => setPointsAmount(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Descripción (opcional)</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción (opcional)</label>
                 <input
                   type="text"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Ej: Ayudante en M1 octubre 2025"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
             </div>
@@ -945,7 +945,7 @@ export default function CoordinadorClient({
               </button>
               <button
                 onClick={() => setAwardModal(false)}
-                className="flex-1 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                className="flex-1 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cerrar
               </button>
@@ -957,22 +957,22 @@ export default function CoordinadorClient({
       {/* ── Create edicion modal ── */}
       {createModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 space-y-4 max-h-screen overflow-y-auto">
-            <h3 className="font-bold text-gray-900 text-lg">Nueva Edición de Taller</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-lg p-6 space-y-4 max-h-screen overflow-y-auto">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">Nueva Edición de Taller</h3>
 
             {createError && (
-              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              <div className="text-sm text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
                 {createError}
               </div>
             )}
 
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
-                <label className="block text-xs font-medium text-gray-700 mb-1">Taller *</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Taller *</label>
                 <select
                   value={newEdicion.taller_id}
                   onChange={(e) => setNewEdicion({ ...newEdicion, taller_id: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 >
                   <option value="">Seleccionar taller…</option>
                   {talleres.map((t) => (
@@ -984,55 +984,55 @@ export default function CoordinadorClient({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Fecha inicio</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha inicio</label>
                 <input
                   type="date"
                   value={newEdicion.start_date}
                   onChange={(e) => setNewEdicion({ ...newEdicion, start_date: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Fecha fin</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha fin</label>
                 <input
                   type="date"
                   value={newEdicion.end_date}
                   onChange={(e) => setNewEdicion({ ...newEdicion, end_date: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Capacidad</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Capacidad</label>
                 <input
                   type="number"
                   min={1}
                   value={newEdicion.capacity}
                   onChange={(e) => setNewEdicion({ ...newEdicion, capacity: Number(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Máx. ayudantes</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Máx. ayudantes</label>
                 <input
                   type="number"
                   min={0}
                   value={newEdicion.max_ayudantes}
                   onChange={(e) => setNewEdicion({ ...newEdicion, max_ayudantes: Number(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Puntos requeridos</label>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Puntos requeridos</label>
                 <input
                   type="number"
                   min={0}
                   value={newEdicion.required_points}
                   onChange={(e) => setNewEdicion({ ...newEdicion, required_points: Number(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                 />
               </div>
 
@@ -1048,7 +1048,7 @@ export default function CoordinadorClient({
               </button>
               <button
                 onClick={() => setCreateModal(false)}
-                className="flex-1 py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+                className="flex-1 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
@@ -1060,33 +1060,33 @@ export default function CoordinadorClient({
       {/* ── Member profile modal ── */}
       {memberModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg w-full max-w-md p-6 space-y-4">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-bold text-gray-900 text-lg">{memberModal.name || 'Sin nombre'}</h3>
-                <p className="text-sm text-gray-500">{memberModal.email}</p>
-                {memberModal.phone && <p className="text-sm text-gray-500">{memberModal.phone}</p>}
+                <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg">{memberModal.name || 'Sin nombre'}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{memberModal.email}</p>
+                {memberModal.phone && <p className="text-sm text-gray-500 dark:text-gray-400">{memberModal.phone}</p>}
               </div>
               <button onClick={() => setMemberModal(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                 Talleres aprobados ({memberModal.completedCourses.length})
               </p>
               {memberModal.completedCourses.length === 0 ? (
-                <p className="text-sm text-gray-400">Sin talleres aprobados.</p>
+                <p className="text-sm text-gray-400 dark:text-gray-500">Sin talleres aprobados.</p>
               ) : (
                 <div className="space-y-2">
                   {memberModal.completedCourses.map((c, i) => (
                     <div key={i} className="flex items-center justify-between text-sm">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
-                        <span className="text-gray-800">{c.tallerName}</span>
-                        <span className="text-xs text-gray-400 capitalize">{c.branch.replace('_', '/')}</span>
+                        <span className="text-gray-800 dark:text-gray-200">{c.tallerName}</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500 capitalize">{c.branch.replace('_', '/')}</span>
                       </div>
                       {c.completedAt && (
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-gray-400 dark:text-gray-500">
                           {new Date(c.completedAt).toLocaleDateString('es-CL', { month: 'long', year: 'numeric' })}
                         </span>
                       )}
@@ -1098,7 +1098,7 @@ export default function CoordinadorClient({
 
             <button
               onClick={() => setMemberModal(null)}
-              className="w-full py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+              className="w-full py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
               Cerrar
             </button>

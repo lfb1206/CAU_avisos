@@ -18,10 +18,10 @@ const levelLabels: Record<string, string> = {
 };
 
 const edicionStatusColors: Record<string, string> = {
-  planificada: 'bg-blue-100 text-blue-800',
-  en_curso: 'bg-green-100 text-green-800',
-  finalizada: 'bg-gray-100 text-gray-700',
-  cancelada: 'bg-red-100 text-red-700',
+  planificada: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
+  en_curso: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+  finalizada: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  cancelada: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
 };
 
 const edicionStatusLabels: Record<string, string> = {
@@ -70,10 +70,10 @@ export default async function AdminCursosPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Talleres</h1>
-          <p className="text-gray-500 mt-1">{talleres.length} talleres en el catálogo</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestión de Talleres</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">{talleres.length} talleres en el catálogo</p>
         </div>
-        <Link href="/admin" className="text-sm text-gray-600 hover:text-gray-800">
+        <Link href="/admin" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
           ← Panel Admin
         </Link>
       </div>
@@ -83,24 +83,24 @@ export default async function AdminCursosPage() {
         if (branchTalleres.length === 0) return null;
         return (
           <section key={branch} className="mb-10">
-            <h2 className="text-lg font-semibold text-gray-800 mb-3 border-b pb-2">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3 border-b dark:border-gray-700 pb-2">
               {branchLabels[branch]}
             </h2>
             <div className="space-y-3">
               {branchTalleres.map((taller) => (
                 <div
                   key={taller.id}
-                  className="border border-gray-200 rounded-lg bg-white overflow-hidden"
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 overflow-hidden"
                 >
                   {/* Taller header */}
-                  <div className="flex items-center justify-between px-4 py-3 hover:bg-gray-50">
+                  <div className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <div className="flex items-center gap-4 min-w-0">
-                      <span className="text-xs text-gray-400 w-5 text-right shrink-0">
+                      <span className="text-xs text-gray-400 dark:text-gray-500 w-5 text-right shrink-0">
                         {taller.order_index}
                       </span>
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{taller.name}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="font-medium text-gray-900 dark:text-gray-100 truncate">{taller.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           {levelLabels[taller.level]} · {taller._count.ediciones} edición
                           {taller._count.ediciones !== 1 ? 'es' : ''}
                           {taller.prerequisite_taller_ids.length > 0
@@ -127,16 +127,16 @@ export default async function AdminCursosPage() {
 
                   {/* Recent ediciones */}
                   {taller.ediciones.length > 0 && (
-                    <div className="border-t border-gray-100 bg-gray-50 px-4 py-2 space-y-1.5">
+                    <div className="border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 px-4 py-2 space-y-1.5">
                       {taller.ediciones.map((edicion) => (
                         <div key={edicion.id} className="flex items-center justify-between text-xs">
-                          <span className="text-gray-700 font-medium">{edicion.name}</span>
+                          <span className="text-gray-700 dark:text-gray-300 font-medium">{edicion.name}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-500">
+                            <span className="text-gray-500 dark:text-gray-400">
                               {edicion._count.inscripciones}/{edicion.capacity} inscritos
                             </span>
                             {edicion.enrollment_open && (
-                              <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                              <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 font-medium">
                                 Inscripciones abiertas
                               </span>
                             )}
@@ -149,7 +149,7 @@ export default async function AdminCursosPage() {
                         </div>
                       ))}
                       {taller._count.ediciones > 3 && (
-                        <p className="text-xs text-gray-400 pt-0.5">
+                        <p className="text-xs text-gray-400 dark:text-gray-500 pt-0.5">
                           + {taller._count.ediciones - 3} edición{taller._count.ediciones - 3 !== 1 ? 'es' : ''} más
                         </p>
                       )}
@@ -162,7 +162,7 @@ export default async function AdminCursosPage() {
         );
       })}
 
-      <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+      <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-800 dark:text-amber-300">
         Para gestionar ediciones (fechas, cupos, inscripciones), usa el{' '}
         <Link href="/coordinador" className="font-medium underline">
           Panel del Coordinador

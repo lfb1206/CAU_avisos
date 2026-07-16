@@ -316,6 +316,10 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
+  const loadData = (data: Partial<FormState>) => {
+    dispatch({ type: 'LOAD_SAVED_DATA', data });
+  };
+
   const checkFormCompletion = (): boolean => {
     const participantes = formData.participantes ?? [];
     const equipo = formData.equipo ?? [];
@@ -365,6 +369,7 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
     isStepValid,
     checkFormCompletion,
     saveToApi,
+    loadData,
     isSaving,
   };
 

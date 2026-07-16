@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://rsms.me" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </head>
-      <body className="font-sans">
+      <body className="font-sans bg-white dark:bg-gray-900">
         <NavigationBar />
         {children}
         <Analytics />

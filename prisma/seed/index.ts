@@ -4,6 +4,7 @@ import { seedPeople } from './people';
 import { seedEquipment } from './equipment';
 import { seedBasicOptions } from './basicOptions';
 import { seedTalleres } from './talleres';
+import { seedFichas } from './fichas';
 import { seedSupuestos } from './supuestos';
 import { setupRLS } from './rls';
 
@@ -16,6 +17,7 @@ async function main() {
   await seedEquipment(prisma);
   await seedBasicOptions(prisma);
   await seedTalleres(prisma);
+  await seedFichas(prisma);
   await seedSupuestos(prisma);
   await setupRLS(prisma);
 

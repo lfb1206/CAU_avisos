@@ -38,8 +38,8 @@ function Row({ label, value }: { label: string; value: string | null | undefined
   if (!value) return null;
   return (
     <div className="mb-3">
-      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-0.5">{label}</div>
-      <div className="text-sm text-gray-800 whitespace-pre-line">{value}</div>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-0.5">{label}</div>
+      <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-line">{value}</div>
     </div>
   );
 }
@@ -47,7 +47,7 @@ function Row({ label, value }: { label: string; value: string | null | undefined
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-5 break-inside-avoid">
-      <div className="text-xs font-bold uppercase tracking-widest text-blue-700 border-b-2 border-blue-200 pb-1 mb-3">{title}</div>
+      <div className="text-xs font-bold uppercase tracking-widest text-blue-700 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-700 pb-1 mb-3">{title}</div>
       {children}
     </div>
   );
@@ -68,7 +68,7 @@ export default function FichaImprimirPage() {
   }, [id]);
 
   if (!edicion) {
-    return <div className="p-8 text-gray-400">Cargando ficha...</div>;
+    return <div className="p-8 text-gray-400 dark:text-gray-500">Cargando ficha...</div>;
   }
 
   const taller = edicion.taller;
@@ -96,16 +96,16 @@ export default function FichaImprimirPage() {
         </button>
       </div>
 
-      <div className="max-w-[210mm] mx-auto p-8 bg-white text-gray-900 text-sm">
+      <div className="max-w-[210mm] mx-auto p-8 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm">
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-6 pb-4 border-b-2 border-gray-800">
+        <div className="flex items-start justify-between mb-6 pb-4 border-b-2 border-gray-800 dark:border-gray-600">
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Club Andino Universitario — Ficha de Edición</div>
-            <h1 className="text-2xl font-bold text-gray-900">{taller.name}</h1>
-            <div className="text-base text-gray-600 mt-0.5">{edicion.name}</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1">Club Andino Universitario — Ficha de Edición</div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{taller.name}</h1>
+            <div className="text-base text-gray-600 dark:text-gray-400 mt-0.5">{edicion.name}</div>
           </div>
-          <div className="text-right text-xs text-gray-500 space-y-0.5">
+          <div className="text-right text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
             <div><strong>Inicio:</strong> {fmtDate(edicion.start_date)}</div>
             <div><strong>Término:</strong> {fmtDate(edicion.end_date)}</div>
             <div><strong>Profesor:</strong> {edicion.profesor || '—'}</div>
@@ -113,7 +113,7 @@ export default function FichaImprimirPage() {
         </div>
 
         {/* Summary row */}
-        <div className="grid grid-cols-5 gap-3 mb-6 bg-gray-50 rounded-lg p-3 text-center">
+        <div className="grid grid-cols-5 gap-3 mb-6 bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
           {[
             { label: 'Hrs. clases', val: taller.horas_clases ?? '—' },
             { label: 'Hrs. práctica', val: taller.horas_practica ?? '—' },
@@ -122,8 +122,8 @@ export default function FichaImprimirPage() {
             { label: 'Días total', val: diasTotal || '—' },
           ].map((item) => (
             <div key={item.label}>
-              <div className="text-lg font-bold text-blue-700">{item.val}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide">{item.label}</div>
+              <div className="text-lg font-bold text-blue-700 dark:text-blue-400">{item.val}</div>
+              <div className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">{item.label}</div>
             </div>
           ))}
         </div>
@@ -196,20 +196,20 @@ export default function FichaImprimirPage() {
             <Block title={`Participantes (${edicion.inscripciones.length})`}>
               <table className="w-full text-xs border-collapse">
                 <thead>
-                  <tr className="bg-gray-100">
-                    <th className="text-left p-2 border border-gray-200 font-semibold">#</th>
-                    <th className="text-left p-2 border border-gray-200 font-semibold">Nombre</th>
-                    <th className="text-left p-2 border border-gray-200 font-semibold">Correo</th>
-                    <th className="text-left p-2 border border-gray-200 font-semibold">Teléfono</th>
+                  <tr className="bg-gray-100 dark:bg-gray-700">
+                    <th className="text-left p-2 border border-gray-200 dark:border-gray-600 font-semibold">#</th>
+                    <th className="text-left p-2 border border-gray-200 dark:border-gray-600 font-semibold">Nombre</th>
+                    <th className="text-left p-2 border border-gray-200 dark:border-gray-600 font-semibold">Correo</th>
+                    <th className="text-left p-2 border border-gray-200 dark:border-gray-600 font-semibold">Teléfono</th>
                   </tr>
                 </thead>
                 <tbody>
                   {edicion.inscripciones.map((i, idx) => (
-                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                      <td className="p-2 border border-gray-200">{idx + 1}</td>
-                      <td className="p-2 border border-gray-200 font-medium">{i.profile.name}</td>
-                      <td className="p-2 border border-gray-200 text-gray-600">{i.profile.email}</td>
-                      <td className="p-2 border border-gray-200 text-gray-600">{i.profile.phone || '—'}</td>
+                    <tr key={idx} className={idx % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700'}>
+                      <td className="p-2 border border-gray-200 dark:border-gray-600">{idx + 1}</td>
+                      <td className="p-2 border border-gray-200 dark:border-gray-600 font-medium">{i.profile.name}</td>
+                      <td className="p-2 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400">{i.profile.email}</td>
+                      <td className="p-2 border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-400">{i.profile.phone || '—'}</td>
                     </tr>
                   ))}
                 </tbody>

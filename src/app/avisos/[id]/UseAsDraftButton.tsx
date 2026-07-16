@@ -16,7 +16,7 @@ export default function UseAsDraftButton({ avisoId, tipo }: { avisoId: number; t
       });
       if (res.ok) {
         const data = await res.json();
-        router.push(tipo === 'rapido' ? `/aviso/rapido?id=${data.id}` : `/?aviso=${data.id}`);
+        router.push(tipo === 'rapido' ? `/aviso/rapido?id=${data.id}` : `/aviso/largo?id=${data.id}`);
       }
     } catch {
       setLoading(false);

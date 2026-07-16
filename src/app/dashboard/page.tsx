@@ -68,10 +68,10 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               Hola, {profile?.name ?? '—'}
             </h1>
-            <p className="text-gray-500 mt-1">Panel de control</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Panel de control</p>
           </>
         )}
       </div>
@@ -80,8 +80,8 @@ export default function DashboardPage() {
         {/* Avisos */}
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-900">Mis Avisos</h2>
-            <Link href="/avisos" className="text-sm text-gray-500 hover:text-blue-600 font-medium">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Mis Avisos</h2>
+            <Link href="/avisos" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 font-medium">
               Biblioteca →
             </Link>
           </div>
@@ -95,7 +95,7 @@ export default function DashboardPage() {
             </Link>
             <Link
               href="/aviso/rapido"
-              className="flex-1 text-center text-xs font-semibold py-2 px-3 text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors"
+              className="flex-1 text-center text-xs font-semibold py-2 px-3 text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 hover:bg-orange-100 dark:hover:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg transition-colors"
             >
               + Aviso Rápido
             </Link>
@@ -106,7 +106,7 @@ export default function DashboardPage() {
               {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
             </div>
           ) : avisos.length === 0 ? (
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
+            <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
               <p className="text-sm">No tienes avisos aún.</p>
             </div>
           ) : (
@@ -114,7 +114,7 @@ export default function DashboardPage() {
               {avisos.map((aviso: { id: number; title: string; status: string; tipo: string; location: string | null; updated_at: string }) => (
                 <div
                   key={aviso.id}
-                  className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5 mb-0.5">
@@ -128,12 +128,12 @@ export default function DashboardPage() {
                         {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                       {aviso.location
                         ? `${aviso.title || 'Aviso'} — ${aviso.location}`
                         : aviso.title || 'Sin título'}
                     </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
                       {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export default function DashboardPage() {
         {/* Talleres */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900">Mis Talleres</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Mis Talleres</h2>
             <Link href="/cursos" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
               Ver todos
             </Link>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
               {[1, 2].map((i) => <Skeleton key={i} className="h-20 w-full" />)}
             </div>
           ) : inscripciones.length === 0 ? (
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
+            <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6 text-center text-gray-500 dark:text-gray-400">
               <p className="text-sm">No tienes postulaciones activas.</p>
               <Link href="/cursos" className="text-blue-600 hover:text-blue-500 text-sm font-medium mt-2 block">
                 Ver ruta de talleres
@@ -173,11 +173,11 @@ export default function DashboardPage() {
               }) => (
                 <div
                   key={insc.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{insc.edicion.taller.name}</p>
-                    <p className="text-xs text-gray-400 capitalize mt-0.5">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{insc.edicion.taller.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 capitalize mt-0.5">
                       {insc.edicion.name} · {insc.edicion.taller.branch.replace('_', '/')}
                     </p>
                   </div>
@@ -192,13 +192,13 @@ export default function DashboardPage() {
       </div>
 
       {!isLoading && (profile?.role === 'admin' || profile?.role === 'coordinador') && (
-        <section className="mt-10 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <h3 className="text-sm font-semibold text-amber-900 mb-3">
+        <section className="mt-10 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+          <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-300 mb-3">
             {profile.role === 'admin' ? 'Panel de administrador' : 'Panel del coordinador'}
           </h3>
           <div className="flex flex-wrap gap-3">
             {profile.role === 'coordinador' && (
-              <Link href="/coordinador" className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
+              <Link href="/coordinador" className="text-xs px-3 py-1.5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700 rounded-md text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors font-medium">
                 Coordinador
               </Link>
             )}
@@ -210,7 +210,7 @@ export default function DashboardPage() {
                 { href: '/admin/forms', label: 'Formularios' },
                 { href: '/coordinador', label: 'Coordinador' },
               ].map((link) => (
-                <Link key={link.href} href={link.href} className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
+                <Link key={link.href} href={link.href} className="text-xs px-3 py-1.5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700 rounded-md text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors font-medium">
                   {link.label}
                 </Link>
               ))}

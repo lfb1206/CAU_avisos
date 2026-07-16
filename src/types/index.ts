@@ -140,6 +140,7 @@ export interface FormContextValue {
   isStepValid: (step: number) => boolean;
   checkFormCompletion: () => boolean;
   saveToApi: () => Promise<{ success: boolean; error?: string }>;
+  loadData: (data: Partial<FormState>) => void;
   isSaving: boolean;
 }
 

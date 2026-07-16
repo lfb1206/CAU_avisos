@@ -29,18 +29,18 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <Link href="/avisos" className="text-sm text-gray-500 hover:text-blue-600">← Biblioteca</Link>
-            <span className="text-gray-300">/</span>
+            <Link href="/avisos" className="text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600">← Biblioteca</Link>
+            <span className="text-gray-300 dark:text-gray-600">/</span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
               isRapido ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'
             }`}>
               {isRapido ? 'Aviso Rápido' : 'Aviso Largo'}
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {aviso.location ? `${aviso.title || 'Aviso'} — ${aviso.location}` : (aviso.title || 'Aviso sin título')}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Por {aviso.profile.name}
             {aviso.submitted_at && (
               <> · Enviado el {new Date(aviso.submitted_at).toLocaleDateString('es-CL')}</>
@@ -64,16 +64,16 @@ function InfoBlock({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
   return (
     <div>
-      <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</dt>
-      <dd className="mt-0.5 text-sm text-gray-900">{value}</dd>
+      <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{label}</dt>
+      <dd className="mt-0.5 text-sm text-gray-900 dark:text-gray-100">{value}</dd>
     </div>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 mb-4">
-      <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4">{title}</h2>
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-4">
+      <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide mb-4">{title}</h2>
       {children}
     </div>
   );
@@ -113,8 +113,8 @@ function RapidoDetail({ fd }: { fd: Record<string, unknown> }) {
         </dl>
         {d.comentarios && (
           <div className="mt-4">
-            <dt className="text-xs font-medium text-gray-500 uppercase tracking-wide">Comentarios</dt>
-            <dd className="mt-0.5 text-sm text-gray-900 whitespace-pre-line">{d.comentarios}</dd>
+            <dt className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Comentarios</dt>
+            <dd className="mt-0.5 text-sm text-gray-900 dark:text-gray-100 whitespace-pre-line">{d.comentarios}</dd>
           </div>
         )}
       </Section>
@@ -124,9 +124,9 @@ function RapidoDetail({ fd }: { fd: Record<string, unknown> }) {
           <div className="space-y-2">
             {d.participantes!.map((p, i) => (
               <div key={i} className="flex items-center gap-3 text-sm">
-                <span className="font-medium text-gray-900 flex-1">{p.nombre}</span>
-                {p.rut && <span className="text-gray-400 text-xs">{p.rut}</span>}
-                {p.telefono && <span className="text-gray-400 text-xs">{p.telefono}</span>}
+                <span className="font-medium text-gray-900 dark:text-gray-100 flex-1">{p.nombre}</span>
+                {p.rut && <span className="text-gray-400 dark:text-gray-500 text-xs">{p.rut}</span>}
+                {p.telefono && <span className="text-gray-400 dark:text-gray-500 text-xs">{p.telefono}</span>}
               </div>
             ))}
           </div>
@@ -138,7 +138,7 @@ function RapidoDetail({ fd }: { fd: Record<string, unknown> }) {
           {(d.vehiculos ?? []).length > 0 && (
             <div className="space-y-2 mb-3">
               {d.vehiculos!.map((v, i) => (
-                <div key={i} className="text-sm text-gray-700">
+                <div key={i} className="text-sm text-gray-700 dark:text-gray-300">
                   {[v.marca, v.modelo, v.color, v.patente].filter(Boolean).join(' · ')}
                 </div>
               ))}
@@ -212,20 +212,20 @@ function LargoDetail({ fd }: { fd: Record<string, unknown> }) {
           <div className="overflow-x-auto">
             <table className="min-w-full text-xs">
               <thead>
-                <tr className="border-b border-gray-100">
-                  <th className="text-left py-1 pr-4 font-medium text-gray-500">Nombre</th>
-                  <th className="text-left py-1 pr-4 font-medium text-gray-500">RUT</th>
-                  <th className="text-left py-1 pr-4 font-medium text-gray-500">Teléfono</th>
-                  <th className="text-left py-1 font-medium text-gray-500">Grupo sanguíneo</th>
+                <tr className="border-b border-gray-100 dark:border-gray-700">
+                  <th className="text-left py-1 pr-4 font-medium text-gray-500 dark:text-gray-400">Nombre</th>
+                  <th className="text-left py-1 pr-4 font-medium text-gray-500 dark:text-gray-400">RUT</th>
+                  <th className="text-left py-1 pr-4 font-medium text-gray-500 dark:text-gray-400">Teléfono</th>
+                  <th className="text-left py-1 font-medium text-gray-500 dark:text-gray-400">Grupo sanguíneo</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700">
                 {d.participantes!.map((p, i) => (
                   <tr key={i}>
-                    <td className="py-1.5 pr-4 font-medium text-gray-900">{p.nombre}</td>
-                    <td className="py-1.5 pr-4 text-gray-500">{p.rut ?? '—'}</td>
-                    <td className="py-1.5 pr-4 text-gray-500">{p.telefono ?? '—'}</td>
-                    <td className="py-1.5 text-gray-500">{p.grupoSanguineo ?? '—'}</td>
+                    <td className="py-1.5 pr-4 font-medium text-gray-900 dark:text-gray-100">{p.nombre}</td>
+                    <td className="py-1.5 pr-4 text-gray-500 dark:text-gray-400">{p.rut ?? '—'}</td>
+                    <td className="py-1.5 pr-4 text-gray-500 dark:text-gray-400">{p.telefono ?? '—'}</td>
+                    <td className="py-1.5 text-gray-500 dark:text-gray-400">{p.grupoSanguineo ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -239,13 +239,13 @@ function LargoDetail({ fd }: { fd: Record<string, unknown> }) {
           <div className="space-y-3">
             {d.itinerario!.map((day, i) => (
               <div key={i} className="border-l-2 border-blue-200 pl-3">
-                <p className="text-xs font-bold text-gray-700">
+                <p className="text-xs font-bold text-gray-700 dark:text-gray-300">
                   {day.fecha ? new Date(day.fecha).toLocaleDateString('es-CL') : `Día ${i + 1}`}
                   {day.horaInicio && ` · ${day.horaInicio}–${day.horaFin ?? ''}`}
                 </p>
-                {day.tramo && <p className="text-xs text-gray-500 mt-0.5">Tramo: {day.tramo}</p>}
+                {day.tramo && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tramo: {day.tramo}</p>}
                 {(day.actividades ?? []).length > 0 && (
-                  <p className="text-xs text-gray-600 mt-0.5">{day.actividades!.join(', ')}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{day.actividades!.join(', ')}</p>
                 )}
               </div>
             ))}

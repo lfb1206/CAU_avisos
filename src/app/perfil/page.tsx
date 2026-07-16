@@ -54,13 +54,13 @@ type ProfileData = {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputClass = 'w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
+const inputClass = 'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500';
 
 function EditProfileForm({ profile, onClose }: { profile: ProfileData; onClose: () => void }) {
   const [form, setForm] = useState<ProfileData>({ ...profile });
@@ -103,7 +103,7 @@ function EditProfileForm({ profile, onClose }: { profile: ProfileData; onClose: 
     <div className="space-y-6">
       {/* Personal */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Datos personales</p>
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Datos personales</p>
         <Field label="Nombre completo">
           <input type="text" value={form.name} onChange={(e) => set('name', e.target.value)} className={inputClass} />
         </Field>
@@ -119,7 +119,7 @@ function EditProfileForm({ profile, onClose }: { profile: ProfileData; onClose: 
 
       {/* Medical */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Información médica</p>
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Información médica</p>
         <Field label="Grupo sanguíneo">
           <select value={form.blood_type ?? ''} onChange={(e) => set('blood_type', e.target.value || null)} className={inputClass}>
             <option value="">Sin especificar</option>
@@ -139,13 +139,13 @@ function EditProfileForm({ profile, onClose }: { profile: ProfileData; onClose: 
         </Field>
         <label className="flex items-center gap-2 cursor-pointer select-none">
           <input type="checkbox" checked={form.has_first_aid} onChange={(e) => set('has_first_aid', e.target.checked)} className="rounded border-gray-300 text-blue-600" />
-          <span className="text-sm text-gray-700">Tengo conocimientos de primeros auxilios</span>
+          <span className="text-sm text-gray-700 dark:text-gray-300">Tengo conocimientos de primeros auxilios</span>
         </label>
       </div>
 
       {/* Emergency contact */}
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Contacto de emergencia</p>
+        <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Contacto de emergencia</p>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Nombre">
             <input type="text" value={form.emergency_contact ?? ''} onChange={(e) => set('emergency_contact', e.target.value)} placeholder="Nombre apellido" className={inputClass} />
@@ -168,7 +168,7 @@ function EditProfileForm({ profile, onClose }: { profile: ProfileData; onClose: 
         </button>
         <button
           onClick={onClose}
-          className="flex-1 py-2 px-4 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+          className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         >
           Cancelar
         </button>
@@ -213,7 +213,7 @@ export default function PerfilPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-8 dark:text-gray-100">
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-40 w-full" />
         <Skeleton className="h-40 w-full" />
@@ -224,26 +224,26 @@ export default function PerfilPage() {
   if (!profile) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <p className="text-gray-500">No se pudo cargar el perfil.</p>
+        <p className="text-gray-500 dark:text-gray-400">No se pudo cargar el perfil.</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-      <h1 className="text-2xl font-bold text-gray-900">Mi Perfil</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mi Perfil</h1>
 
       {/* Profile card */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xl font-bold flex-shrink-0">
               {(profile.name || profile.email).charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{profile.name || <span className="text-gray-400 italic">Sin nombre</span>}</h1>
-              <p className="text-sm text-gray-500">{profile.email}</p>
-              <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{profile.name || <span className="text-gray-400 dark:text-gray-500 italic">Sin nombre</span>}</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{profile.email}</p>
+              <span className="inline-block mt-1 text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
                 {roleLabel[profile.role] ?? profile.role}
               </span>
             </div>
@@ -264,55 +264,55 @@ export default function PerfilPage() {
           <div className="space-y-4 text-sm">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <span className="text-gray-500">RUT</span>
-                <p className="font-medium text-gray-900">{profile.rut ?? '—'}</p>
+                <span className="text-gray-500 dark:text-gray-400">RUT</span>
+                <p className="font-medium text-gray-900 dark:text-gray-100">{profile.rut ?? '—'}</p>
               </div>
               <div>
-                <span className="text-gray-500">Teléfono</span>
-                <p className="font-medium text-gray-900">{profile.phone ?? '—'}</p>
+                <span className="text-gray-500 dark:text-gray-400">Teléfono</span>
+                <p className="font-medium text-gray-900 dark:text-gray-100">{profile.phone ?? '—'}</p>
               </div>
             </div>
 
             {(profile.blood_type || profile.allergies || profile.medications || profile.medical_conditions) && (
-              <div className="border-t pt-4 grid grid-cols-2 gap-4">
+              <div className="border-t dark:border-gray-700 pt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-gray-500">Grupo sanguíneo</span>
-                  <p className="font-medium text-gray-900">{profile.blood_type ?? '—'}</p>
+                  <span className="text-gray-500 dark:text-gray-400">Grupo sanguíneo</span>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{profile.blood_type ?? '—'}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Primeros auxilios</span>
-                  <p className="font-medium text-gray-900">{profile.has_first_aid ? 'Sí' : 'No'}</p>
+                  <span className="text-gray-500 dark:text-gray-400">Primeros auxilios</span>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{profile.has_first_aid ? 'Sí' : 'No'}</p>
                 </div>
                 {profile.allergies && (
                   <div className="col-span-2">
-                    <span className="text-gray-500">Alergias</span>
-                    <p className="font-medium text-gray-900">{profile.allergies}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Alergias</span>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.allergies}</p>
                   </div>
                 )}
                 {profile.medications && (
                   <div className="col-span-2">
-                    <span className="text-gray-500">Medicamentos</span>
-                    <p className="font-medium text-gray-900">{profile.medications}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Medicamentos</span>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.medications}</p>
                   </div>
                 )}
                 {profile.medical_conditions && (
                   <div className="col-span-2">
-                    <span className="text-gray-500">Condiciones especiales</span>
-                    <p className="font-medium text-gray-900">{profile.medical_conditions}</p>
+                    <span className="text-gray-500 dark:text-gray-400">Condiciones especiales</span>
+                    <p className="font-medium text-gray-900 dark:text-gray-100">{profile.medical_conditions}</p>
                   </div>
                 )}
               </div>
             )}
 
             {(profile.emergency_contact || profile.emergency_phone) && (
-              <div className="border-t pt-4 grid grid-cols-2 gap-4">
+              <div className="border-t dark:border-gray-700 pt-4 grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-gray-500">Contacto de emergencia</span>
-                  <p className="font-medium text-gray-900">{profile.emergency_contact ?? '—'}</p>
+                  <span className="text-gray-500 dark:text-gray-400">Contacto de emergencia</span>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{profile.emergency_contact ?? '—'}</p>
                 </div>
                 <div>
-                  <span className="text-gray-500">Teléfono emergencia</span>
-                  <p className="font-medium text-gray-900">{profile.emergency_phone ?? '—'}</p>
+                  <span className="text-gray-500 dark:text-gray-400">Teléfono emergencia</span>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{profile.emergency_phone ?? '—'}</p>
                 </div>
               </div>
             )}
@@ -321,16 +321,16 @@ export default function PerfilPage() {
       </div>
 
       {/* Points summary */}
-      <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-purple-900">Puntos de Formación</h2>
-          <span className="text-3xl font-bold text-purple-700">{activePoints}</span>
+          <h2 className="text-lg font-bold text-purple-900 dark:text-purple-300">Puntos de Formación</h2>
+          <span className="text-3xl font-bold text-purple-700 dark:text-purple-400">{activePoints}</span>
         </div>
-        <p className="text-xs text-purple-600 mb-4">
+        <p className="text-xs text-purple-600 dark:text-purple-400 mb-4">
           Los puntos se obtienen siendo Ayudante en talleres y vencen al año de ser otorgados.
         </p>
         {pointsHistory.length === 0 ? (
-          <p className="text-sm text-gray-500">Aún no tienes puntos registrados.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Aún no tienes puntos registrados.</p>
         ) : (
           <div className="space-y-2">
             {pointsHistory.map((entry) => {
@@ -338,21 +338,21 @@ export default function PerfilPage() {
               return (
                 <div
                   key={entry.id}
-                  className={`flex items-center justify-between text-sm rounded-lg px-3 py-2 ${expired ? 'bg-gray-100 text-gray-400' : 'bg-white text-gray-700'}`}
+                  className={`flex items-center justify-between text-sm rounded-lg px-3 py-2 ${expired ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500' : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}
                 >
                   <div>
                     <span className="font-medium">
                       {entry.edicion?.taller?.name ?? 'Puntos manuales'}
                     </span>
                     {entry.description && (
-                      <span className="text-xs ml-2 text-gray-400">— {entry.description}</span>
+                      <span className="text-xs ml-2 text-gray-400 dark:text-gray-500">— {entry.description}</span>
                     )}
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-gray-400 dark:text-gray-500">
                       Vence: {new Date(entry.expires_at).toLocaleDateString('es-CL')}
                       {expired && ' (vencido)'}
                     </div>
                   </div>
-                  <span className={`font-bold ${expired ? 'text-gray-400' : 'text-purple-700'}`}>
+                  <span className={`font-bold ${expired ? 'text-gray-400 dark:text-gray-500' : 'text-purple-700 dark:text-purple-400'}`}>
                     +{entry.points}
                   </span>
                 </div>
@@ -363,17 +363,17 @@ export default function PerfilPage() {
       </div>
 
       {/* Boletín de talleres */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Boletín de Talleres</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Boletín de Talleres</h2>
         {tallerMap.size === 0 ? (
-          <p className="text-sm text-gray-500">Aún no te has postulado a ningún taller.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Aún no te has postulado a ningún taller.</p>
         ) : (
           <div className="space-y-2">
             {Array.from(tallerMap.entries()).map(([tallerId, info]) => (
               <div key={tallerId} className="flex items-center justify-between text-sm">
                 <div>
-                  <span className="text-gray-800 font-medium">{info.name}</span>
-                  <span className="ml-2 text-xs text-gray-400 capitalize">
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">{info.name}</span>
+                  <span className="ml-2 text-xs text-gray-400 dark:text-gray-500 capitalize">
                     {info.branch.replace('_', '/')}
                   </span>
                 </div>
@@ -387,18 +387,18 @@ export default function PerfilPage() {
       </div>
 
       {/* Historial de postulaciones */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Historial de postulaciones</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Historial de postulaciones</h2>
         {inscripciones.length === 0 ? (
-          <p className="text-sm text-gray-500">Sin postulaciones registradas.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Sin postulaciones registradas.</p>
         ) : (
           <div className="space-y-2">
             {inscripciones.map((insc) => (
               <div key={insc.id} className="flex items-center justify-between text-sm py-1">
                 <div>
-                  <span className="text-gray-800">{insc.edicion.taller.name}</span>
-                  <span className="text-xs text-gray-400 ml-2">{insc.edicion.name}</span>
-                  <div className="text-xs text-gray-400">
+                  <span className="text-gray-800 dark:text-gray-200">{insc.edicion.taller.name}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-2">{insc.edicion.name}</span>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">
                     {new Date(insc.inscrito_at).toLocaleDateString('es-CL')}
                   </div>
                 </div>

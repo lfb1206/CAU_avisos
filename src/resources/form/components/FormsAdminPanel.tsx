@@ -170,7 +170,7 @@ export default function FormsAdminPanel() {
   const renderBasicOptionsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Datos de Autocompletado Básico</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Datos de Autocompletado Básico</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAddBasic(true)}
@@ -182,14 +182,14 @@ export default function FormsAdminPanel() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Actividades Generales</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Actividades Generales</h4>
           <div className="space-y-2">
             {basicOptions.actividades.map((actividad, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{actividad}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteBasicItem('actividades', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -202,14 +202,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Actividades Específicas</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Actividades Específicas</h4>
           <div className="space-y-2">
             {basicOptions.actividadesEspecificas.map((actividad, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{actividad}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteBasicItem('actividadesEspecificas', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -222,14 +222,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Cerros y Sectores</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Cerros y Sectores</h4>
           <div className="space-y-2">
             {basicOptions.cerrosSectores.map((cerro, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{cerro}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteBasicItem('cerrosSectores', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -242,14 +242,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Tramos de Ruta</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Tramos de Ruta</h4>
           <div className="space-y-2">
             {basicOptions.tramos.map((tramo, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{tramo}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteBasicItem('tramos', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -270,7 +270,7 @@ export default function FormsAdminPanel() {
   const renderTransportOptionsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Sugerencias de Transporte</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sugerencias de Transporte</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAddTransport(true)}
@@ -282,14 +282,14 @@ export default function FormsAdminPanel() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Tipos de Transporte</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Tipos de Transporte</h4>
           <div className="space-y-2">
             {transportOpts.transportTypes.map((tipo, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{tipo.label}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteTransportItem('transportTypes', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -302,14 +302,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Marcas de Vehículos</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Marcas de Vehículos</h4>
           <div className="space-y-2">
             {transportOpts.vehicleBrands.map((marca, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{marca}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteTransportItem('vehicleBrands', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -328,7 +328,7 @@ export default function FormsAdminPanel() {
   const renderMedicalOptionsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Sugerencias Médicas</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sugerencias Médicas</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAddMedical(true)}
@@ -340,14 +340,14 @@ export default function FormsAdminPanel() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Grupos Sanguíneos</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Grupos Sanguíneos</h4>
           <div className="space-y-2">
             {medicalOpts.bloodTypes.map((grupo, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{grupo.label}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteMedicalItem('bloodTypes', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -360,14 +360,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Alergias</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Alergias</h4>
           <div className="space-y-2">
             {medicalOpts.allergies.map((alergia, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{alergia}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteMedicalItem('allergies', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -380,14 +380,14 @@ export default function FormsAdminPanel() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-lg border shadow-sm">
-          <h4 className="font-semibold text-gray-900 mb-3">Sugerencias de Condiciones Médicas</h4>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Sugerencias de Condiciones Médicas</h4>
           <div className="space-y-2">
             {medicalOpts.medicalConditions.map((condicion, index) => (
-              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded">
                 <span className="text-sm">{condicion}</span>
                 <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-500">Sugerencia</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Sugerencia</span>
                   <button
                     onClick={() => handleDeleteMedicalItem('medicalConditions', index)}
                     className="text-red-600 hover:text-red-800 text-xs"
@@ -406,7 +406,7 @@ export default function FormsAdminPanel() {
   const renderAssumptionsTab = () => (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Sugerencias de Supuestos por Dificultad</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sugerencias de Supuestos por Dificultad</h3>
         <div className="flex space-x-2">
           <button
             onClick={() => setShowAddDifficulty(true)}
@@ -425,7 +425,7 @@ export default function FormsAdminPanel() {
 
       <div className="grid grid-cols-1 gap-6">
         {Object.entries(assumptionRecs).map(([difficulty, recommendations]) => (
-          <div key={difficulty} className="bg-white p-4 rounded-lg border shadow-sm">
+          <div key={difficulty} className="bg-white dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700 shadow-sm">
             <div className="flex justify-between items-center mb-3">
               <h4 className="font-semibold text-gray-900">{difficulty}</h4>
               <button
@@ -437,10 +437,10 @@ export default function FormsAdminPanel() {
             </div>
             <div className="space-y-3">
               {recommendations.map((rec, index) => (
-                <div key={index} className="p-3 bg-gray-50 rounded border">
+                <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700 rounded border dark:border-gray-600">
                   <div className="space-y-2">
                     <div className="flex justify-between items-start">
-                      <span className="text-sm font-medium text-gray-800">{rec.supuesto}</span>
+                      <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{rec.supuesto}</span>
                       <div className="flex space-x-1">
                         <button
                           onClick={() => setEditingAssumption({ difficulty, index, data: rec })}
@@ -458,16 +458,16 @@ export default function FormsAdminPanel() {
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-xs">
                       <div>
-                        <span className="text-gray-600">Tipo:</span>
-                        <span className="ml-1 text-gray-800">{rec.tipoSupuesto}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Tipo:</span>
+                        <span className="ml-1 text-gray-800 dark:text-gray-200">{rec.tipoSupuesto}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Probabilidad:</span>
-                        <span className="ml-1 text-gray-800">{rec.probabilidad}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Probabilidad:</span>
+                        <span className="ml-1 text-gray-800 dark:text-gray-200">{rec.probabilidad}</span>
                       </div>
                       <div>
-                        <span className="text-gray-600">Impacto:</span>
-                        <span className="ml-1 text-gray-800">{rec.impacto}</span>
+                        <span className="text-gray-600 dark:text-gray-400">Impacto:</span>
+                        <span className="ml-1 text-gray-800 dark:text-gray-200">{rec.impacto}</span>
                       </div>
                     </div>
                   </div>
@@ -483,8 +483,8 @@ export default function FormsAdminPanel() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestión de Datos de Autocompletado</h1>
-        <p className="text-gray-600">Administra sugerencias y datos de autocompletado para formularios</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Gestión de Datos de Autocompletado</h1>
+        <p className="text-gray-600 dark:text-gray-400">Administra sugerencias y datos de autocompletado para formularios</p>
       </div>
 
       {/* Navigation Tabs */}
@@ -503,7 +503,7 @@ export default function FormsAdminPanel() {
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:border-gray-600'
               }`}
             >
               {tab.label}
@@ -513,7 +513,7 @@ export default function FormsAdminPanel() {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         {activeTab === 'basic' && renderBasicOptionsTab()}
 
         {activeTab === 'transport' && renderTransportOptionsTab()}
@@ -524,16 +524,16 @@ export default function FormsAdminPanel() {
       {/* Modal para agregar dificultad */}
       {showAddDifficulty && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Agregar Nueva Dificultad</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Agregar Nueva Dificultad</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Nombre de la Dificultad</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre de la Dificultad</label>
                 <input
                   type="text"
                   value={newDifficulty}
                   onChange={(e) => setNewDifficulty(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="Ej: Terreno técnico avanzado"
                   required
                 />
@@ -544,7 +544,7 @@ export default function FormsAdminPanel() {
                     setShowAddDifficulty(false);
                     setNewDifficulty('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancelar
                 </button>
@@ -563,15 +563,15 @@ export default function FormsAdminPanel() {
       {/* Modal para agregar datos básicos */}
       {showAddBasic && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Agregar Elemento Básico</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Agregar Elemento Básico</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Elemento</label>
                 <select
                   value={basicType}
                   onChange={(e) => setBasicType(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   required
                 >
                   <option value="">Seleccionar tipo</option>
@@ -582,12 +582,12 @@ export default function FormsAdminPanel() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Nuevo Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Elemento</label>
                 <input
                   type="text"
                   value={newBasicItem}
                   onChange={(e) => setNewBasicItem(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="Ej: Escalada en roca"
                   required
                 />
@@ -599,7 +599,7 @@ export default function FormsAdminPanel() {
                     setNewBasicItem('');
                     setBasicType('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancelar
                 </button>
@@ -620,15 +620,15 @@ export default function FormsAdminPanel() {
       {/* Modal para agregar datos de transporte */}
       {showAddTransport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Agregar Elemento de Transporte</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Agregar Elemento de Transporte</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Elemento</label>
                 <select
                   value={transportType}
                   onChange={(e) => setTransportType(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   required
                 >
                   <option value="">Seleccionar tipo</option>
@@ -637,12 +637,12 @@ export default function FormsAdminPanel() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Nuevo Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Elemento</label>
                 <input
                   type="text"
                   value={newTransportItem}
                   onChange={(e) => setNewTransportItem(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="Ej: Camioneta 4x4"
                   required
                 />
@@ -654,7 +654,7 @@ export default function FormsAdminPanel() {
                     setNewTransportItem('');
                     setTransportType('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancelar
                 </button>
@@ -673,15 +673,15 @@ export default function FormsAdminPanel() {
       {/* Modal para agregar datos médicos */}
       {showAddMedical && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Agregar Elemento Médico</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Agregar Elemento Médico</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tipo de Elemento</label>
                 <select
                   value={medicalType}
                   onChange={(e) => setMedicalType(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   required
                 >
                   <option value="">Seleccionar tipo</option>
@@ -691,12 +691,12 @@ export default function FormsAdminPanel() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Nuevo Elemento</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Nuevo Elemento</label>
                 <input
                   type="text"
                   value={newMedicalItem}
                   onChange={(e) => setNewMedicalItem(e.target.value)}
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
+                  className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 dark:bg-gray-700 dark:text-gray-100"
                   placeholder="Ej: Alergia al polen"
                   required
                 />
@@ -708,7 +708,7 @@ export default function FormsAdminPanel() {
                     setNewMedicalItem('');
                     setMedicalType('');
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Cancelar
                 </button>
@@ -727,8 +727,8 @@ export default function FormsAdminPanel() {
       {/* Modales para supuestos */}
       {(showAddAssumption || editingAssumption) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
               {editingAssumption ? 'Editar Supuesto' : 'Agregar Supuesto'}
             </h3>
             <AssumptionForm
