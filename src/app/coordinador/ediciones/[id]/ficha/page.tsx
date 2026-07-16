@@ -61,7 +61,7 @@ function fmtDate(s: string | null) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-6">
-      <h3 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2 border-b border-gray-200 dark:border-gray-700 pb-1">{title}</h3>
+      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2 border-b border-gray-200 pb-1">{title}</h3>
       {children}
     </div>
   );
@@ -74,14 +74,14 @@ function TextField({
 }) {
   return (
     <div className="mb-3">
-      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       {multiline ? (
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           rows={4}
-          className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y bg-white text-gray-900"
         />
       ) : (
         <input
@@ -89,7 +89,7 @@ function TextField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
         />
       )}
     </div>
@@ -99,12 +99,12 @@ function TextField({
 function NumField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900"
       />
     </div>
   );
@@ -196,31 +196,31 @@ export default function FichaEdicionPage() {
     setTimeout(() => setSaved(false), 2000);
   }, [edicion, t]);
 
-  if (loading) return <div className="p-8 text-gray-400 dark:text-gray-500">Cargando ficha...</div>;
-  if (!edicion) return <div className="p-8 text-red-500 dark:text-red-400">Edición no encontrada.</div>;
+  if (loading) return <div className="p-8 text-gray-400">Cargando ficha...</div>;
+  if (!edicion) return <div className="p-8 text-red-500">Edición no encontrada.</div>;
 
   const taller = edicion.taller;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-1">
             <Link href="/coordinador" className="hover:text-blue-600">Coordinador</Link>
             <span>/</span>
             <span>{taller.name}</span>
             <span>/</span>
-            <span className="font-medium text-gray-900 dark:text-gray-100">{edicion.name}</span>
+            <span className="font-medium text-gray-900">{edicion.name}</span>
           </div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Ficha de Edición</h1>
+          <h1 className="text-xl font-bold text-gray-900">Ficha de Edición</h1>
         </div>
         <div className="flex items-center gap-3">
           {saved && <span className="text-sm text-green-600 font-medium">Guardado</span>}
           <Link
             href={`/coordinador/ediciones/${id}/ficha/imprimir`}
             target="_blank"
-            className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 font-medium text-gray-700 dark:text-gray-300"
+            className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 font-medium text-gray-700"
           >
             Ver / Imprimir PDF
           </Link>
@@ -230,9 +230,9 @@ export default function FichaEdicionPage() {
       <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* ── Left: Taller template (admin) ────────────────────────────────── */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-gray-900 dark:text-gray-100">Contenido del taller</h2>
+            <h2 className="font-bold text-gray-900">Contenido del taller</h2>
             <button
               onClick={saveTaller}
               disabled={saving}
@@ -241,7 +241,7 @@ export default function FichaEdicionPage() {
               {saving ? 'Guardando...' : 'Guardar contenido'}
             </button>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+          <p className="text-xs text-gray-500 mb-4">
             Estos datos definen el taller y se comparten entre todas sus ediciones. Solo admins pueden editarlos.
           </p>
 
@@ -284,9 +284,9 @@ export default function FichaEdicionPage() {
 
         {/* ── Right: Edition-specific (coordinador) ────────────────────────── */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-gray-900 dark:text-gray-100">Esta edición</h2>
+              <h2 className="font-bold text-gray-900">Esta edición</h2>
               <button
                 onClick={saveEdicion}
                 disabled={saving}
@@ -296,11 +296,11 @@ export default function FichaEdicionPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm">
-              <div><span className="text-gray-500 dark:text-gray-400">Inicio:</span> <strong className="text-gray-900 dark:text-gray-100">{fmtDate(edicion.start_date)}</strong></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Fin:</span> <strong className="text-gray-900 dark:text-gray-100">{fmtDate(edicion.end_date)}</strong></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Cupos:</span> <strong className="text-gray-900 dark:text-gray-100">{edicion.capacity}</strong></div>
-              <div><span className="text-gray-500 dark:text-gray-400">Inscritos:</span> <strong className="text-gray-900 dark:text-gray-100">{edicion.inscripciones.length}</strong></div>
+            <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg text-sm">
+              <div><span className="text-gray-500">Inicio:</span> <strong className="text-gray-900">{fmtDate(edicion.start_date)}</strong></div>
+              <div><span className="text-gray-500">Fin:</span> <strong className="text-gray-900">{fmtDate(edicion.end_date)}</strong></div>
+              <div><span className="text-gray-500">Cupos:</span> <strong className="text-gray-900">{edicion.capacity}</strong></div>
+              <div><span className="text-gray-500">Inscritos:</span> <strong className="text-gray-900">{edicion.inscripciones.length}</strong></div>
             </div>
 
             <TextField label="Profesor / instructor" value={profesor} onChange={setProfesor} placeholder="Nombre del profesor para esta edición" />
@@ -309,31 +309,31 @@ export default function FichaEdicionPage() {
 
             <div className="grid grid-cols-2 gap-3 mt-2">
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio socio (CLP)</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Precio socio (CLP)</label>
                 <input type="number" value={price} onChange={(e) => setPrice(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                   placeholder="40000" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Precio estudiante (CLP)</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Precio estudiante (CLP)</label>
                 <input type="number" value={priceStudent} onChange={(e) => setPriceStudent(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 placeholder-gray-400"
                   placeholder="20000" />
               </div>
             </div>
           </div>
 
           {/* Participants */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Participantes ({edicion.inscripciones.length})</h2>
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 className="font-bold text-gray-900 mb-3">Participantes ({edicion.inscripciones.length})</h2>
             {edicion.inscripciones.length === 0 ? (
-              <p className="text-sm text-gray-400 dark:text-gray-500">Sin inscritos aún.</p>
+              <p className="text-sm text-gray-400">Sin inscritos aún.</p>
             ) : (
               <div className="space-y-2">
                 {edicion.inscripciones.map((i) => (
-                  <div key={i.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{i.profile.name}</span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{i.profile.email}</span>
+                  <div key={i.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
+                    <span className="font-medium text-gray-900">{i.profile.name}</span>
+                    <span className="text-xs text-gray-400">{i.profile.email}</span>
                   </div>
                 ))}
               </div>
@@ -342,13 +342,13 @@ export default function FichaEdicionPage() {
 
           {/* Ayudantes */}
           {edicion.ayudantias.length > 0 && (
-            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-              <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">Ayudantes ({edicion.ayudantias.length})</h2>
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h2 className="font-bold text-gray-900 mb-3">Ayudantes ({edicion.ayudantias.length})</h2>
               <div className="space-y-2">
                 {edicion.ayudantias.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                    <span className="font-medium text-gray-900 dark:text-gray-100">{a.profile.name}</span>
-                    <span className="text-xs text-gray-400 dark:text-gray-500">{a.profile.email}</span>
+                  <div key={a.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
+                    <span className="font-medium text-gray-900">{a.profile.name}</span>
+                    <span className="text-xs text-gray-400">{a.profile.email}</span>
                   </div>
                 ))}
               </div>

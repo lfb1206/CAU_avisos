@@ -40,49 +40,49 @@ function CurriculumSection({ taller }: { taller: { objetivo?: string | null; con
   const hasContent = !!(taller.objetivo || taller.contenidos || taller.habilidades || taller.lugar_tipico || taller.requisitos_personales || taller.equipo_personal || taller.equipo_recomendado);
   if (!hasContent) return null;
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
-      <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Contenido del taller</h2>
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <h2 className="font-semibold text-gray-900 mb-4">Contenido del taller</h2>
       <dl className="space-y-4">
         {taller.objetivo && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Objetivo</dt>
-            <dd className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{taller.objetivo}</dd>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Objetivo</dt>
+            <dd className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{taller.objetivo}</dd>
           </div>
         )}
         {taller.contenidos && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Contenidos</dt>
-            <dd className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{taller.contenidos}</dd>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Contenidos</dt>
+            <dd className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{taller.contenidos}</dd>
           </div>
         )}
         {taller.habilidades && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Habilidades a desarrollar</dt>
-            <dd className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{taller.habilidades}</dd>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Habilidades a desarrollar</dt>
+            <dd className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{taller.habilidades}</dd>
           </div>
         )}
         {taller.lugar_tipico && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Lugar típico</dt>
-            <dd className="text-sm text-gray-700 dark:text-gray-300">{taller.lugar_tipico}</dd>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Lugar típico</dt>
+            <dd className="text-sm text-gray-700">{taller.lugar_tipico}</dd>
           </div>
         )}
         {taller.requisitos_personales && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Requisitos personales</dt>
-            <dd className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{taller.requisitos_personales}</dd>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Requisitos personales</dt>
+            <dd className="text-sm text-gray-700 whitespace-pre-line">{taller.requisitos_personales}</dd>
           </div>
         )}
         {(taller.equipo_personal || taller.equipo_recomendado) && (
           <div>
-            <dt className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Equipamiento</dt>
+            <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Equipamiento</dt>
             {taller.equipo_personal && (
-              <dd className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line mb-1">
+              <dd className="text-sm text-gray-700 whitespace-pre-line mb-1">
                 <span className="font-medium">Obligatorio: </span>{taller.equipo_personal}
               </dd>
             )}
             {taller.equipo_recomendado && (
-              <dd className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+              <dd className="text-sm text-gray-700 whitespace-pre-line">
                 <span className="font-medium">Recomendado: </span>{taller.equipo_recomendado}
               </dd>
             )}
@@ -188,7 +188,7 @@ export default async function TallerDetailPage({ params }: PageProps) {
     <div className="max-w-2xl mx-auto px-4 py-10">
       <Link
         href="/cursos"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-6"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-6"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -199,13 +199,13 @@ export default async function TallerDetailPage({ params }: PageProps) {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
             <span>{branchLabels[taller.branch] ?? taller.branch}</span>
             <span>·</span>
             <span>{levelLabels[taller.level] ?? taller.level}</span>
           </div>
           <div className="flex items-start justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{taller.name}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{taller.name}</h1>
             {memberStatus === 'completado' && (
               <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 flex-shrink-0">
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -223,12 +223,12 @@ export default async function TallerDetailPage({ params }: PageProps) {
         </div>
 
         {/* Description */}
-        <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{taller.description}</p>
+        <p className="text-gray-700 leading-relaxed">{taller.description}</p>
 
         {/* Prerequisites */}
         {prereqTalleres.length > 0 && (
           <div>
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Prerequisitos</h2>
+            <h2 className="font-semibold text-gray-900 mb-2">Prerequisitos</h2>
             <ul className="space-y-1">
               {prereqTalleres.map((p) => (
                 <li key={p.id}>
@@ -243,14 +243,14 @@ export default async function TallerDetailPage({ params }: PageProps) {
 
         {/* Blocked message */}
         {user && memberStatus === 'bloqueado' && prereqTalleres.length > 0 && (
-          <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl text-sm text-orange-800 dark:text-orange-300">
+          <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl text-sm text-orange-800">
             Completa los prerequisitos para poder postular a ediciones de este taller.
           </div>
         )}
 
         {/* Not logged in */}
         {!user && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl text-sm text-blue-800 dark:text-blue-300">
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800">
             <Link href={`/auth/login?redirectTo=/cursos/${taller.id}`} className="font-medium hover:underline">
               Inicia sesión
             </Link>{' '}
@@ -263,7 +263,7 @@ export default async function TallerDetailPage({ params }: PageProps) {
 
         {/* Ediciones */}
         <div>
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">Ediciones disponibles</h2>
+          <h2 className="font-semibold text-gray-900 mb-3">Ediciones disponibles</h2>
           {taller.ediciones.length === 0 ? (
             <p className="text-sm text-gray-500">No hay ediciones programadas actualmente.</p>
           ) : (
@@ -291,17 +291,17 @@ export default async function TallerDetailPage({ params }: PageProps) {
                 return (
                   <div
                     key={edicion.id}
-                    className="border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+                    className="border border-gray-200 rounded-xl bg-white p-4 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4 mb-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{edicion.name}</p>
+                          <p className="font-medium text-gray-900 text-sm">{edicion.name}</p>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${edicionStatusColors[edicion.status] ?? 'bg-gray-100 text-gray-600'}`}>
                             {edicionStatusLabels[edicion.status] ?? edicion.status}
                           </span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-500">
                           {edicion.start_date &&
                             new Date(edicion.start_date).toLocaleDateString('es-CL', {
                               day: 'numeric',
@@ -346,22 +346,22 @@ export default async function TallerDetailPage({ params }: PageProps) {
                           </Link>
                         )}
                         {!userStatus && !isUserAyudante && edicion.enrollment_open && memberStatus === 'bloqueado' && (
-                          <span className="text-xs text-gray-400 dark:text-gray-500">Prerequisitos pendientes</span>
+                          <span className="text-xs text-gray-400">Prerequisitos pendientes</span>
                         )}
                         {!userStatus && !isUserAyudante && !edicion.enrollment_open && edicion.status === 'planificada' && (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">Próximamente</span>
+                          <span className="text-xs text-gray-400 italic">Próximamente</span>
                         )}
                       </div>
                     </div>
 
                     {/* Secondary actions row: ayudante + ficha */}
-                    <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100">
                       <div>
                         {canBeAyudante && <AyudanteButton edicionId={edicion.id} />}
                       </div>
                       <Link
                         href={`/cursos/edicion/${edicion.id}/ficha`}
-                        className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:underline font-medium"
+                        className="text-xs text-gray-500 hover:text-blue-600 hover:underline font-medium"
                       >
                         Ver ficha →
                       </Link>

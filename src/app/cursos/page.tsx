@@ -259,9 +259,9 @@ export default function CursosPage() {
   return (
     <>
       {/* ── Mobile list view (< md) ────────────────────────────────── */}
-      <div className="md:hidden overflow-y-auto bg-gray-50 dark:bg-gray-900" style={{ minHeight: 'calc(100vh - 64px)' }}>
+      <div className="md:hidden overflow-y-auto bg-gray-50" style={{ minHeight: 'calc(100vh - 64px)' }}>
         <div className="px-4 pt-5 pb-3">
-          <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">Talleres CAU</h1>
+          <h1 className="text-lg font-bold text-gray-900">Talleres CAU</h1>
           {!isLoading && !isLoggedIn && (
             <p className="text-sm text-blue-700 mt-1">
               <Link href="/auth/login" className="font-semibold hover:underline">Inicia sesión</Link>
@@ -288,7 +288,7 @@ export default function CursosPage() {
               if (!group.length) return null;
               return (
                 <section key={branch}>
-                  <h2 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2 px-1">
+                  <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">
                     {BRANCH_LABELS[branch]}
                   </h2>
                   <div className="space-y-2">
@@ -299,10 +299,10 @@ export default function CursosPage() {
                         <Link
                           key={t.id}
                           href={`/cursos/${t.id}`}
-                          className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-gray-700 active:bg-gray-50 dark:active:bg-gray-750 transition-colors"
+                          className="flex items-center justify-between bg-white rounded-xl px-4 py-3 border border-gray-200 active:bg-gray-50 transition-colors"
                         >
                           <div className="min-w-0 flex-1 pr-3">
-                            <p className={`text-sm font-semibold leading-snug ${status === 'bloqueado' ? 'text-gray-400 dark:text-gray-600' : 'text-gray-900 dark:text-gray-100'}`}>
+                            <p className={`text-sm font-semibold leading-snug ${status === 'bloqueado' ? 'text-gray-400' : 'text-gray-900'}`}>
                               {t.name}
                             </p>
                             {openEdicion && (
@@ -321,7 +321,7 @@ export default function CursosPage() {
                             {status === 'bloqueado' && (
                               <span className="text-gray-300 text-base">🔒</span>
                             )}
-                            <svg className="w-4 h-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                           </div>
@@ -341,9 +341,9 @@ export default function CursosPage() {
 
       {/* Floating top bar */}
       <div className="absolute top-3 left-0 right-0 z-10 flex justify-center pointer-events-none">
-        <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-2xl px-5 py-2.5 shadow-sm text-center pointer-events-auto">
-          <h1 className="text-base font-bold text-gray-900 dark:text-gray-100">Talleres del Club Andino Universitario</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Haz clic en un taller para ver detalles · Rueda para hacer zoom · Arrastra para mover</p>
+        <div className="bg-white/90 backdrop-blur rounded-2xl px-5 py-2.5 shadow-sm text-center pointer-events-auto">
+          <h1 className="text-base font-bold text-gray-900">Talleres del Club Andino Universitario</h1>
+          <p className="text-xs text-gray-500 mt-0.5">Haz clic en un taller para ver detalles · Rueda para hacer zoom · Arrastra para mover</p>
           {!isLoading && !isLoggedIn && (
             <p className="text-xs text-blue-700 mt-1">
               <a href="/auth/login" className="font-semibold hover:underline">Inicia sesión</a> para ver tu progreso y postular
@@ -358,7 +358,7 @@ export default function CursosPage() {
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-16 left-4 z-10 bg-white/90 dark:bg-gray-900/90 backdrop-blur rounded-xl px-3 py-2.5 shadow-sm">
+      <div className="absolute bottom-16 left-4 z-10 bg-white/90 backdrop-blur rounded-xl px-3 py-2.5 shadow-sm">
         <div className="space-y-1.5">
           {[
             { cls: 'border-green-400 bg-green-50', label: 'Completado' },
@@ -367,7 +367,7 @@ export default function CursosPage() {
           ].map(({ cls, label }) => (
             <div key={label} className="flex items-center gap-2">
               <div className={`w-4 h-3 rounded border-2 ${cls}`} />
-              <span className="text-[10px] text-gray-600 dark:text-gray-400">{label}</span>
+              <span className="text-[10px] text-gray-600">{label}</span>
             </div>
           ))}
         </div>
@@ -398,12 +398,12 @@ export default function CursosPage() {
 
       {/* Detail panel */}
       {selectedTaller && panelStatus && (
-        <div className="absolute right-0 top-0 bottom-0 w-80 z-20 bg-white dark:bg-gray-900 shadow-2xl border-l border-gray-100 dark:border-gray-800 flex flex-col">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
-            <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">Detalle del taller</span>
+        <div className="absolute right-0 top-0 bottom-0 w-80 z-20 bg-white shadow-2xl border-l border-gray-100 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
+            <span className="text-sm font-semibold text-gray-800">Detalle del taller</span>
             <button
               onClick={() => setSelectedTaller(null)}
-              className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="text-gray-400 hover:text-gray-700 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100"
             >
               ×
             </button>

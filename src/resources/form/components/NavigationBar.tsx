@@ -67,21 +67,21 @@ export default function NavigationBar() {
   const desktopLinkClass = (path: string) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
       isActive(path)
-        ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30'
-        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-800'
+        ? 'text-blue-700 bg-blue-50'
+        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
     }`;
 
   const mobileLinkClass = (path: string) =>
     `block px-4 py-3 text-base font-medium rounded-lg transition-colors ${
       isActive(path)
-        ? 'text-blue-700 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30'
-        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-800'
+        ? 'text-blue-700 bg-blue-50'
+        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
     }`;
 
   const loading = isLoggedIn === null;
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800 relative z-40" ref={menuRef}>
+    <nav className="bg-white shadow-sm border-b border-gray-200 relative z-40" ref={menuRef}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
 
@@ -89,7 +89,7 @@ export default function NavigationBar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <img src="/Logo.png" alt="CAU Logo" className="h-8 w-auto" />
-              <span className="text-xl font-semibold text-gray-900 dark:text-gray-100 hidden sm:block">
+              <span className="text-xl font-semibold text-gray-900 hidden sm:block">
                 Portal CAU
               </span>
             </Link>
@@ -118,16 +118,16 @@ export default function NavigationBar() {
                 <div className="flex items-center space-x-1 ml-2">
                   <Link
                     href="/perfil"
-                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${isActive('/perfil') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}`}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-700 hover:bg-gray-50 transition-colors ${isActive('/perfil') ? 'bg-blue-50 text-blue-700' : ''}`}
                   >
-                    <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     <span className="truncate max-w-[120px]">{profile?.name ?? '…'}</span>
                   </Link>
                   <button
                     onClick={handleSignOut}
-                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-red-600 px-2 py-1 rounded transition-colors"
+                    className="text-sm text-gray-500 hover:text-red-600 px-2 py-1 rounded transition-colors"
                   >
                     Salir
                   </button>
@@ -146,7 +146,7 @@ export default function NavigationBar() {
           {/* Mobile: right side — profile name + hamburger */}
           <div className="flex md:hidden items-center gap-2">
             {!loading && isLoggedIn && profile?.name && (
-              <span className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-[100px]">{profile.name}</span>
+              <span className="text-sm text-gray-500 truncate max-w-[100px]">{profile.name}</span>
             )}
             {!loading && !isLoggedIn && (
               <Link
@@ -160,7 +160,7 @@ export default function NavigationBar() {
               <button
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-label="Abrir menú"
-                className="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
               >
                 {menuOpen ? (
                   /* X icon */
@@ -181,7 +181,7 @@ export default function NavigationBar() {
 
       {/* Mobile dropdown */}
       {menuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
           <div className="px-3 py-3 space-y-1">
             <Link href="/aviso/rapido" className={mobileLinkClass('/aviso/rapido')}>Aviso Rápido</Link>
             <Link href="/cursos" className={mobileLinkClass('/cursos')}>Cursos</Link>
@@ -190,7 +190,7 @@ export default function NavigationBar() {
             <Link href="/dashboard" className={mobileLinkClass('/dashboard')}>Panel</Link>
             <Link href="/perfil" className={mobileLinkClass('/perfil')}>Mi perfil</Link>
 
-            <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+            <div className="pt-2 border-t border-gray-100">
               <button
                 onClick={handleSignOut}
                 className="w-full text-left px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"

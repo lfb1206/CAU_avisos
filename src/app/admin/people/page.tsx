@@ -4,7 +4,7 @@ import PeopleAdminPanel from '@/resources/form/components/PeopleAdminPanel';
 
 export default function PeopleAdminPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <PeopleAdminPanel />
     </div>
   );

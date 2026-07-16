@@ -49,11 +49,11 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Panel de Administración</h1>
-          <p className="text-gray-600 dark:text-gray-400">Gestiona los diccionarios de datos del sistema CAU Avisos</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Panel de Administración</h1>
+          <p className="text-gray-600">Gestiona los diccionarios de datos del sistema CAU Avisos</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -82,12 +82,12 @@ export default function AdminPage() {
           ))}
         </div>
 
-        <div className="mt-12 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Información del Sistema</h2>
+        <div className="mt-12 bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Información del Sistema</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Diccionarios Disponibles</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Diccionarios Disponibles</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
                 <li>• <strong>Personas:</strong> Contactos CAU y participantes frecuentes</li>
                 <li>• <strong>Actividades:</strong> Actividades generales y específicas con equipamiento</li>
                 <li>• <strong>Equipamiento:</strong> Categorías e items de equipamiento</li>
@@ -96,8 +96,8 @@ export default function AdminPage() {
               </ul>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Funcionalidades</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidades</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
                 <li>• <strong>Edición:</strong> Modificar datos existentes</li>
                 <li>• <strong>Agregar:</strong> Crear nuevos registros</li>
                 <li>• <strong>Exportar:</strong> Descargar datos en JSON</li>
@@ -107,7 +107,7 @@ export default function AdminPage() {
           </div>
         </div>
 
-        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
@@ -115,8 +115,8 @@ export default function AdminPage() {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">Base de datos activa</h3>
-              <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
+              <h3 className="text-sm font-medium text-blue-800">Base de datos activa</h3>
+              <div className="mt-2 text-sm text-blue-700">
                 <p>
                   Los cambios en este panel se persisten directamente en Supabase y estarán disponibles de inmediato para todos los usuarios.
                   Usa las funciones de exportación para obtener respaldos locales en JSON.

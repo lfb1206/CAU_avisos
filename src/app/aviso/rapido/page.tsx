@@ -173,12 +173,12 @@ function AvisoRapidoContent() {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-          <a href="/dashboard" className="hover:text-blue-600 dark:text-gray-400">Panel</a>
+          <a href="/dashboard" className="hover:text-blue-600">Panel</a>
           <span>/</span>
-          <span className="text-gray-800 dark:text-gray-200 font-medium">Aviso Rápido</span>
+          <span className="text-gray-800 font-medium">Aviso Rápido</span>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Nuevo Aviso Rápido</h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+        <h1 className="text-2xl font-bold text-gray-900">Nuevo Aviso Rápido</h1>
+        <p className="text-gray-500 text-sm mt-1">
           Para salidas de día o actividades cortas sin pernocte.
         </p>
       </div>
@@ -190,14 +190,14 @@ function AvisoRapidoContent() {
           { n: 2, label: 'Participantes' },
         ].map(({ n, label }) => (
           <React.Fragment key={n}>
-            {n > 1 && <div className={`flex-1 h-px ${step >= n ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`} />}
+            {n > 1 && <div className={`flex-1 h-px ${step >= n ? 'bg-blue-500' : 'bg-gray-200'}`} />}
             <div className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold ${
-                step >= n ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                step >= n ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
               }`}>
                 {n}
               </div>
-              <span className={`text-sm font-medium ${step === n ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'}`}>{label}</span>
+              <span className={`text-sm font-medium ${step === n ? 'text-gray-900' : 'text-gray-400'}`}>{label}</span>
             </div>
           </React.Fragment>
         ))}
@@ -207,11 +207,11 @@ function AvisoRapidoContent() {
       {step === 1 && (
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo de actividad *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de actividad *</label>
             <select
               value={form.categoria}
               onChange={(e) => set('categoria', e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Seleccionar…</option>
               {CATEGORIAS.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -220,54 +220,54 @@ function AvisoRapidoContent() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cerro / Sector *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cerro / Sector *</label>
               <input
                 value={form.cerro}
                 onChange={(e) => set('cerro', e.target.value)}
                 placeholder="Ej: Tupungato"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ruta *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Ruta *</label>
               <input
                 value={form.ruta}
                 onChange={(e) => set('ruta', e.target.value)}
                 placeholder="Ej: Ruta Normal"
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha y hora de inicio *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha y hora de inicio *</label>
               <input
                 type="datetime-local"
                 value={form.fechaInicio}
                 onChange={(e) => set('fechaInicio', e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Plazo máximo de regreso *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Plazo máximo de regreso *</label>
               <input
                 type="datetime-local"
                 value={form.fechaMaxRegreso}
                 onChange={(e) => set('fechaMaxRegreso', e.target.value)}
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contacto CAU *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Contacto CAU *</label>
             <input
               value={form.contactoCau}
               onChange={(e) => set('contactoCau', e.target.value)}
               placeholder="Nombre del socio de guardia"
               list="people-list"
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <datalist id="people-list">
               {people.map((p) => <option key={p.nombre} value={p.nombre} />)}
@@ -275,7 +275,7 @@ function AvisoRapidoContent() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Comentarios</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Comentarios</label>
             <textarea
               value={form.comentarios}
               onChange={(e) => set('comentarios', e.target.value)}
@@ -301,7 +301,7 @@ function AvisoRapidoContent() {
           {/* Participants */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Participantes *</h2>
+              <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Participantes *</h2>
               <button
                 onClick={() => set('participantes', [...form.participantes, emptyParticipante()])}
                 className="text-xs text-blue-600 hover:text-blue-500 font-medium"
@@ -311,7 +311,7 @@ function AvisoRapidoContent() {
             </div>
             <div className="space-y-3">
               {form.participantes.map((p, idx) => (
-                <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 space-y-2">
+                <div key={idx} className="border border-gray-200 rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2">
                     <input
                       value={p.nombre}
@@ -321,7 +321,7 @@ function AvisoRapidoContent() {
                       }}
                       placeholder="Nombre completo *"
                       list="people-list"
-                      className="flex-1 border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 border border-gray-300 rounded-md px-2 py-1.5 text-sm bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {form.participantes.length > 1 && (
                       <button
@@ -337,19 +337,19 @@ function AvisoRapidoContent() {
                       value={p.rut}
                       onChange={(e) => setParticipante(idx, 'rut', e.target.value)}
                       placeholder="RUT"
-                      className="border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
                     <input
                       value={p.telefono}
                       onChange={(e) => setParticipante(idx, 'telefono', e.target.value)}
                       placeholder="Teléfono"
-                      className="border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
                     <input
                       value={p.email}
                       onChange={(e) => setParticipante(idx, 'email', e.target.value)}
                       placeholder="Email"
-                      className="border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                      className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
                   </div>
                 </div>
@@ -360,7 +360,7 @@ function AvisoRapidoContent() {
           {/* Vehicles */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Vehículos</h2>
+              <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Vehículos</h2>
               <button
                 onClick={() => set('vehiculos', [...form.vehiculos, emptyVehiculo()])}
                 className="text-xs text-blue-600 hover:text-blue-500 font-medium"
@@ -369,11 +369,11 @@ function AvisoRapidoContent() {
               </button>
             </div>
             {form.vehiculos.length === 0 ? (
-              <p className="text-xs text-gray-400 dark:text-gray-500 italic">Sin vehículos registrados</p>
+              <p className="text-xs text-gray-400 italic">Sin vehículos registrados</p>
             ) : (
               <div className="space-y-3">
                 {form.vehiculos.map((v, idx) => (
-                  <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                  <div key={idx} className="border border-gray-200 rounded-lg p-3">
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {(['marca', 'modelo', 'patente', 'color'] as const).map((field) => (
                         <input
@@ -381,7 +381,7 @@ function AvisoRapidoContent() {
                           value={v[field]}
                           onChange={(e) => setVehiculo(idx, field, e.target.value)}
                           placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                          className="border border-gray-200 dark:border-gray-600 rounded-md px-2 py-1.5 text-xs bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                         />
                       ))}
                     </div>
@@ -400,21 +400,21 @@ function AvisoRapidoContent() {
           {/* Transport details */}
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lugar de estacionamiento</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Lugar de estacionamiento</label>
               <input
                 value={form.lugarEstacionamiento}
                 onChange={(e) => set('lugarEstacionamiento', e.target.value)}
                 placeholder="Ej: Portillo kms 4, coordinadas, etc."
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Otro transporte</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Otro transporte</label>
               <input
                 value={form.otroTransporte}
                 onChange={(e) => set('otroTransporte', e.target.value)}
                 placeholder="Bus, taxi, etc."
-                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -423,7 +423,7 @@ function AvisoRapidoContent() {
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setStep(1)}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="px-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               ← Volver
             </button>
