@@ -96,7 +96,7 @@ export default function NavigationBar() {
           </div>
 
           {/* Desktop nav links */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1">
             {!loading && isLoggedIn && (
               <>
                 <Link href="/aviso/largo" className={desktopLinkClass('/aviso/largo')}>Aviso Largo</Link>
@@ -144,7 +144,7 @@ export default function NavigationBar() {
           </div>
 
           {/* Mobile: right side — profile name + hamburger */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             {!loading && isLoggedIn && profile?.name && (
               <span className="text-sm text-gray-500 truncate max-w-[100px]">{profile.name}</span>
             )}
@@ -181,7 +181,7 @@ export default function NavigationBar() {
 
       {/* Mobile dropdown */}
       {menuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
+        <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-200 shadow-lg">
           <div className="px-3 py-3 space-y-1">
             <Link href="/aviso/rapido" className={mobileLinkClass('/aviso/rapido')}>Aviso Rápido</Link>
             <Link href="/cursos" className={mobileLinkClass('/cursos')}>Cursos</Link>
