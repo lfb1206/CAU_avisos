@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import ItineraryDayForm from '../components/ItineraryDayForm';
 import type { Assumption } from '@/types';
@@ -53,6 +53,12 @@ export default function Step3ItineraryAssumptions() {
       return 'monitoreo_normal';
     }
   };
+
+  // Derive hazard category options directly from supuesto records — ensures matching works
+  const uniqueDificultades = useMemo(
+    () => [...new Set(supuestosDB.flatMap((s) => s.dificultades))].sort(),
+    [supuestosDB]
+  );
 
   const addItineraryDay = () => {
     const newDay = {
@@ -246,7 +252,7 @@ export default function Step3ItineraryAssumptions() {
             fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
             tramos={basicOptions.tramo ?? []}
             actividadesEspecificas={basicOptions.actividad ?? []}
-            dificultadesPrincipales={riskOptions.dificultad?.map((o) => o.label) ?? []}
+            dificultadesPrincipales={uniqueDificultades}
             supuestosOpciones={riskOptions.supuesto?.map((o) => o.label) ?? []}
             tipoSupuestos={riskOptions.tipoSupuesto?.map((o) => ({ value: o.key, label: o.label })) ?? []}
             probabilidades={riskOptions.probabilidad?.map((o) => ({ value: o.key, label: o.label })) ?? []}

@@ -9,6 +9,7 @@ import DynamicFormField from '../components/DynamicFormField';
 export default function Step1BasicInfo() {
   const { formData, updateFormField } = useFormContext();
   const [memberNames, setMemberNames] = useState<string[]>([]);
+  const [membersByName, setMembersByName] = useState<Record<string, { email: string }>>({});
   const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
@@ -17,6 +18,9 @@ export default function Step1BasicInfo() {
       .then((data: { members?: { name: string; email: string }[] }) => {
         if (Array.isArray(data?.members)) {
           setMemberNames(data.members.map((m) => m.name));
+          const byName: Record<string, { email: string }> = {};
+          data.members.forEach((m) => { byName[m.name] = { email: m.email }; });
+          setMembersByName(byName);
         }
       })
       .catch(() => {});
@@ -35,6 +39,8 @@ export default function Step1BasicInfo() {
 
   const handleContactChange = (value: string) => {
     handleFieldChange('contactoCAU', value);
+    const member = membersByName[value];
+    if (member?.email) handleFieldChange('emailContacto', member.email);
   };
 
   const handleImageUpload = (newImage: import('@/types').WeatherImage) => {

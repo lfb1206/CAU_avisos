@@ -282,9 +282,6 @@ export default async function TallerDetailPage({ params }: PageProps) {
                 const canBeAyudante =
                   user &&
                   memberStatus === 'completado' &&
-                  edicion.enrollment_open &&
-                  edicion.max_ayudantes > 0 &&
-                  ayudanteSpotsLeft > 0 &&
                   !isUserAyudante &&
                   !userStatus;
 

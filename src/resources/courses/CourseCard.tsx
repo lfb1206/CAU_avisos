@@ -185,17 +185,22 @@ export default function CourseCard({
 
       {/* completado + open edicion + not ayudante → offer ayudante */}
       {status === 'completado' && openEdicion && !effectiveIsAyudante && (
-        <button
-          onClick={handleAyudante}
-          disabled={ayudanteState === 'loading'}
-          className="w-full text-center text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 rounded-lg py-1.5 transition-colors disabled:opacity-50"
-        >
-          {ayudanteState === 'loading'
-            ? 'Registrando…'
-            : ayudanteState === 'error'
-              ? 'Error — reintentar'
-              : 'Ser Ayudante'}
-        </button>
+        <>
+          <button
+            onClick={handleAyudante}
+            disabled={ayudanteState === 'loading'}
+            className="w-full text-center text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-300 rounded-lg py-1.5 transition-colors disabled:opacity-50"
+          >
+            {ayudanteState === 'loading'
+              ? 'Registrando…'
+              : ayudanteState === 'error'
+                ? 'Error — reintentar'
+                : 'Ser Ayudante'}
+          </button>
+          <Link href={`/cursos/${id}`} className="block text-center text-xs text-gray-400 hover:text-blue-600 hover:underline mt-1">
+            Ver detalles →
+          </Link>
+        </>
       )}
 
       {/* completado + no open edicion → view detail */}
@@ -254,16 +259,22 @@ export default function CourseCard({
 
       {/* disponible + no open edicion */}
       {status === 'disponible' && !openEdicion && (
-        <span className="block text-center text-xs text-gray-400 italic">
-          Sin edición abierta
-        </span>
+        <Link
+          href={`/cursos/${id}`}
+          className="block text-center text-xs text-gray-500 hover:text-blue-600 hover:underline"
+        >
+          Sin edición abierta · Ver detalles →
+        </Link>
       )}
 
       {/* bloqueado */}
       {status === 'bloqueado' && (
-        <span className="block text-center text-xs text-gray-400 cursor-not-allowed">
-          No disponible
-        </span>
+        <Link
+          href={`/cursos/${id}`}
+          className="block text-center text-xs text-gray-500 hover:text-blue-600 hover:underline"
+        >
+          Ver información →
+        </Link>
       )}
     </div>
   );

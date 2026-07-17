@@ -182,7 +182,7 @@ export default function ItineraryDayForm({
           </div>
           <div className="md:col-span-2 space-y-3">
             <div className="flex items-center justify-between">
-              <label className="block text-sm font-medium text-gray-700">Principales dificultades</label>
+              <label className="block text-sm font-medium text-gray-700">Características del Tramo</label>
               <div className="flex items-center gap-2">
                 {day.dificultadesPrincipales && day.dificultadesPrincipales.filter(d => d.trim()).length > 0 && (
                   <button
@@ -199,7 +199,7 @@ export default function ItineraryDayForm({
                   onClick={() => onAddDifficulty(dayIndex)}
                   className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 >
-                  + Agregar Dificultad
+                  + Añadir característica
                 </button>
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function ItineraryDayForm({
                       value={difficulty}
                       onChange={(value) => onUpdateDifficulty(dayIndex, difficultyIndex, value)}
                       options={dificultadesPrincipales}
-                      placeholder="Seleccione o escriba una dificultad"
+                      placeholder="Seleccione o escriba una característica"
                       className="text-sm"
                     />
                   </div>
@@ -227,12 +227,12 @@ export default function ItineraryDayForm({
               ))}
               {(!day.dificultadesPrincipales || day.dificultadesPrincipales.length === 0) && (
                 <p className="text-sm text-gray-500 italic">
-                  No se han agregado dificultades. Haga clic en "Agregar Dificultad" para comenzar.
+                  No se han agregado características. Haga clic en "Añadir característica" para comenzar.
                 </p>
               )}
             </div>
             <p className="text-xs text-gray-500">
-              Agregue las principales dificultades del tramo una por una. El sistema sugerirá supuestos automáticamente basados en su selección.
+              Agregue las características del tramo (peligros, terreno, condiciones) una por una. El sistema sugerirá supuestos automáticamente basados en su selección.
             </p>
           </div>
           <div className="space-y-1">

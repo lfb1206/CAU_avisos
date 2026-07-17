@@ -6,6 +6,7 @@ import ParticipantForm from '../components/ParticipantForm';
 export default function Step2Participants() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
   const [memberNames, setMemberNames] = useState<string[]>([]);
+  const [membersByName, setMembersByName] = useState<Record<string, { email: string }>>({});
 
   useEffect(() => {
     fetch('/api/members')
@@ -13,6 +14,9 @@ export default function Step2Participants() {
       .then((data: { members?: { name: string; email: string }[] }) => {
         if (Array.isArray(data?.members)) {
           setMemberNames(data.members.map((m) => m.name));
+          const byName: Record<string, { email: string }> = {};
+          data.members.forEach((m) => { byName[m.name] = { email: m.email }; });
+          setMembersByName(byName);
         }
       })
       .catch(() => {});
@@ -51,8 +55,14 @@ export default function Step2Participants() {
       return;
     }
 
-    // Update name and clear duplicate flag
-    updateItem('participantes', index, { ...participantes[index], nombre: participantName, isDuplicate: false });
+    // Update name, clear duplicate flag, and autofill email if member is known
+    const member = membersByName[participantName];
+    updateItem('participantes', index, {
+      ...participantes[index],
+      nombre: participantName,
+      isDuplicate: false,
+      ...(member?.email ? { email: member.email } : {}),
+    });
   };
 
   const getSavedParticipantNames = () => {
