@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import MemberDetailPanel from '@/resources/coordinador/MemberDetailPanel';
 
 interface TallerInfo {
   id: number;
@@ -165,6 +166,7 @@ export default function CoordinadorClient({
 
   // Member profile modal
   const [memberModal, setMemberModal] = useState<{
+    user_id: string;
     name: string;
     email: string;
     phone: string | null;
@@ -177,6 +179,9 @@ export default function CoordinadorClient({
     emergency_phone: string | null;
     completedCourses: CompletedCourse[];
   } | null>(null);
+
+  // Member detail slide-over panel
+  const [panelMemberId, setPanelMemberId] = useState<string | null>(null);
 
   const toggleEnrollment = async (edicionId: number, currentOpen: boolean) => {
     setToggling(edicionId);
@@ -579,7 +584,7 @@ export default function CoordinadorClient({
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => setMemberModal({ name: p.profile.name, email: p.profile.email, phone: p.profile.phone, rut: p.profile.rut, blood_type: p.profile.blood_type, allergies: p.profile.allergies, medications: p.profile.medications, medical_conditions: p.profile.medical_conditions, emergency_contact: p.profile.emergency_contact, emergency_phone: p.profile.emergency_phone, completedCourses: p.completedCourses })}
+                          onClick={() => setMemberModal({ user_id: p.user_id, name: p.profile.name, email: p.profile.email, phone: p.profile.phone, rut: p.profile.rut, blood_type: p.profile.blood_type, allergies: p.profile.allergies, medications: p.profile.medications, medical_conditions: p.profile.medical_conditions, emergency_contact: p.profile.emergency_contact, emergency_phone: p.profile.emergency_phone, completedCourses: p.completedCourses })}
                           className="text-left"
                         >
                           <p className="font-medium text-gray-900 hover:text-blue-600">{p.profile.name}</p>
@@ -1084,6 +1089,9 @@ export default function CoordinadorClient({
         </div>
       )}
 
+      {/* ── Member detail slide-over panel ── */}
+      <MemberDetailPanel userId={panelMemberId} onClose={() => setPanelMemberId(null)} />
+
       {/* ── Member profile modal ── */}
       {memberModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
@@ -1156,12 +1164,23 @@ export default function CoordinadorClient({
               )}
             </div>
 
-            <button
-              onClick={() => setMemberModal(null)}
-              className="w-full py-2 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              Cerrar
-            </button>
+            <div className="flex items-center justify-between pt-1">
+              <button
+                onClick={() => {
+                  setPanelMemberId(memberModal.user_id);
+                  setMemberModal(null);
+                }}
+                className="text-xs text-blue-600 hover:underline"
+              >
+                Ver perfil completo →
+              </button>
+              <button
+                onClick={() => setMemberModal(null)}
+                className="py-2 px-4 text-sm font-medium text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

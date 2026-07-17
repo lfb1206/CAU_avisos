@@ -22,6 +22,12 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         rut: true,
         role: true,
         created_at: true,
+        blood_type: true,
+        allergies: true,
+        medications: true,
+        medical_conditions: true,
+        emergency_contact: true,
+        emergency_phone: true,
       },
     });
 
@@ -43,6 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       prisma.ayudantia.findMany({
         where: { user_id: id },
         select: {
+          seleccionado: true,
           asistio: true,
           signed_up_at: true,
           edicion: { select: { name: true, taller: { select: { name: true } } } },

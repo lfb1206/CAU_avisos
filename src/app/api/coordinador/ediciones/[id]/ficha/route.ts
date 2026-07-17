@@ -28,6 +28,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
             tiene_primeros_auxilios: true,
             profile: {
               select: {
+                id: true,
                 name: true,
                 email: true,
                 phone: true,
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
             asistio: true,
             profile: {
               select: {
+                id: true,
                 name: true,
                 email: true,
                 phone: true,

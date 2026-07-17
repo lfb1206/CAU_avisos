@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import MemberDetailPanel from '@/resources/coordinador/MemberDetailPanel';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -33,6 +34,7 @@ type Taller = {
 };
 
 type ProfileFull = {
+  id: string;
   name: string;
   email: string;
   phone: string | null;
@@ -157,6 +159,7 @@ export default function FichaEdicionPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
 
   // Edicion-level state (coordinador edits these)
   const [profesor, setProfesor] = useState('');
@@ -394,8 +397,8 @@ export default function FichaEdicionPage() {
                       return (
                         <React.Fragment key={i.id}>
                           <tr className="border-b border-gray-50">
-                            <td className="py-1.5 pr-3">
-                              <span className="font-medium text-gray-900">{i.profile.name}</span>
+                            <td className="py-1.5 pr-3 cursor-pointer group" onClick={() => setSelectedMemberId(i.profile.id)}>
+                              <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{i.profile.name}</span>
                               {i.tiene_primeros_auxilios && (
                                 <span className="ml-1.5 text-[10px] bg-green-100 text-green-700 px-1 rounded">PA</span>
                               )}
@@ -450,8 +453,8 @@ export default function FichaEdicionPage() {
                       const emergPhone = firstNonEmpty(a.profile.emergency_phone);
                       return (
                         <tr key={a.id} className="border-b border-gray-50">
-                          <td className="py-1.5 pr-3">
-                            <span className="font-medium text-gray-900">{a.profile.name}</span>
+                          <td className="py-1.5 pr-3 cursor-pointer group" onClick={() => setSelectedMemberId(a.profile.id)}>
+                            <span className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{a.profile.name}</span>
                             {a.profile.rut && (
                               <div className="text-gray-400 text-[10px]">{a.profile.rut}</div>
                             )}
@@ -481,6 +484,8 @@ export default function FichaEdicionPage() {
           )}
         </div>
       </div>
+
+      <MemberDetailPanel userId={selectedMemberId} onClose={() => setSelectedMemberId(null)} />
     </div>
   );
 }
