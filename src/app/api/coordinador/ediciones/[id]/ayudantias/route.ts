@@ -24,6 +24,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
       ayudantias.map((a) => ({
         id: a.id,
         user_id: a.user_id,
+        seleccionado: a.seleccionado,
         asistio: a.asistio,
         puntos_otorgados: a.puntos_otorgados,
         signed_up_at: a.signed_up_at.toISOString(),
@@ -46,6 +47,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 
   const body = (await request.json()) as {
     user_id: string;
+    seleccionado?: boolean | null;
     asistio?: boolean | null;
     puntos_otorgados?: boolean;
   };
@@ -54,7 +56,8 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: 'user_id es requerido' }, { status: 400 });
   }
 
-  const updateData: { asistio?: boolean | null; puntos_otorgados?: boolean } = {};
+  const updateData: { seleccionado?: boolean | null; asistio?: boolean | null; puntos_otorgados?: boolean } = {};
+  if (body.seleccionado !== undefined) updateData.seleccionado = body.seleccionado;
   if (body.asistio !== undefined) updateData.asistio = body.asistio;
   if (body.puntos_otorgados !== undefined) updateData.puntos_otorgados = body.puntos_otorgados;
 
@@ -62,29 +65,37 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     const updated = await prisma.ayudantia.update({
       where: { edicion_id_user_id: { edicion_id: edicionId, user_id: body.user_id } },
       data: updateData,
-      select: { id: true, user_id: true, asistio: true, puntos_otorgados: true },
+      select: { id: true, user_id: true, seleccionado: true, asistio: true, puntos_otorgados: true },
     });
 
-    // If awarding points, create a CoursePoints entry
-    if (body.puntos_otorgados && !updated.puntos_otorgados) {
-      const expiresAt = new Date();
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
-
-      const edicion = await prisma.edicionTaller.findUnique({
-        where: { id: edicionId },
-        include: { taller: { select: { name: true } } },
+    // If awarding points, check for an existing entry before creating to avoid duplicates.
+    // We cannot rely on updated.puntos_otorgados being false here because the update has
+    // already set it to true, so we do a separate existence check instead.
+    if (body.puntos_otorgados) {
+      const existingPoints = await prisma.coursePoints.findFirst({
+        where: { user_id: body.user_id, edicion_id: edicionId },
       });
 
-      await prisma.coursePoints.create({
-        data: {
-          user_id: body.user_id,
-          edicion_id: edicionId,
-          points: 1,
-          awarded_by: auth.user.id,
-          description: `Ayudante en ${edicion?.taller.name ?? 'taller'} — ${edicion?.name ?? ''}`,
-          expires_at: expiresAt,
-        },
-      });
+      if (!existingPoints) {
+        const expiresAt = new Date();
+        expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+        const edicion = await prisma.edicionTaller.findUnique({
+          where: { id: edicionId },
+          include: { taller: { select: { name: true } } },
+        });
+
+        await prisma.coursePoints.create({
+          data: {
+            user_id: body.user_id,
+            edicion_id: edicionId,
+            points: 1,
+            awarded_by: auth.user.id,
+            description: `Ayudante en ${edicion?.taller.name ?? 'taller'} — ${edicion?.name ?? ''}`,
+            expires_at: expiresAt,
+          },
+        });
+      }
     }
 
     return NextResponse.json(updated);

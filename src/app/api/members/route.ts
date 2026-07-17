@@ -10,7 +10,19 @@ export async function GET(request: NextRequest) {
   try {
     const profiles = await prisma.profile.findMany({
       where: { is_registered: true },
-      select: { name: true, email: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        rut: true,
+        blood_type: true,
+        allergies: true,
+        medications: true,
+        medical_conditions: true,
+        emergency_contact: true,
+        emergency_phone: true,
+      },
       orderBy: { name: 'asc' },
     });
 

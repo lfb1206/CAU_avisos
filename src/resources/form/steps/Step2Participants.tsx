@@ -5,17 +5,41 @@ import ParticipantForm from '../components/ParticipantForm';
 
 export default function Step2Participants() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
+  type MemberData = {
+    email?: string;
+    rut?: string;
+    phone?: string;
+    blood_type?: string;
+    allergies?: string;
+    medications?: string;
+    medical_conditions?: string;
+    emergency_contact?: string;
+    emergency_phone?: string;
+  };
+
   const [memberNames, setMemberNames] = useState<string[]>([]);
-  const [membersByName, setMembersByName] = useState<Record<string, { email: string }>>({});
+  const [membersByName, setMembersByName] = useState<Record<string, MemberData>>({});
 
   useEffect(() => {
     fetch('/api/members')
       .then((r) => r.json())
-      .then((data: { members?: { name: string; email: string }[] }) => {
+      .then((data: { members?: (MemberData & { name: string; email: string })[] }) => {
         if (Array.isArray(data?.members)) {
           setMemberNames(data.members.map((m) => m.name));
-          const byName: Record<string, { email: string }> = {};
-          data.members.forEach((m) => { byName[m.name] = { email: m.email }; });
+          const byName: Record<string, MemberData> = {};
+          data.members.forEach((m) => {
+            byName[m.name] = {
+              email: m.email ?? undefined,
+              rut: m.rut ?? undefined,
+              phone: m.phone ?? undefined,
+              blood_type: m.blood_type ?? undefined,
+              allergies: m.allergies ?? undefined,
+              medications: m.medications ?? undefined,
+              medical_conditions: m.medical_conditions ?? undefined,
+              emergency_contact: m.emergency_contact ?? undefined,
+              emergency_phone: m.emergency_phone ?? undefined,
+            };
+          });
           setMembersByName(byName);
         }
       })
@@ -55,13 +79,21 @@ export default function Step2Participants() {
       return;
     }
 
-    // Update name, clear duplicate flag, and autofill email if member is known
+    // Update name, clear duplicate flag, and autofill all available profile fields
     const member = membersByName[participantName];
     updateItem('participantes', index, {
       ...participantes[index],
       nombre: participantName,
       isDuplicate: false,
       ...(member?.email ? { email: member.email } : {}),
+      ...(member?.rut ? { rut: member.rut } : {}),
+      ...(member?.phone ? { telefono: member.phone } : {}),
+      ...(member?.blood_type ? { grupoSanguineo: member.blood_type } : {}),
+      ...(member?.allergies ? { alergias: member.allergies } : {}),
+      ...(member?.medications ? { medicamentos: member.medications } : {}),
+      ...(member?.medical_conditions ? { condicionesEspeciales: member.medical_conditions } : {}),
+      ...(member?.emergency_contact ? { contactoEmergencia: member.emergency_contact } : {}),
+      ...(member?.emergency_phone ? { telefonoEmergencia: member.emergency_phone } : {}),
     });
   };
 

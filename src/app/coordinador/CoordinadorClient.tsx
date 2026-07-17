@@ -51,6 +51,7 @@ interface PostulacionRow {
 interface AyudantiaRow {
   id: number;
   user_id: string;
+  seleccionado: boolean | null;
   asistio: boolean | null;
   puntos_otorgados: boolean;
   profile: { name: string; email: string };
@@ -766,7 +767,7 @@ export default function CoordinadorClient({
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Ayudante</th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Asistió</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Seleccionado</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Punto otorgado</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Acciones</th>
                   </tr>
@@ -779,11 +780,11 @@ export default function CoordinadorClient({
                         <p className="text-xs text-gray-400">{a.profile.email}</p>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        {a.asistio === null
-                          ? '—'
-                          : a.asistio
-                            ? <span className="text-green-600">Sí</span>
-                            : <span className="text-red-500">No</span>}
+                        {a.seleccionado === null || a.seleccionado === undefined
+                          ? <span className="text-gray-400">Pendiente</span>
+                          : a.seleccionado
+                            ? <span className="text-green-600 font-medium">Seleccionado ✓</span>
+                            : <span className="text-red-500">No seleccionado</span>}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {a.puntos_otorgados
@@ -793,20 +794,20 @@ export default function CoordinadorClient({
                       <td className="px-4 py-3">
                         <div className="flex gap-1 justify-center">
                           <button
-                            onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { asistio: true })}
-                            disabled={a.asistio === true}
+                            onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { seleccionado: true })}
+                            disabled={a.seleccionado === true}
                             className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
                           >
-                            Asistió
+                            Seleccionar
                           </button>
                           <button
-                            onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { asistio: false })}
-                            disabled={a.asistio === false}
+                            onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { seleccionado: false })}
+                            disabled={a.seleccionado === false}
                             className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
                           >
-                            No asistió
+                            Rechazar
                           </button>
-                          {a.asistio && !a.puntos_otorgados && (
+                          {a.seleccionado && !a.puntos_otorgados && (
                             <button
                               onClick={() => updateAyudantia(selectedAyudanteEdicionId, a.user_id, { puntos_otorgados: true })}
                               className="text-xs px-2 py-1 bg-purple-600 text-white rounded hover:bg-purple-700"

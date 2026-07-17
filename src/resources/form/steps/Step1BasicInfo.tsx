@@ -9,17 +9,17 @@ import DynamicFormField from '../components/DynamicFormField';
 export default function Step1BasicInfo() {
   const { formData, updateFormField } = useFormContext();
   const [memberNames, setMemberNames] = useState<string[]>([]);
-  const [membersByName, setMembersByName] = useState<Record<string, { email: string }>>({});
+  const [membersByName, setMembersByName] = useState<Record<string, { email: string; phone?: string }>>({});
   const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
     fetch('/api/members')
       .then((r) => r.json())
-      .then((data: { members?: { name: string; email: string }[] }) => {
+      .then((data: { members?: { name: string; email: string; phone?: string | null }[] }) => {
         if (Array.isArray(data?.members)) {
           setMemberNames(data.members.map((m) => m.name));
-          const byName: Record<string, { email: string }> = {};
-          data.members.forEach((m) => { byName[m.name] = { email: m.email }; });
+          const byName: Record<string, { email: string; phone?: string }> = {};
+          data.members.forEach((m) => { byName[m.name] = { email: m.email, phone: m.phone ?? undefined }; });
           setMembersByName(byName);
         }
       })
@@ -41,6 +41,7 @@ export default function Step1BasicInfo() {
     handleFieldChange('contactoCAU', value);
     const member = membersByName[value];
     if (member?.email) handleFieldChange('emailContacto', member.email);
+    if (member?.phone) handleFieldChange('telefonoContacto', member.phone);
   };
 
   const handleImageUpload = (newImage: import('@/types').WeatherImage) => {

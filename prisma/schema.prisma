@@ -280,7 +280,8 @@ model Ayudantia {
   id               Int           @id @default(autoincrement())
   edicion_id       Int
   user_id          String        @db.Uuid
-  asistio          Boolean?
+  seleccionado     Boolean?                    // null=pending, true=selected, false=rejected
+  asistio          Boolean?                    // post-course attendance
   puntos_otorgados Boolean       @default(false)
   signed_up_at     DateTime      @default(now())
 

@@ -108,7 +108,7 @@ export default async function AdminCursosPage() {
                         href="/coordinador"
                         className="text-xs text-green-600 hover:underline"
                       >
-                        Ediciones
+                        Coordinador
                       </Link>
                     </div>
                   </div>
@@ -118,7 +118,12 @@ export default async function AdminCursosPage() {
                     <div className="border-t border-gray-100 bg-gray-50 px-4 py-2 space-y-1.5">
                       {taller.ediciones.map((edicion) => (
                         <div key={edicion.id} className="flex items-center justify-between text-xs">
-                          <span className="text-gray-700 font-medium">{edicion.name}</span>
+                          <Link
+                            href={`/coordinador/ediciones/${edicion.id}/ficha`}
+                            className="text-gray-700 font-medium hover:text-green-700 hover:underline"
+                          >
+                            {edicion.name}
+                          </Link>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-500">
                               {edicion._count.inscripciones}/{edicion.capacity} inscritos
