@@ -32,6 +32,37 @@ type Taller = {
   dias_traslado: number | null;
 };
 
+type ProfileFull = {
+  name: string;
+  email: string;
+  phone: string | null;
+  rut: string | null;
+  blood_type: string | null;
+  allergies: string | null;
+  medications: string | null;
+  medical_conditions: string | null;
+  emergency_contact: string | null;
+  emergency_phone: string | null;
+};
+
+type InscripcionFicha = {
+  id: number;
+  status: string;
+  grupo_sanguineo: string | null;
+  alergias: string | null;
+  medicamentos: string | null;
+  condiciones_especiales: string | null;
+  tiene_primeros_auxilios: boolean;
+  profile: ProfileFull;
+};
+
+type AyudantiaFicha = {
+  id: number;
+  seleccionado: boolean | null;
+  asistio: boolean | null;
+  profile: ProfileFull;
+};
+
 type Edicion = {
   id: number;
   name: string;
@@ -47,11 +78,18 @@ type Edicion = {
   fecha_clases: string | null;
   fecha_salida: string | null;
   taller: Taller;
-  inscripciones: { id: number; status: string; profile: { name: string; email: string; phone: string | null } }[];
-  ayudantias: { id: number; profile: { name: string; email: string } }[];
+  inscripciones: InscripcionFicha[];
+  ayudantias: AyudantiaFicha[];
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function firstNonEmpty(...values: (string | null | undefined)[]): string {
+  for (const v of values) {
+    if (v && v.trim()) return v.trim();
+  }
+  return '—';
+}
 
 function fmtDate(s: string | null) {
   if (!s) return '—';
@@ -196,6 +234,9 @@ export default function FichaEdicionPage() {
     setTimeout(() => setSaved(false), 2000);
   }, [edicion, t]);
 
+  // Suppress unused variable warning — router kept for potential future navigation
+  void router;
+
   if (loading) return <div className="p-8 text-gray-400">Cargando ficha...</div>;
   if (!edicion) return <div className="p-8 text-red-500">Edición no encontrada.</div>;
 
@@ -325,17 +366,64 @@ export default function FichaEdicionPage() {
 
           {/* Participants */}
           <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="font-bold text-gray-900 mb-3">Participantes ({edicion.inscripciones.length})</h2>
+            <h2 className="font-bold text-gray-900 mb-3">
+              Participantes ({edicion.inscripciones.length})
+            </h2>
             {edicion.inscripciones.length === 0 ? (
               <p className="text-sm text-gray-400">Sin inscritos aún.</p>
             ) : (
-              <div className="space-y-2">
-                {edicion.inscripciones.map((i) => (
-                  <div key={i.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="font-medium text-gray-900">{i.profile.name}</span>
-                    <span className="text-xs text-gray-400">{i.profile.email}</span>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-400 border-b border-gray-100">
+                      <th className="text-left py-1.5 pr-3 font-medium">Nombre</th>
+                      <th className="text-left py-1.5 pr-3 font-medium">Teléfono</th>
+                      <th className="text-left py-1.5 pr-3 font-medium">G. Sang.</th>
+                      <th className="text-left py-1.5 font-medium">Emergencia</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {edicion.inscripciones.map((i) => {
+                      const gs = firstNonEmpty(i.grupo_sanguineo, i.profile.blood_type);
+                      const alergias = firstNonEmpty(i.alergias, i.profile.allergies);
+                      const meds = firstNonEmpty(i.medicamentos, i.profile.medications);
+                      const conds = firstNonEmpty(i.condiciones_especiales, i.profile.medical_conditions);
+                      const emergContact = firstNonEmpty(i.profile.emergency_contact);
+                      const emergPhone = firstNonEmpty(i.profile.emergency_phone);
+                      const hasExtra = alergias !== '—' || meds !== '—' || conds !== '—';
+                      return (
+                        <React.Fragment key={i.id}>
+                          <tr className="border-b border-gray-50">
+                            <td className="py-1.5 pr-3">
+                              <span className="font-medium text-gray-900">{i.profile.name}</span>
+                              {i.tiene_primeros_auxilios && (
+                                <span className="ml-1.5 text-[10px] bg-green-100 text-green-700 px-1 rounded">PA</span>
+                              )}
+                              {i.profile.rut && (
+                                <div className="text-gray-400 text-[10px]">{i.profile.rut}</div>
+                              )}
+                            </td>
+                            <td className="py-1.5 pr-3 text-gray-600">{firstNonEmpty(i.profile.phone)}</td>
+                            <td className="py-1.5 pr-3 text-gray-600">{gs}</td>
+                            <td className="py-1.5 text-gray-600">
+                              {emergContact !== '—' ? emergContact : '—'}
+                              {emergPhone !== '—' && <div className="text-[10px] text-gray-400">{emergPhone}</div>}
+                            </td>
+                          </tr>
+                          {hasExtra && (
+                            <tr className="border-b border-gray-100">
+                              <td colSpan={4} className="pb-2 text-[10px] text-gray-500">
+                                {alergias !== '—' && <span className="mr-3">Alergias: {alergias}</span>}
+                                {meds !== '—' && <span className="mr-3">Medicamentos: {meds}</span>}
+                                {conds !== '—' && <span>Condiciones: {conds}</span>}
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -344,13 +432,50 @@ export default function FichaEdicionPage() {
           {edicion.ayudantias.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="font-bold text-gray-900 mb-3">Ayudantes ({edicion.ayudantias.length})</h2>
-              <div className="space-y-2">
-                {edicion.ayudantias.map((a) => (
-                  <div key={a.id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="font-medium text-gray-900">{a.profile.name}</span>
-                    <span className="text-xs text-gray-400">{a.profile.email}</span>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-400 border-b border-gray-100">
+                      <th className="text-left py-1.5 pr-3 font-medium">Nombre</th>
+                      <th className="text-left py-1.5 pr-3 font-medium">Seleccionado</th>
+                      <th className="text-left py-1.5 pr-3 font-medium">Teléfono</th>
+                      <th className="text-left py-1.5 pr-3 font-medium">G. Sang.</th>
+                      <th className="text-left py-1.5 font-medium">Emergencia</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {edicion.ayudantias.map((a) => {
+                      const gs = firstNonEmpty(a.profile.blood_type);
+                      const emergContact = firstNonEmpty(a.profile.emergency_contact);
+                      const emergPhone = firstNonEmpty(a.profile.emergency_phone);
+                      return (
+                        <tr key={a.id} className="border-b border-gray-50">
+                          <td className="py-1.5 pr-3">
+                            <span className="font-medium text-gray-900">{a.profile.name}</span>
+                            {a.profile.rut && (
+                              <div className="text-gray-400 text-[10px]">{a.profile.rut}</div>
+                            )}
+                          </td>
+                          <td className="py-1.5 pr-3">
+                            {a.seleccionado === true ? (
+                              <span className="text-green-600 font-medium">Sí</span>
+                            ) : a.seleccionado === false ? (
+                              <span className="text-red-500">No</span>
+                            ) : (
+                              <span className="text-gray-400">Pendiente</span>
+                            )}
+                          </td>
+                          <td className="py-1.5 pr-3 text-gray-600">{firstNonEmpty(a.profile.phone)}</td>
+                          <td className="py-1.5 pr-3 text-gray-600">{gs}</td>
+                          <td className="py-1.5 text-gray-600">
+                            {emergContact !== '—' ? emergContact : '—'}
+                            {emergPhone !== '—' && <div className="text-[10px] text-gray-400">{emergPhone}</div>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

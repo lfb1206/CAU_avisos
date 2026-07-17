@@ -18,10 +18,50 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
         taller: true,
         inscripciones: {
           where: { status: { in: ['aceptado', 'completado', 'en_lista'] } },
-          select: { id: true, status: true, profile: { select: { name: true, email: true, phone: true } } },
+          select: {
+            id: true,
+            status: true,
+            grupo_sanguineo: true,
+            alergias: true,
+            medicamentos: true,
+            condiciones_especiales: true,
+            tiene_primeros_auxilios: true,
+            profile: {
+              select: {
+                name: true,
+                email: true,
+                phone: true,
+                rut: true,
+                blood_type: true,
+                allergies: true,
+                medications: true,
+                medical_conditions: true,
+                emergency_contact: true,
+                emergency_phone: true,
+              },
+            },
+          },
         },
         ayudantias: {
-          select: { id: true, profile: { select: { name: true, email: true } } },
+          select: {
+            id: true,
+            seleccionado: true,
+            asistio: true,
+            profile: {
+              select: {
+                name: true,
+                email: true,
+                phone: true,
+                rut: true,
+                blood_type: true,
+                allergies: true,
+                medications: true,
+                medical_conditions: true,
+                emergency_contact: true,
+                emergency_phone: true,
+              },
+            },
+          },
         },
       },
     });

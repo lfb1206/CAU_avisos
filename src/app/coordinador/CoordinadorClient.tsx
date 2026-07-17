@@ -38,11 +38,24 @@ interface CompletedCourse {
   completedAt: string | null;
 }
 
+interface ProfileFull {
+  name: string;
+  email: string;
+  phone: string | null;
+  rut: string | null;
+  blood_type: string | null;
+  allergies: string | null;
+  medications: string | null;
+  medical_conditions: string | null;
+  emergency_contact: string | null;
+  emergency_phone: string | null;
+}
+
 interface PostulacionRow {
   id: number;
   user_id: string;
   status: string;
-  profile: { name: string; email: string; phone: string | null };
+  profile: ProfileFull;
   activePoints: number;
   inscrito_at: string;
   completedCourses: CompletedCourse[];
@@ -54,7 +67,7 @@ interface AyudantiaRow {
   seleccionado: boolean | null;
   asistio: boolean | null;
   puntos_otorgados: boolean;
-  profile: { name: string; email: string };
+  profile: ProfileFull;
   signed_up_at: string;
 }
 
@@ -155,6 +168,13 @@ export default function CoordinadorClient({
     name: string;
     email: string;
     phone: string | null;
+    rut: string | null;
+    blood_type: string | null;
+    allergies: string | null;
+    medications: string | null;
+    medical_conditions: string | null;
+    emergency_contact: string | null;
+    emergency_phone: string | null;
     completedCourses: CompletedCourse[];
   } | null>(null);
 
@@ -559,7 +579,7 @@ export default function CoordinadorClient({
                     <tr key={p.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3">
                         <button
-                          onClick={() => setMemberModal({ name: p.profile.name, email: p.profile.email, phone: p.profile.phone, completedCourses: p.completedCourses })}
+                          onClick={() => setMemberModal({ name: p.profile.name, email: p.profile.email, phone: p.profile.phone, rut: p.profile.rut, blood_type: p.profile.blood_type, allergies: p.profile.allergies, medications: p.profile.medications, medical_conditions: p.profile.medical_conditions, emergency_contact: p.profile.emergency_contact, emergency_phone: p.profile.emergency_phone, completedCourses: p.completedCourses })}
                           className="text-left"
                         >
                           <p className="font-medium text-gray-900 hover:text-blue-600">{p.profile.name}</p>
@@ -685,6 +705,12 @@ export default function CoordinadorClient({
                       <td className="px-4 py-3">
                         <p className="font-medium text-gray-900">{p.profile.name}</p>
                         <p className="text-xs text-gray-400">{p.profile.email}</p>
+                        {p.profile.blood_type && (
+                          <p className="text-xs text-gray-400">G. sang.: {p.profile.blood_type}</p>
+                        )}
+                        {p.profile.emergency_contact && (
+                          <p className="text-xs text-gray-400">Emerg.: {p.profile.emergency_contact}{p.profile.emergency_phone ? ` · ${p.profile.emergency_phone}` : ''}</p>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
@@ -1067,9 +1093,42 @@ export default function CoordinadorClient({
                 <h3 className="font-bold text-gray-900 text-lg">{memberModal.name || 'Sin nombre'}</h3>
                 <p className="text-sm text-gray-500">{memberModal.email}</p>
                 {memberModal.phone && <p className="text-sm text-gray-500">{memberModal.phone}</p>}
+                {memberModal.rut && <p className="text-xs text-gray-400">RUT: {memberModal.rut}</p>}
               </div>
               <button onClick={() => setMemberModal(null)} className="text-gray-400 hover:text-gray-600 text-xl leading-none">✕</button>
             </div>
+
+            {/* Medical info */}
+            {(memberModal.blood_type || memberModal.allergies || memberModal.medications || memberModal.medical_conditions) && (
+              <div className="bg-blue-50 rounded-lg p-3 text-xs space-y-1">
+                <p className="font-semibold text-blue-700 uppercase tracking-wider mb-1.5">Info médica</p>
+                {memberModal.blood_type && (
+                  <p className="text-gray-700"><span className="font-medium text-gray-500">Grupo sanguíneo:</span> {memberModal.blood_type}</p>
+                )}
+                {memberModal.allergies && (
+                  <p className="text-gray-700"><span className="font-medium text-gray-500">Alergias:</span> {memberModal.allergies}</p>
+                )}
+                {memberModal.medications && (
+                  <p className="text-gray-700"><span className="font-medium text-gray-500">Medicamentos:</span> {memberModal.medications}</p>
+                )}
+                {memberModal.medical_conditions && (
+                  <p className="text-gray-700"><span className="font-medium text-gray-500">Condiciones:</span> {memberModal.medical_conditions}</p>
+                )}
+              </div>
+            )}
+
+            {/* Emergency contact */}
+            {(memberModal.emergency_contact || memberModal.emergency_phone) && (
+              <div className="bg-red-50 rounded-lg p-3 text-xs space-y-1">
+                <p className="font-semibold text-red-700 uppercase tracking-wider mb-1.5">Contacto de emergencia</p>
+                {memberModal.emergency_contact && (
+                  <p className="text-gray-700">{memberModal.emergency_contact}</p>
+                )}
+                {memberModal.emergency_phone && (
+                  <p className="text-gray-700">{memberModal.emergency_phone}</p>
+                )}
+              </div>
+            )}
 
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
