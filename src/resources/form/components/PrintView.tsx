@@ -738,39 +738,6 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
             )}
           </div>
 
-          {/* Risk Management - Show only detailed risks */}
-          <div className="section">
-            <h2>GESTIÓN DE RIESGOS</h2>
-            
-            {/* Riesgos Detallados */}
-            {riesgos.length > 0 && (
-              <div>
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Supuesto clave</th>
-                      <th>Riesgos relevantes (si no se cumple el supuesto, amenazan a la seguridad y/o a los objetivos)</th>
-                      <th>Lugar o coordenadas (WGS 84)</th>
-                      <th>Acciones de mitigación de riesgos</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {getGroupedRisksWithRowspan().map((risk, index) => (
-                                              <tr key={index}>
-                          {risk.supuesto && (
-                            <td rowSpan={risk.supuestoRowspan} style={{ fontWeight: 'bold' }}>{risk.supuesto}</td>
-                          )}
-                          <td>{risk.riesgosRelevantes || ''}</td>
-                          <td>{risk.lugar || ''}</td>
-                          <td>{[risk.accionProbabilidad, risk.accionExposicion, risk.accionConsecuencias].filter(action => action && action.trim()).join(' / ') || ''}</td>
-                        </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
           {/* Weather Forecast with Images */}
           <div className="section">
             <h2>PRONÓSTICO DE TIEMPO</h2>

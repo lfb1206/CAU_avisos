@@ -121,59 +121,58 @@ export default function DashboardPage() {
                     ? `/avisos/${aviso.id}`
                     : null;
 
-                const cardClasses = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex-1 min-w-0';
-                const inner = (
-                  <>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <span
-                          className={`text-xs font-medium px-1.5 py-px rounded ${
-                            aviso.tipo === 'rapido'
-                              ? 'bg-orange-100 text-orange-700'
-                              : 'bg-blue-100 text-blue-700'
-                          }`}
-                        >
-                          {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {aviso.title || aviso.location || 'Sin título'}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
-                      </p>
+                const leftContent = (
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span
+                        className={`text-xs font-medium px-1.5 py-px rounded ${
+                          aviso.tipo === 'rapido'
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}
+                      >
+                        {aviso.tipo === 'rapido' ? 'Rápido' : 'Largo'}
+                      </span>
                     </div>
-                    <StatusBadge status={aviso.status} />
-                  </>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {aviso.title || aviso.location || 'Sin título'}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
+                    </p>
+                  </div>
                 );
 
                 return (
-                  <div key={aviso.id} className="flex items-center gap-1">
+                  <div key={aviso.id} className="flex items-center gap-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                     {href ? (
-                      <Link href={href} className={cardClasses}>
-                        {inner}
+                      <Link href={href} className="flex-1 min-w-0">
+                        {leftContent}
                       </Link>
                     ) : (
-                      <div className={cardClasses}>
-                        {inner}
+                      <div className="flex-1 min-w-0">
+                        {leftContent}
                       </div>
                     )}
-                    {aviso.status === 'draft' && (
-                      <button
-                        onClick={async () => {
-                          if (!confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.')) return;
-                          await fetch(`/api/avisos/${aviso.id}`, { method: 'DELETE' });
-                          mutate();
-                        }}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-                        title="Eliminar borrador"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <StatusBadge status={aviso.status} />
+                      {aviso.status === 'draft' && (
+                        <button
+                          onClick={async () => {
+                            if (!confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.')) return;
+                            await fetch(`/api/avisos/${aviso.id}`, { method: 'DELETE' });
+                            mutate();
+                          }}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          title="Eliminar borrador"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

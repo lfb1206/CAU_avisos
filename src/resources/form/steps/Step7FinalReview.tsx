@@ -315,37 +315,6 @@ export default function Step7FinalReview() {
           </div>
         )}
 
-        {/* Risk Management */}
-        {(() => {
-          const supuestosConGestion = itinerario.flatMap((day) =>
-            (day.supuestos || []).filter(
-              (s) =>
-                s.accion === 'gestionar' ||
-                ((s.accion === 'monitoreo_intenso' || s.accion === 'monitoreo_normal') && s.incluir === true)
-            )
-          );
-          if (supuestosConGestion.length === 0) return null;
-          return (
-            <div className="bg-red-50 rounded-lg p-4">
-              <h4 className="text-base font-semibold text-red-900 mb-3">
-                Gestión de Supuestos ({supuestosConGestion.length} supuestos)
-              </h4>
-              <div className="space-y-2">
-                {supuestosConGestion.map((s, i) => (
-                  <div key={i} className="text-sm">
-                    <strong>{s.supuesto}</strong>
-                    {s.causas && s.causas.length > 0 && (
-                      <span className="text-gray-600 ml-1">
-                        — {s.causas.length} causa{s.causas.length > 1 ? 's' : ''} definida{s.causas.length > 1 ? 's' : ''}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })()}
-
         {/* Equipment */}
         {equipo.length > 0 && (
           <div className="bg-purple-50 rounded-lg p-4">
@@ -483,72 +452,6 @@ export default function Step7FinalReview() {
         </button>
       </div>
 
-      {/* Instructions */}
-      <div className="mt-8 bg-indigo-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-indigo-900 mb-3">
-          ✅ Consejos para la revisión final:
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-indigo-800">
-          <div>
-            <p className="font-medium mb-1">Antes de generar el documento:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Revise que toda la información esté correcta</li>
-              <li>• Verifique que los participantes estén completos</li>
-              <li>• Confirme que el equipo marcado es el que porta</li>
-              <li>• Asegúrese de que los datos de contacto sean correctos</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Al generar el aviso para imprimir:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Se abrirá una nueva ventana optimizada para impresión</li>
-              <li>• Solo aparecerá el equipo y supuestos marcados</li>
-              <li>• Las imágenes del clima se incluyen automáticamente</li>
-              <li>• Use Ctrl+P o Cmd+P para imprimir desde la nueva ventana</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Información incluida en el documento:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Datos básicos de la actividad y contacto CAU</li>
-              <li>• Lista completa de participantes y datos médicos</li>
-              <li>• Itinerario detallado (si fue completado)</li>
-              <li>• Supuestos de riesgo seleccionados</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Recordatorio importante:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Complete el itinerario detallado de su expedición</li>
-              <li>• Solo los supuestos marcados aparecen en el aviso</li>
-              <li>• Identifique las dificultades principales de cada tramo</li>
-              <li>• Configure los cuerpos de rescate relevantes para su región</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Cuerpos de rescate:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Edite los contactos según su región o país</li>
-              <li>• Marque solo los cuerpos de rescate relevantes</li>
-              <li>• Agregue contactos locales específicos si es necesario</li>
-              <li>• Verifique que los números estén actualizados</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Important Reminders */}
-      <div className="mt-8 bg-orange-50 rounded-lg p-4">
-        <h4 className="text-sm font-semibold text-orange-900 mb-3">
-          📋 Recordatorios importantes sobre el uso del aviso:
-        </h4>
-        <ul className="list-disc pl-5 text-orange-900 text-sm space-y-1">
-          <li>El aviso debe ser entregado antes de la salida</li>
-          <li>Mantenga una copia para el grupo</li>
-          <li>Reporte su regreso en la fecha/hora indicada</li>
-          <li>En caso de cambios, comunique al contacto CAU</li>
-        </ul>
-      </div>
     </div>
   );
 } 

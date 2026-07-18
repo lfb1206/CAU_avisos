@@ -36,7 +36,8 @@ function AvisoLargoInner() {
       .then((data: { form_data?: Record<string, unknown> }) => {
         if (data?.form_data) {
           isLoadingFromApiRef.current = true;
-          loadData(data.form_data);
+          // Override any stale avisoId in form_data with the actual URL param ID
+          loadData({ ...data.form_data, avisoId: Number(avisoIdParam) });
           setIsDirty(false);
         }
       })
