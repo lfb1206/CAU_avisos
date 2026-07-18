@@ -146,6 +146,35 @@ export default function ParticipantForm({
         />
       </div>
 
+      {/* Identification fields — shown first for safety-critical search purposes */}
+      <div className="md:col-span-2 space-y-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Descripción de vestimenta
+          <span className="ml-1 text-xs text-gray-400 font-normal">(colores, tipo de ropa)</span>
+        </label>
+        <textarea
+          value={participant.vestimenta || ''}
+          onChange={(e) => onUpdate(index, 'vestimenta', e.target.value)}
+          placeholder="Ej: Chaqueta roja, pantalón negro, gorra azul"
+          rows={2}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
+      </div>
+
+      <div className="md:col-span-2 space-y-1">
+        <label className="block text-sm font-medium text-gray-700">
+          Descripción de mochila
+          <span className="ml-1 text-xs text-gray-400 font-normal">(color, marca)</span>
+        </label>
+        <textarea
+          value={participant.mochila || ''}
+          onChange={(e) => onUpdate(index, 'mochila', e.target.value)}
+          placeholder="Ej: Mochila verde Osprey, cubierta roja"
+          rows={2}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        />
+      </div>
+
       {/* Medical Information */}
       <div className="md:col-span-2">
         <h4 className="text-sm font-semibold text-gray-900 mb-3 border-b pb-1">

@@ -49,7 +49,31 @@ export async function POST(request: NextRequest) {
       select: { form_data: true, title: true, tipo: true },
     });
     if (source) {
-      formData = source.form_data as Record<string, unknown>;
+      const src = source.form_data as {
+        basicInfo?: Record<string, unknown>;
+        itinerario?: unknown[];
+        equipo?: unknown[];
+      };
+
+      // Copy only activity details, itinerary, and equipment (as suggestions).
+      // Do NOT copy: participantes, transporte, cuerposRescate,
+      // contactoCAU, telefonoContacto, emailContacto, fechaHoraReporteRegreso, weatherImages.
+      const srcBasicInfo = src.basicInfo ?? {};
+      formData = {
+        basicInfo: {
+          actividad:      srcBasicInfo.actividad      ?? '',
+          cerroOSector:   srcBasicInfo.cerroOSector   ?? '',
+          ruta:           srcBasicInfo.ruta           ?? '',
+          linkPronostico: srcBasicInfo.linkPronostico ?? '',
+          linkRuta:       srcBasicInfo.linkRuta       ?? '',
+          llevaInreach:   srcBasicInfo.llevaInreach   ?? false,
+          numeroInreach:  srcBasicInfo.numeroInreach  ?? '',
+          codigoInreach:  srcBasicInfo.codigoInreach  ?? '',
+        },
+        itinerario: src.itinerario ?? [],
+        equipo:     src.equipo     ?? [],
+      };
+
       title = `Borrador: ${source.title}`;
       tipo = source.tipo as 'rapido' | 'largo';
     }

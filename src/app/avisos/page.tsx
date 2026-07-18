@@ -156,9 +156,7 @@ export default async function BibliotecaPage({
                 </div>
 
                 <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-700">
-                  {aviso.location
-                    ? `${aviso.title || 'Aviso'} — ${aviso.location}`
-                    : (aviso.title || 'Aviso sin título')}
+                  {aviso.title || aviso.location || 'Aviso sin título'}
                 </p>
 
                 <p className="text-xs text-gray-400 mt-0.5">

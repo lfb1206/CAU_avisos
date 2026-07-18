@@ -64,9 +64,9 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     // Build title from form_data if not supplied
     const formData = parsed.data.form_data ?? existing.form_data as Record<string, unknown>;
     const basicInfo = (formData as { basicInfo?: { cerroOSector?: string; actividad?: string } }).basicInfo;
-    const autoTitle = basicInfo?.cerroOSector
-      ? `${basicInfo.cerroOSector}${basicInfo.actividad ? ` — ${basicInfo.actividad}` : ''}`
-      : existing.title;
+    const autoTitle = basicInfo?.actividad && basicInfo?.cerroOSector
+      ? `${basicInfo.actividad} — ${basicInfo.cerroOSector}`
+      : basicInfo?.actividad || basicInfo?.cerroOSector || existing.title;
 
     const updated = await prisma.aviso.update({
       where: { id: Number(id) },

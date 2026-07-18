@@ -37,6 +37,7 @@ interface FormData {
   fechaMaxRegreso: string;
   contactoCau: string;
   comentarios: string;
+  vestimentaGrupo: string;
   // Step 2
   participantes: Participante[];
   vehiculos: Vehiculo[];
@@ -55,6 +56,7 @@ const initialForm: FormData = {
   fechaMaxRegreso: '',
   contactoCau: '',
   comentarios: '',
+  vestimentaGrupo: '',
   participantes: [emptyParticipante()],
   vehiculos: [],
   lugarEstacionamiento: '',
@@ -283,6 +285,20 @@ function AvisoRapidoContent() {
               onChange={(e) => set('comentarios', e.target.value)}
               rows={3}
               placeholder="Observaciones, planes de contingencia, etc."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Descripción de vestimenta del grupo
+              <span className="ml-1 text-xs text-gray-400 font-normal">(colores, para identificación en terreno)</span>
+            </label>
+            <textarea
+              value={form.vestimentaGrupo || ''}
+              onChange={(e) => set('vestimentaGrupo', e.target.value)}
+              placeholder="Ej: Chaquetas rojas, mochilas azules"
+              rows={2}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>

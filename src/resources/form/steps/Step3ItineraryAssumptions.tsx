@@ -1,78 +1,26 @@
 'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import ItineraryDayForm from '../components/ItineraryDayForm';
-import type { Assumption } from '@/types';
-
-type SupuestoDB = { id: number; supuesto: string; categoria: string; dificultades: string[] };
-type RiskOptionItem = { key: string; label: string };
 
 export default function Step3ItineraryAssumptions() {
   const { formData, addItem, removeItem, updateItem } = useFormContext();
-
-  const [supuestosDB, setSupuestosDB] = useState<SupuestoDB[]>([]);
   const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
-  const [riskOptions, setRiskOptions] = useState<Record<string, RiskOptionItem[]>>({});
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/supuestos').then((r) => r.json()),
-      fetch('/api/basicOptions').then((r) => r.json()),
-      fetch('/api/riskOptions').then((r) => r.json()),
-    ])
-      .then(([supData, basicData, riskData]) => {
-        setSupuestosDB(supData?.supuestos ?? []);
+    fetch('/api/basicOptions')
+      .then((r) => r.json())
+      .then((basicData) => {
         setBasicOptions(basicData?.options ?? {});
-        setRiskOptions(riskData?.options ?? {});
       })
       .catch(() => {});
   }, []);
 
-  // Lógica para evaluación de supuestos (condiciones que favorecen el éxito)
-  const calculateRiskAction = (probability: string, impact: string): Assumption['accion'] => {
-    if (!probability || !impact) return '';
-    
-    // Nueva lógica basada en la fórmula: 
-    // =IF(ISBLANK(M2);"";(IF(AND(OR(Probabilidad=Muy improbable;Probabilidad=Poco probable);OR(Impacto=significativo;Impacto=critico));"Gestionar";IF(Impacto=critico;"monitoreo intenso";"monitoreo normal"))))
-    
-    const isVeryImprobable = probability === 'muy_improbable';
-    const isUnlikely = probability === 'poco_probable';
-    const isSignificantImpact = impact === 'significativo';
-    const isCriticalImpact = impact === 'critico';
-    
-    // Si (probabilidad = muy improbable O poco probable) Y (impacto = significativo O crítico) → GESTIONAR
-    if ((isVeryImprobable || isUnlikely) && (isSignificantImpact || isCriticalImpact)) {
-      return 'gestionar';
-    }
-    // Si impacto = crítico → MONITOREO INTENSO
-    else if (isCriticalImpact) {
-      return 'monitoreo_intenso';
-    }
-    // Por defecto → MONITOREO NORMAL
-    else {
-      return 'monitoreo_normal';
-    }
-  };
-
-  // Derive hazard category options directly from supuesto records — ensures matching works
-  const uniqueDificultades = useMemo(
-    () => [...new Set(supuestosDB.flatMap((s) => s.dificultades))].sort(),
-    [supuestosDB]
-  );
-
   const addItineraryDay = () => {
-    const newDay = {
-      tramo: '',
-      fecha: '',
-      horaInicio: '',
-      horaFin: '',
-      altitudInicio: '',
-      altitudFin: '',
-      actividades: [], // Cambiado de 'actividad' a 'actividades' como array
-      dificultadesPrincipales: [''],
-      supuestos: []
-    };
-    addItem('itinerario', newDay);
+    addItem('itinerario', {
+      tramo: '', fecha: '', horaInicio: '', horaFin: '',
+      altitudInicio: '', altitudFin: '', actividades: [],
+    });
   };
 
   const updateDay = (dayIndex: number, field: string, value: unknown) => {
@@ -84,150 +32,14 @@ export default function Step3ItineraryAssumptions() {
     removeItem('itinerario', dayIndex);
   };
 
-  // Suggest assumptions based on selected difficulties — matches against DB supuestos
-  const getSuggestedAssumptions = (selectedDifficulties: string[]): Assumption[] => {
-    const suggestions: Assumption[] = [];
-    const validDifficulties = selectedDifficulties.filter((d) => d && d.trim());
-
-    validDifficulties.forEach((difficulty) => {
-      supuestosDB
-        .filter((s) => s.dificultades.includes(difficulty))
-        .forEach((s) => {
-          suggestions.push({
-            supuesto: s.supuesto,
-            tipoSupuesto: s.categoria ?? '',
-            probabilidad: '',
-            impacto: '',
-            incluir: false,
-            accion: '',
-          });
-        });
-    });
-
-    return suggestions;
-  };
-
-  const addAssumption = (itineraryIndex: number) => {
-    const newAssumption: Assumption = {
-      supuesto: '',
-      tipoSupuesto: '',
-      probabilidad: '',
-      impacto: '',
-      accion: '',
-      incluir: false
-    };
-    
-    const updatedItinerary = [...formData.itinerario];
-    updatedItinerary[itineraryIndex].supuestos.push(newAssumption);
-    updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-  };
-
-  const addSuggestedAssumptions = (itineraryIndex: number) => {
-    const day = formData.itinerario[itineraryIndex];
-    
-    const suggestions = getSuggestedAssumptions(day.dificultadesPrincipales || []);
-    
-    if (suggestions.length === 0) {
-      return;
-    }
-    
-    const updatedItinerary = [...formData.itinerario];
-    const existingSupuestos = day.supuestos || [];
-    
-    // Solo agregar supuestos que no existan ya
-    suggestions.forEach(suggestion => {
-      const alreadyExists = existingSupuestos.some(existing => 
-        existing.supuesto === suggestion.supuesto && 
-        existing.tipoSupuesto === suggestion.tipoSupuesto
-      );
-      
-      if (!alreadyExists) {
-        suggestion.accion = calculateRiskAction(suggestion.probabilidad ?? '', suggestion.impacto ?? '');
-        
-        // Auto-include in aviso if action is 'gestionar'
-        if (suggestion.accion === 'gestionar') {
-          suggestion.incluir = true;
-        }
-        
-        updatedItinerary[itineraryIndex].supuestos.push(suggestion);
-      }
-    });
-    
-    updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-  };
-
-  const addDifficulty = (itineraryIndex: number) => {
-    const day = formData.itinerario[itineraryIndex];
-    const currentDifficulties = day.dificultadesPrincipales || [];
-    const updatedDifficulties = [...currentDifficulties, ''];
-    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
-  };
-
-  const removeDifficulty = (itineraryIndex: number, difficultyIndex: number) => {
-    const day = formData.itinerario[itineraryIndex];
-    const currentDifficulties = day.dificultadesPrincipales || [];
-    const updatedDifficulties = currentDifficulties.filter((_, index) => index !== difficultyIndex);
-    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
-  };
-
-  const updateDifficulty = (itineraryIndex: number, difficultyIndex: number, value: string) => {
-    const day = formData.itinerario[itineraryIndex];
-    const currentDifficulties = day.dificultadesPrincipales || [];
-    const updatedDifficulties = [...currentDifficulties];
-    updatedDifficulties[difficultyIndex] = value;
-    updateDay(itineraryIndex, 'dificultadesPrincipales', updatedDifficulties);
-  };
-
-  const updateAssumption = (itineraryIndex: number, assumptionIndex: number, field: string, value: unknown) => {
-    const updatedItinerary = [...formData.itinerario];
-    const assumption = updatedItinerary[itineraryIndex].supuestos[assumptionIndex];
-    assumption[field] = value;
-    
-    // Auto-calculate action if probability or impact changed
-    if (field === 'probabilidad' || field === 'impacto') {
-      assumption.accion = calculateRiskAction(assumption.probabilidad ?? '', assumption.impacto ?? '');
-      
-      // Auto-include in aviso if action is 'gestionar'
-      if (assumption.accion === 'gestionar') {
-        assumption.incluir = true;
-      }
-    }
-    
-    updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-  };
-
-  const removeAssumption = (itineraryIndex: number, assumptionIndex: number) => {
-    const updatedItinerary = [...formData.itinerario];
-    updatedItinerary[itineraryIndex].supuestos.splice(assumptionIndex, 1);
-    updateItem('itinerario', itineraryIndex, updatedItinerary[itineraryIndex]);
-  };
-
-  const getActionColor = (action: string): string => {
-    switch (action) {
-      case 'gestionar': return 'bg-red-100 text-red-800 border-red-200';
-      case 'monitoreo_intenso': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'monitoreo_normal': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
-  const getActionLabel = (action: string): string => {
-    switch (action) {
-      case 'gestionar': return 'Gestionar';
-      case 'monitoreo_intenso': return 'Monitoreo Intenso';
-      case 'monitoreo_normal': return 'Monitoreo Normal';
-      default: return action;
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Itinerario y Supuestos Clave
+          Itinerario
         </h2>
         <p className="text-gray-600">
-          Defina el itinerario detallado y los supuestos clave para cada tramo
+          Defina el itinerario detallado de la salida
         </p>
       </div>
 
@@ -240,23 +52,9 @@ export default function Step3ItineraryAssumptions() {
             dayIndex={dayIndex}
             onUpdate={updateDay}
             onRemove={removeDay}
-            onAddAssumption={addAssumption}
-            onRemoveAssumption={removeAssumption}
-            onUpdateAssumption={updateAssumption}
-            onAddDifficulty={addDifficulty}
-            onRemoveDifficulty={removeDifficulty}
-            onUpdateDifficulty={updateDifficulty}
-            onAddSuggestedAssumptions={addSuggestedAssumptions}
-            getActionColor={getActionColor}
-            getActionLabel={getActionLabel}
-            fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
             tramos={basicOptions.tramo ?? []}
             actividadesEspecificas={basicOptions.actividad ?? []}
-            dificultadesPrincipales={uniqueDificultades}
-            supuestosOpciones={riskOptions.supuesto?.map((o) => o.label) ?? []}
-            tipoSupuestos={riskOptions.tipoSupuesto?.map((o) => ({ value: o.key, label: o.label })) ?? []}
-            probabilidades={riskOptions.probabilidad?.map((o) => ({ value: o.key, label: o.label })) ?? []}
-            impactos={riskOptions.impacto?.map((o) => ({ value: o.key, label: o.label })) ?? []}
+            fechaReporteRegreso={formData.basicInfo.fechaHoraReporteRegreso}
           />
         ))}
       </div>
@@ -273,7 +71,7 @@ export default function Step3ItineraryAssumptions() {
       {/* Instructions */}
       <div className="mt-8 bg-yellow-50 rounded-lg p-4">
         <h4 className="text-sm font-semibold text-yellow-900 mb-3">
-          🗺️ Consejos para planificar su itinerario:
+          Consejos para planificar su itinerario:
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-yellow-800">
           <div>
@@ -285,32 +83,14 @@ export default function Step3ItineraryAssumptions() {
             </ul>
           </div>
           <div>
-            <p className="font-medium mb-1">Identificar dificultades:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Seleccione las principales dificultades del tramo</li>
-              <li>• Use el botón "Sugerir Supuestos" para obtener recomendaciones</li>
-              <li>• Puede agregar múltiples dificultades por tramo</li>
-            </ul>
-          </div>
-          <div>
-            <p className="font-medium mb-1">Gestión de supuestos:</p>
-            <ul className="space-y-1 ml-2">
-              <li>• Revise los supuestos sugeridos automáticamente</li>
-              <li>• Los supuestos con acción "Gestionar" se incluyen automáticamente</li>
-              <li>• Marque manualmente otros supuestos relevantes para incluir</li>
-              <li>• Ajuste probabilidad e impacto según su criterio</li>
-            </ul>
-          </div>
-          <div>
             <p className="font-medium mb-1">Recordatorio importante:</p>
             <ul className="space-y-1 ml-2">
               <li>• Complete el itinerario detallado de su expedición</li>
-              <li>• Solo los supuestos marcados aparecen en el aviso</li>
-              <li>• Identifique las dificultades principales de cada tramo</li>
+              <li>• Incluya las altitudes para cada tramo cuando corresponda</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
   );
-} 
+}

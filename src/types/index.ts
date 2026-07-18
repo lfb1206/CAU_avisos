@@ -37,6 +37,8 @@ export interface Participant {
   condicionesEspeciales?: string;
   contactoEmergencia: string;
   telefonoEmergencia: string;
+  vestimenta?: string;   // clothing description for terrain identification
+  mochila?: string;      // backpack description for terrain identification
   isDuplicate?: boolean;
 }
 

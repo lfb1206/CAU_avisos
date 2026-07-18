@@ -40,7 +40,7 @@ export default async function AvisoDetailPage({ params }: RouteContext) {
             </span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">
-            {aviso.location ? `${aviso.title || 'Aviso'} — ${aviso.location}` : (aviso.title || 'Aviso sin título')}
+            {aviso.title || aviso.location || 'Aviso sin título'}
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Por {aviso.profile.name}

@@ -52,7 +52,7 @@ function Skeleton({ className }: { className?: string }) {
 }
 
 export default function DashboardPage() {
-  const { data, isLoading } = useSWR('/api/dashboard', fetcher);
+  const { data, isLoading, mutate } = useSWR('/api/dashboard', fetcher);
 
   const profile = data?.profile;
   const avisos = data?.avisos ?? [];
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                     ? `/avisos/${aviso.id}`
                     : null;
 
-                const cardClasses = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors';
+                const cardClasses = 'flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex-1 min-w-0';
                 const inner = (
                   <>
                     <div className="min-w-0 flex-1">
@@ -137,9 +137,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <p className="text-sm font-medium text-gray-900 truncate">
-                        {aviso.location
-                          ? `${aviso.title || 'Aviso'} — ${aviso.location}`
-                          : aviso.title || 'Sin título'}
+                        {aviso.title || aviso.location || 'Sin título'}
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
                         {new Date(aviso.updated_at).toLocaleDateString('es-CL')}
@@ -149,16 +147,33 @@ export default function DashboardPage() {
                   </>
                 );
 
-                if (href) {
-                  return (
-                    <Link key={aviso.id} href={href} className={cardClasses}>
-                      {inner}
-                    </Link>
-                  );
-                }
                 return (
-                  <div key={aviso.id} className={cardClasses}>
-                    {inner}
+                  <div key={aviso.id} className="flex items-center gap-1">
+                    {href ? (
+                      <Link href={href} className={cardClasses}>
+                        {inner}
+                      </Link>
+                    ) : (
+                      <div className={cardClasses}>
+                        {inner}
+                      </div>
+                    )}
+                    {aviso.status === 'draft' && (
+                      <button
+                        onClick={async () => {
+                          if (!confirm('¿Eliminar este borrador? Esta acción no se puede deshacer.')) return;
+                          await fetch(`/api/avisos/${aviso.id}`, { method: 'DELETE' });
+                          mutate();
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors flex-shrink-0"
+                        title="Eliminar borrador"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                 );
               })}

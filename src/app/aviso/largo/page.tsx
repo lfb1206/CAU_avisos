@@ -6,7 +6,6 @@ import { FormContextProvider, useFormContext } from '@/resources/contexts/FormCo
 import Step1BasicInfo from '@/resources/form/steps/Step1BasicInfo';
 import Step2Participants from '@/resources/form/steps/Step2Participants';
 import Step3ItineraryAssumptions from '@/resources/form/steps/Step3ItineraryAssumptions';
-import Step4RiskManagement from '@/resources/form/steps/Step4RiskManagement';
 import Step5EquipmentTransport from '@/resources/form/steps/Step5EquipmentTransport';
 import Step7FinalReview from '@/resources/form/steps/Step7FinalReview';
 
@@ -15,7 +14,6 @@ const STEPS = [
   { ctx: 1, label: 'Info Básica' },
   { ctx: 2, label: 'Participantes' },
   { ctx: 3, label: 'Itinerario' },
-  { ctx: 4, label: 'Riesgos' },
   { ctx: 5, label: 'Equipo' },
   { ctx: 7, label: 'Revisión' },
 ] as const;
@@ -181,7 +179,6 @@ function AvisoLargoInner() {
         {currentCtxStep === 1 && <Step1BasicInfo />}
         {currentCtxStep === 2 && <Step2Participants />}
         {currentCtxStep === 3 && <Step3ItineraryAssumptions />}
-        {currentCtxStep === 4 && <Step4RiskManagement />}
         {currentCtxStep === 5 && <Step5EquipmentTransport />}
         {currentCtxStep === 7 && <Step7FinalReview />}
       </div>
