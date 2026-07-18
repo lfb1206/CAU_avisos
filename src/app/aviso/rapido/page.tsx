@@ -19,6 +19,7 @@ interface Participante {
   rut: string;
   telefono: string;
   email: string;
+  vestimenta?: string;
 }
 
 interface Vehiculo {
@@ -37,7 +38,6 @@ interface FormData {
   fechaMaxRegreso: string;
   contactoCau: string;
   comentarios: string;
-  vestimentaGrupo: string;
   // Step 2
   participantes: Participante[];
   vehiculos: Vehiculo[];
@@ -56,7 +56,6 @@ const initialForm: FormData = {
   fechaMaxRegreso: '',
   contactoCau: '',
   comentarios: '',
-  vestimentaGrupo: '',
   participantes: [emptyParticipante()],
   vehiculos: [],
   lugarEstacionamiento: '',
@@ -346,7 +345,7 @@ function AvisoRapidoContent() {
                     <input
                       value={p.telefono}
                       onChange={(e) => setParticipante(idx, 'telefono', e.target.value)}
-                      placeholder="Teléfono"
+                      placeholder="Teléfono de contacto"
                       className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
                     <input
@@ -356,24 +355,16 @@ function AvisoRapidoContent() {
                       className="border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400"
                     />
                   </div>
+                  <textarea
+                    value={p.vestimenta || ''}
+                    onChange={(e) => setParticipante(idx, 'vestimenta', e.target.value)}
+                    placeholder="Descripción de vestimenta (colores, tipo de ropa)"
+                    rows={2}
+                    className="w-full border border-gray-200 rounded-md px-2 py-1.5 text-xs bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-400 resize-none"
+                  />
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Clothing description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descripción de vestimenta del grupo
-              <span className="ml-1 text-xs text-gray-400 font-normal">(colores, para identificación en terreno)</span>
-            </label>
-            <textarea
-              value={form.vestimentaGrupo || ''}
-              onChange={(e) => set('vestimentaGrupo', e.target.value)}
-              placeholder="Ej: Chaquetas rojas, mochilas azules"
-              rows={2}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
           </div>
 
           {/* Vehicles */}
