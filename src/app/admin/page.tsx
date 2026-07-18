@@ -84,49 +84,6 @@ export default async function AdminPage() {
           ))}
         </div>
 
-        <div className="mt-12 bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Información del Sistema</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Diccionarios Disponibles</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• <strong>Personas:</strong> Contactos CAU y participantes frecuentes</li>
-                <li>• <strong>Actividades:</strong> Actividades generales y específicas con equipamiento</li>
-                <li>• <strong>Equipamiento:</strong> Categorías e items de equipamiento</li>
-                <li>• <strong>Autocompletado:</strong> Sugerencias básicas, riesgos, transporte, médico y supuestos</li>
-                <li>• <strong>Checklists:</strong> Checklists de Wikiexplora</li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Funcionalidades</h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• <strong>Edición:</strong> Modificar datos existentes</li>
-                <li>• <strong>Agregar:</strong> Crear nuevos registros</li>
-                <li>• <strong>Exportar:</strong> Descargar datos en JSON</li>
-                <li>• <strong>Backup:</strong> Crear copias de seguridad</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">Base de datos activa</h3>
-              <div className="mt-2 text-sm text-blue-700">
-                <p>
-                  Los cambios en este panel se persisten directamente en Supabase y estarán disponibles de inmediato para todos los usuarios.
-                  Usa las funciones de exportación para obtener respaldos locales en JSON.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
