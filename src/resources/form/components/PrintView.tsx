@@ -557,7 +557,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
 
   // Ensure we always have at least empty rows for transport and participants
   const participantesToShow = participantes.length > 0 ? participantes : [
-    { nombre: '', telefono: '', rut: '', contactoEmergencia: '', telefonoEmergencia: '', grupoSanguineo: '', alergias: '', medicamentos: '', enfermedades: '', condicionesEspeciales: '' }
+    { nombre: '', telefono: '', rut: '', contactoEmergencia: '', telefonoEmergencia: '', grupoSanguineo: '', alergias: '', medicamentos: '', enfermedades: '', condicionesEspeciales: '', vestimenta: '', mochila: '' }
   ];
 
   const transportToShow = transporte.length > 0 ? transporte : [
@@ -683,6 +683,8 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                   <th>RUT</th>
                   <th>Contacto Emergencia</th>
                   <th>Teléfono Contacto Emergencia</th>
+                  <th>Descripción Vestimenta</th>
+                  <th>Descripción Mochila</th>
                 </tr>
               </thead>
               <tbody>
@@ -693,6 +695,8 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                     <td>{p.rut || ''}</td>
                     <td>{p.contactoEmergencia || ''}</td>
                     <td>{p.telefonoEmergencia || ''}</td>
+                    <td>{p.vestimenta || ''}</td>
+                    <td>{p.mochila || ''}</td>
                   </tr>
                 ))}
               </tbody>
