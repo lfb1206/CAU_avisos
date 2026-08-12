@@ -27,6 +27,11 @@ yarn-error.log*
 # local env files
 .env
 
+# real member PII — never commit, seed locally only
+prisma/seed/data/people.local.json
+Socios CAU Vigentes*.csv
+*.csv
+
 # vercel
 .vercel
 
