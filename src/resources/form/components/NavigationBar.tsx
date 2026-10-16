@@ -21,20 +21,31 @@ export default function NavigationBar() {
   useEffect(() => {
     const supabase = createClient();
 
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) { setIsLoggedIn(false); return; }
-      setIsLoggedIn(true);
+    const loadProfile = async (userId: string) => {
       const { data } = await supabase
         .from('profiles')
         .select('name, role')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single();
       setProfile(data ?? null);
+    };
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) { setIsLoggedIn(false); return; }
+      setIsLoggedIn(true);
+      loadProfile(user.id);
     });
 
+    // Also fetch the profile here, not just the login flag — otherwise a fresh
+    // sign-in (SIGNED_IN event, no remount) leaves `profile` null until something
+    // else happens to reload the page, hiding role-gated nav links until then.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
-      if (!session) setProfile(null);
+      if (session?.user) {
+        loadProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -64,6 +75,9 @@ export default function NavigationBar() {
 
   const isActive = (path: string) =>
     pathname === path || (path !== '/' && pathname.startsWith(path));
+
+  // Showing "Ingresar" while already on an auth page (login/register/reset) is redundant.
+  const onAuthPage = pathname.startsWith('/auth/');
 
   const desktopLinkClass = (path: string) =>
     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -138,12 +152,14 @@ export default function NavigationBar() {
                   </button>
                 </div>
               ) : (
-                <Link
-                  href="/auth/login"
-                  className="ml-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-                >
-                  Ingresar
-                </Link>
+                !onAuthPage && (
+                  <Link
+                    href="/auth/login"
+                    className="ml-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
+                  >
+                    Ingresar
+                  </Link>
+                )
               )
             )}
           </div>
@@ -153,7 +169,7 @@ export default function NavigationBar() {
             {!loading && isLoggedIn && profile?.name && (
               <span className="text-sm text-gray-500 truncate max-w-[100px]">{profile.name}</span>
             )}
-            {!loading && !isLoggedIn && (
+            {!loading && !isLoggedIn && !onAuthPage && (
               <Link
                 href="/auth/login"
                 className="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"

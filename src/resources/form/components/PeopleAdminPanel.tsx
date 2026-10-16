@@ -37,6 +37,17 @@ function isMembershipActive(expiresAt: string | null): boolean {
   return !!expiresAt && new Date(expiresAt) > new Date();
 }
 
+/**
+ * The club's membership cycle runs through March — renewing extends a socio through
+ * the end of whichever March 31 comes next (this year's, if we haven't passed it yet;
+ * otherwise next year's), not a fixed "+1 year" from today.
+ */
+function endOfNextMarch(from: Date = new Date()): Date {
+  const marchThisYear = new Date(from.getFullYear(), 2, 31, 23, 59, 59);
+  if (from <= marchThisYear) return marchThisYear;
+  return new Date(from.getFullYear() + 1, 2, 31, 23, 59, 59);
+}
+
 export default function PeopleAdminPanel() {
   const [profiles, setProfiles] = useState<ProfileEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -110,9 +121,7 @@ export default function PeopleAdminPanel() {
   };
 
   const handleRenewMembership = (profile: ProfileEntry) => {
-    const oneYearFromNow = new Date();
-    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
-    updateProfile(profile, { membership_expires_at: oneYearFromNow.toISOString() });
+    updateProfile(profile, { membership_expires_at: endOfNextMarch().toISOString() });
   };
 
   const pending = profiles.filter((p) => !p.is_registered && (!search || p.email.includes(search)));
@@ -230,7 +239,7 @@ export default function PeopleAdminPanel() {
                       onClick={() => handleRenewMembership(p)}
                       className="text-xs text-blue-600 hover:text-blue-800 font-medium"
                     >
-                      Renovar 1 año
+                      Renovar hasta marzo
                     </button>
                     {active && (
                       <button

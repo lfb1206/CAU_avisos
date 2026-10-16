@@ -1,15 +1,15 @@
 'use client';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { InventoryItem, LoanCartLine } from '@/types';
-import LoanRequestForm from './LoanRequestForm';
+import LoanRequestForm, { type AvisoOption } from './LoanRequestForm';
 
 const RESUMEN_TAB = '__resumen__';
 
 /**
- * Single tabbed page: one tab per equipment category, plus a final "Resumen" tab.
- * Switching tabs never navigates away or "finishes" anything — the cart is shared
- * local state across every tab, so there's no equivalent of the old Google Form's
- * per-category "terminé" dead end (the #1 source of "is this broken?" reports).
+ * Single tabbed page: one tab per equipment category. "Resumen" lives as its own
+ * button above the tabs rather than as one of them, and its dates/aviso selection
+ * are lifted up here (instead of living inside LoanRequestForm) so switching to a
+ * category tab and back never resets them.
  */
 export default function PrestamosCatalog() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -17,6 +17,12 @@ export default function PrestamosCatalog() {
   const [error, setError] = useState('');
   const [cart, setCart] = useState<Record<number, number>>({});
   const [activeTab, setActiveTab] = useState<string>('');
+
+  const [avisos, setAvisos] = useState<AvisoOption[]>([]);
+  const [avisosLoading, setAvisosLoading] = useState(true);
+  const [avisoId, setAvisoId] = useState<number | ''>('');
+  const [pickupDueDate, setPickupDueDate] = useState('');
+  const [returnDueDate, setReturnDueDate] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -36,6 +42,14 @@ export default function PrestamosCatalog() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    fetch('/api/avisos')
+      .then((res) => res.json())
+      .then((data: AvisoOption[]) => setAvisos(Array.isArray(data) ? data.filter((a) => a.status !== 'draft') : []))
+      .catch(() => setAvisos([]))
+      .finally(() => setAvisosLoading(false));
+  }, []);
 
   const categories = useMemo(() => Array.from(new Set(items.map((i) => i.uso))).sort(), [items]);
 
@@ -81,14 +95,26 @@ export default function PrestamosCatalog() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 pb-24">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Equipo Club</h1>
-        <p className="text-sm text-gray-500">
-          Elige el equipo que necesitas en cada categoría y luego revisa y envía tu solicitud en la pestaña Resumen.
-        </p>
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Equipo Club</h1>
+          <p className="text-sm text-gray-500">
+            Elige el equipo que necesitas en cada categoría y luego revisa y envía tu solicitud en Resumen.
+          </p>
+        </div>
+        <button
+          onClick={() => setActiveTab(RESUMEN_TAB)}
+          className={`flex-shrink-0 px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
+            activeTab === RESUMEN_TAB
+              ? 'bg-blue-600 text-white'
+              : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+          }`}
+        >
+          Resumen{cartCount > 0 ? ` (${cartCount})` : ''}
+        </button>
       </div>
 
-      {/* Category tabs + Resumen */}
+      {/* Category tabs */}
       <div className="flex gap-1 border-b border-gray-200 mb-6 overflow-x-auto">
         {categories.map((cat) => (
           <button
@@ -103,16 +129,6 @@ export default function PrestamosCatalog() {
             {cat}
           </button>
         ))}
-        <button
-          onClick={() => setActiveTab(RESUMEN_TAB)}
-          className={`px-4 py-2.5 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-            activeTab === RESUMEN_TAB
-              ? 'border-blue-600 text-blue-700'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Resumen{cartCount > 0 ? ` (${cartCount})` : ''}
-        </button>
       </div>
 
       {activeTab === RESUMEN_TAB ? (
@@ -120,6 +136,14 @@ export default function PrestamosCatalog() {
           cartLines={cartLines}
           onChangeQuantity={(itemId, qty) => setQuantity(itemId, qty)}
           onRemove={(itemId) => setQuantity(itemId, 0)}
+          avisos={avisos}
+          avisosLoading={avisosLoading}
+          avisoId={avisoId}
+          onChangeAvisoId={setAvisoId}
+          pickupDueDate={pickupDueDate}
+          onChangePickupDueDate={setPickupDueDate}
+          returnDueDate={returnDueDate}
+          onChangeReturnDueDate={setReturnDueDate}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

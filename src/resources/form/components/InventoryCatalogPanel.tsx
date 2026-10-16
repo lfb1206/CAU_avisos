@@ -1,6 +1,7 @@
 'use client';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { InventoryItem, ItemCondition } from '@/types';
+import ManualLoanModal from './ManualLoanModal';
 
 type ItemDraft = Omit<InventoryItem, 'id' | 'pool_id' | 'disponible'>;
 
@@ -40,6 +41,17 @@ export default function InventoryCatalogPanel() {
   const [historyItem, setHistoryItem] = useState<InventoryItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [showManualLoan, setShowManualLoan] = useState(false);
+
+  const toggleCategory = (category: string) => {
+    setCollapsedCategories((prev) => {
+      const next = new Set(prev);
+      if (next.has(category)) next.delete(category);
+      else next.add(category);
+      return next;
+    });
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,18 +126,36 @@ export default function InventoryCatalogPanel() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="flex-1 min-w-48 border border-gray-300 rounded-md px-3 py-2 text-sm"
         />
-        <button onClick={() => setShowAddForm(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm">
+        <button onClick={() => setShowManualLoan(true)} className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md font-medium text-sm whitespace-nowrap">
+          Registrar préstamo existente
+        </button>
+        <button onClick={() => setShowAddForm(true)} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium text-sm whitespace-nowrap">
           Agregar ítem
         </button>
       </div>
 
       <div className="space-y-6">
-        {Object.entries(grouped).map(([category, catItems]) => (
+        {Object.entries(grouped).map(([category, catItems]) => {
+          const collapsed = collapsedCategories.has(category);
+          return (
           <div key={category} className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-3 bg-gray-50 border-b">
-              <h3 className="font-semibold text-gray-800">{category}</h3>
-              <p className="text-xs text-gray-500">{catItems.length} ítems</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => toggleCategory(category)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 border-b text-left hover:bg-gray-100 transition-colors"
+            >
+              <div>
+                <h3 className="font-semibold text-gray-800">{category}</h3>
+                <p className="text-xs text-gray-500">{catItems.length} ítems</p>
+              </div>
+              <svg
+                className={`w-5 h-5 text-gray-400 flex-shrink-0 transform transition-transform ${collapsed ? '' : 'rotate-180'}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {!collapsed && (
             <div className="divide-y divide-gray-100">
               {catItems.map((item) => (
                 <div key={item.id} className="p-3 flex items-center justify-between gap-3">
@@ -140,6 +170,9 @@ export default function InventoryCatalogPanel() {
                         {item.disponible ?? 0}/{item.cantidad} disponible{item.en_inspeccion > 0 ? ` · ${item.en_inspeccion} en inspección` : ''}
                       </span>
                     </div>
+                    {item.observaciones && (
+                      <p className="text-xs text-gray-500 mt-1 italic">{item.observaciones}</p>
+                    )}
                   </div>
                   <div className="flex gap-3 flex-shrink-0 text-xs">
                     <button onClick={() => setHistoryItem(item)} className="text-gray-500 hover:text-gray-700">Historial</button>
@@ -151,8 +184,10 @@ export default function InventoryCatalogPanel() {
                 </div>
               ))}
             </div>
+            )}
           </div>
-        ))}
+          );
+        })}
         {filtered.length === 0 && <div className="text-center py-12 text-gray-400">Sin resultados</div>}
       </div>
 
@@ -163,6 +198,14 @@ export default function InventoryCatalogPanel() {
           saving={saving}
           onSave={(draft) => handleSave(draft, editingItem?.id)}
           onClose={() => { setEditingItem(null); setShowAddForm(false); }}
+        />
+      )}
+
+      {showManualLoan && (
+        <ManualLoanModal
+          items={items}
+          onClose={() => setShowManualLoan(false)}
+          onSaved={load}
         />
       )}
 

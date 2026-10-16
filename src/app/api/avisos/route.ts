@@ -20,7 +20,7 @@ export async function GET() {
     const avisos = await prisma.aviso.findMany({
       where: { created_by: user.id },
       orderBy: { updated_at: 'desc' },
-      select: { id: true, title: true, status: true, tipo: true, created_at: true, updated_at: true, submitted_at: true },
+      select: { id: true, title: true, status: true, tipo: true, activity_date: true, created_at: true, updated_at: true, submitted_at: true },
     });
     return NextResponse.json(avisos);
   } catch (error) {

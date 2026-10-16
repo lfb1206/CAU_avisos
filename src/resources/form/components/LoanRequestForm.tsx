@@ -1,13 +1,14 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { LoanCartLine } from '@/types';
 
-interface AvisoOption {
+export interface AvisoOption {
   id: number;
   title: string;
   status: string;
   tipo: string;
+  activity_date: string | null;
 }
 
 const MAX_LOAN_DURATION_DAYS = 14;
@@ -28,30 +29,46 @@ interface LoanRequestFormProps {
   cartLines: LoanCartLine[];
   onChangeQuantity: (itemId: number, quantity: number) => void;
   onRemove: (itemId: number) => void;
+  avisos: AvisoOption[];
+  avisosLoading: boolean;
+  avisoId: number | '';
+  onChangeAvisoId: (id: number | '') => void;
+  pickupDueDate: string;
+  onChangePickupDueDate: (date: string) => void;
+  returnDueDate: string;
+  onChangeReturnDueDate: (date: string) => void;
 }
 
 /**
- * The Resumen tab's content: full cart review, Aviso picker, return date, and submit.
- * This is the one unambiguous "finish here" step the old form's per-section flow lacked.
+ * The Resumen panel's content: cart review, optional Aviso link, dates, and submit.
+ * Dates/aviso selection are lifted into PrestamosCatalog so they survive switching
+ * between category tabs and back — this component only renders them.
  */
-export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove }: LoanRequestFormProps) {
+export default function LoanRequestForm({
+  cartLines,
+  onChangeQuantity,
+  onRemove,
+  avisos,
+  avisosLoading,
+  avisoId,
+  onChangeAvisoId,
+  pickupDueDate,
+  onChangePickupDueDate,
+  returnDueDate,
+  onChangeReturnDueDate,
+}: LoanRequestFormProps) {
   const router = useRouter();
-  const [avisos, setAvisos] = useState<AvisoOption[]>([]);
-  const [avisosLoading, setAvisosLoading] = useState(true);
-  const [avisoId, setAvisoId] = useState<number | ''>('');
-  const [pickupDueDate, setPickupDueDate] = useState('');
-  const [returnDueDate, setReturnDueDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetch('/api/avisos')
-      .then((res) => res.json())
-      .then((data: AvisoOption[]) => setAvisos(Array.isArray(data) ? data.filter((a) => a.status !== 'draft') : []))
-      .catch(() => setAvisos([]))
-      .finally(() => setAvisosLoading(false));
-  }, []);
+  const selectedAviso = avisoId ? avisos.find((a) => a.id === avisoId) ?? null : null;
+  const avisoOutOfRange =
+    !!selectedAviso?.activity_date &&
+    !!pickupDueDate &&
+    !!returnDueDate &&
+    (selectedAviso.activity_date.split('T')[0] < pickupDueDate ||
+      selectedAviso.activity_date.split('T')[0] > returnDueDate);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,10 +76,6 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
 
     if (cartLines.length === 0) {
       setError('Agrega al menos un ítem en las pestañas de equipo antes de enviar.');
-      return;
-    }
-    if (!avisoId) {
-      setError('Debes seleccionar un aviso de salida enviado para esta solicitud.');
       return;
     }
     if (!pickupDueDate) {
@@ -77,6 +90,8 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
       setError('La fecha de devolución no puede ser anterior a la fecha de retiro.');
       return;
     }
+    // Not blocking: linking an aviso isn't required yet. avisoOutOfRange only
+    // drives the informational note below, kept ready for when it does become one.
 
     setSubmitting(true);
     try {
@@ -84,7 +99,7 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          aviso_id: avisoId,
+          aviso_id: avisoId || null,
           pickup_due_date: new Date(pickupDueDate).toISOString(),
           return_due_date: new Date(returnDueDate).toISOString(),
           items: cartLines.map((line) => ({ inventory_item_id: line.inventory_item_id, quantity: line.quantity })),
@@ -161,31 +176,6 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Aviso de salida *</label>
-          {avisosLoading ? (
-            <p className="text-sm text-gray-400">Cargando tus avisos…</p>
-          ) : avisos.length === 0 ? (
-            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-              No tienes ningún aviso de salida enviado. Debes crear y enviar un aviso antes de solicitar equipo del Equipo Club.
-            </p>
-          ) : (
-            <select
-              required
-              value={avisoId}
-              onChange={(e) => setAvisoId(Number(e.target.value))}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-            >
-              <option value="">Selecciona un aviso</option>
-              {avisos.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.title || `Aviso #${a.id}`} ({a.tipo === 'rapido' ? 'Rápido' : 'Largo'})
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-
-        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de retiro *</label>
           <input
             type="date"
@@ -194,10 +184,10 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
             value={pickupDueDate}
             onChange={(e) => {
               const value = e.target.value;
-              setPickupDueDate(value);
+              onChangePickupDueDate(value);
               // Keep return date valid relative to the new pickup date instead of
               // silently submitting a stale, now-invalid combination.
-              if (returnDueDate && returnDueDate < value) setReturnDueDate(value);
+              if (returnDueDate && returnDueDate < value) onChangeReturnDueDate(value);
             }}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
           />
@@ -212,12 +202,43 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
             min={pickupDueDate || todayPlusDays(0)}
             max={pickupDueDate ? addDays(pickupDueDate, MAX_LOAN_DURATION_DAYS) : undefined}
             value={returnDueDate}
-            onChange={(e) => setReturnDueDate(e.target.value)}
+            onChange={(e) => onChangeReturnDueDate(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm disabled:bg-gray-50 disabled:text-gray-400"
           />
           <p className="text-xs text-gray-400 mt-1">
             {pickupDueDate ? 'Máximo' : 'Elige primero la fecha de retiro. Máximo'} {MAX_LOAN_DURATION_DAYS} días entre retiro y devolución.
           </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Aviso de salida (opcional)</label>
+          {avisosLoading ? (
+            <p className="text-sm text-gray-400">Cargando tus avisos…</p>
+          ) : avisos.length === 0 ? (
+            <p className="text-xs text-gray-400">No tienes avisos enviados todavía. Puedes vincular uno más tarde o dejar esto en blanco.</p>
+          ) : (
+            <select
+              value={avisoId}
+              onChange={(e) => onChangeAvisoId(e.target.value ? Number(e.target.value) : '')}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            >
+              <option value="">Sin vincular</option>
+              {avisos.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.title || `Aviso #${a.id}`} ({a.tipo === 'rapido' ? 'Rápido' : 'Largo'})
+                  {a.activity_date ? ` · ${new Date(a.activity_date).toLocaleDateString('es-CL')}` : ''}
+                </option>
+              ))}
+            </select>
+          )}
+          <p className="text-xs text-gray-400 mt-1">
+            Si vinculas un aviso, su fecha debe caer entre el retiro y la devolución del equipo.
+          </p>
+          {avisoOutOfRange && (
+            <p className="text-xs text-amber-600 mt-1">
+              Nota: la fecha de este aviso no está dentro del rango de retiro/devolución elegido. Esto no te impide enviar la solicitud.
+            </p>
+          )}
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

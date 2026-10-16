@@ -117,6 +117,31 @@ export default function LoanReviewPanel({ id }: { id: number }) {
         </div>
       )}
 
+      {loan.notas_custodio && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700">
+          <strong>Notas del custodio:</strong> {loan.notas_custodio}
+        </div>
+      )}
+
+      {(loan.pickup_photo_base64 || loan.return_photo_base64) && (
+        <div className="grid grid-cols-2 gap-3">
+          {loan.pickup_photo_base64 && (
+            <div>
+              <p className="text-xs font-medium text-gray-500 mb-1">Foto de retiro</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={loan.pickup_photo_base64} alt="Foto de retiro" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
+            </div>
+          )}
+          {loan.return_photo_base64 && (
+            <div>
+              <p className="text-xs font-medium text-gray-500 mb-1">Foto de devolución</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
+            </div>
+          )}
+        </div>
+      )}
+
       {loan.status === 'pendiente' && (
         <div className="flex gap-3">
           <button
@@ -151,17 +176,13 @@ export default function LoanReviewPanel({ id }: { id: number }) {
         <div>
           <h2 className="text-sm font-semibold text-gray-900 mb-2">Confirmar devolución</h2>
           {loan.return_photo_base64 ? (
-            <div className="space-y-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full max-h-64 object-cover rounded-lg border border-gray-200" />
-              <button
-                onClick={() => runAction('return')}
-                disabled={busy}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md text-sm font-semibold disabled:opacity-50"
-              >
-                Confirmar devolución
-              </button>
-            </div>
+            <button
+              onClick={() => runAction('return')}
+              disabled={busy}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-md text-sm font-semibold disabled:opacity-50"
+            >
+              Confirmar devolución
+            </button>
           ) : (
             <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
               El solicitante todavía no sube la foto de devolución. No puedes confirmar hasta que la suba desde su solicitud.

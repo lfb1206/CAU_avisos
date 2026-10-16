@@ -7,7 +7,7 @@ import { sendEmail, PRESTAMOS_FROM } from '@/lib/email';
 
 const createSchema = z
   .object({
-    aviso_id: z.number().int().positive(),
+    aviso_id: z.number().int().positive().nullable().optional(),
     pickup_due_date: z.string().min(1),
     return_due_date: z.string().min(1),
     items: z
@@ -93,15 +93,18 @@ export async function POST(request: NextRequest) {
   try {
     const [pool, aviso] = await Promise.all([
       prisma.inventoryPool.findUnique({ where: { key: EQUIPO_CLUB_POOL_KEY }, include: { custodian: true } }),
-      prisma.aviso.findFirst({ where: { id: aviso_id, created_by: auth.user.id } }),
+      aviso_id ? prisma.aviso.findFirst({ where: { id: aviso_id, created_by: auth.user.id } }) : Promise.resolve(null),
     ]);
 
     if (!pool) {
       return NextResponse.json({ error: 'El catálogo de Equipo Club no está configurado todavía.' }, { status: 404 });
     }
-    if (!aviso) return NextResponse.json({ error: 'Aviso no encontrado' }, { status: 404 });
-    if (aviso.status === 'draft') {
-      return NextResponse.json({ error: 'Debes seleccionar un aviso ya enviado, no un borrador.' }, { status: 422 });
+    // Linking an aviso is optional for now — only validate it when one was actually sent.
+    if (aviso_id) {
+      if (!aviso) return NextResponse.json({ error: 'Aviso no encontrado' }, { status: 404 });
+      if (aviso.status === 'draft') {
+        return NextResponse.json({ error: 'Debes seleccionar un aviso ya enviado, no un borrador.' }, { status: 422 });
+      }
     }
 
     const loan = await prisma.$transaction(async (tx) => {
