@@ -35,7 +35,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       to: loan.user.email,
       subject: 'Tu solicitud de equipo fue rechazada',
       html: `<p>Hola ${loan.user.name || ''}, tu solicitud de préstamo de equipo CAU fue rechazada.</p><p><strong>Motivo:</strong> ${parsed.data.cancel_reason}</p>`,
-    }).catch(console.error);
+    }).catch((err) => console.error(`[prestamos reject email] loan #${loan.id} to ${loan.user.email}:`, err));
 
     return NextResponse.json(updated);
   } catch (error) {

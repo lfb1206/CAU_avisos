@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
         to: pool.custodian.email,
         subject: 'Nueva solicitud de préstamo — Equipo Club',
         html: `<p>${auth.profile.name || auth.profile.email} solicitó equipo del Equipo Club. Revisa la solicitud en el panel de Custodio.</p>`,
-      }).catch(console.error);
+      }).catch((err) => console.error(`[prestamos new-request email] loan #${loan.id} to ${pool.custodian?.email}:`, err));
     }
 
     return NextResponse.json(loan, { status: 201 });

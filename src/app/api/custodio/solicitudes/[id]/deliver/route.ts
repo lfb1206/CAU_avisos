@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireCustodio } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-const deliverSchema = z.object({ pickup_photo_base64: z.string().min(1, 'Se requiere una foto de retiro') });
-
-// POST /api/custodio/solicitudes/[id]/deliver — custodio hands gear over at pickup
+// POST /api/custodio/solicitudes/[id]/deliver — custodio hands gear over at pickup.
+// No photo required here: only the return photo documents the gear's condition
+// (its last state), so pickup is just a plain status confirmation.
 export async function POST(request: NextRequest, { params }: RouteContext) {
   const auth = await apiRequireCustodio(request);
   if (auth instanceof NextResponse) return auth;
 
   const { id } = await params;
-  const body = await request.json().catch(() => ({}));
-  const parsed = deliverSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   try {
     const loan = await prisma.loanRequest.findUnique({ where: { id: Number(id) } });
@@ -26,7 +22,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
     const updated = await prisma.loanRequest.update({
       where: { id: loan.id },
-      data: { status: 'entregado', delivered_at: new Date(), pickup_photo_base64: parsed.data.pickup_photo_base64 },
+      data: { status: 'entregado', delivered_at: new Date() },
     });
     return NextResponse.json(updated);
   } catch (error) {

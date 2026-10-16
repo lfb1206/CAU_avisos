@@ -29,7 +29,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       to: loan.user.email,
       subject: 'Tu solicitud de equipo fue aprobada',
       html: `<p>Hola ${loan.user.name || ''}, tu solicitud de préstamo de equipo CAU fue aprobada. Coordina el retiro con el Custodio.</p>`,
-    }).catch(console.error);
+    }).catch((err) => console.error(`[prestamos approve email] loan #${loan.id} to ${loan.user.email}:`, err));
 
     return NextResponse.json(updated);
   } catch (error) {

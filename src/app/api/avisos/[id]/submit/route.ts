@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
-import { AVISOS_FROM } from '@/lib/email';
+import { AVISOS_FROM, sendEmail } from '@/lib/email';
 import { extractSearchFields } from '@/lib/avisoSearchFields';
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -29,7 +29,9 @@ export async function POST(_request: NextRequest, { params }: RouteContext) {
       },
     });
 
-    sendAvisoEmail(aviso.id, aviso.tipo, aviso.form_data as Record<string, unknown>).catch(console.error);
+    sendAvisoEmail(aviso.id, aviso.tipo, aviso.form_data as Record<string, unknown>).catch((err) =>
+      console.error(`[aviso submit email] aviso #${aviso.id}:`, err)
+    );
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -39,12 +41,6 @@ export async function POST(_request: NextRequest, { params }: RouteContext) {
 }
 
 async function sendAvisoEmail(avisoId: number, tipo: string, formData: Record<string, unknown>) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return;
-
-  const { Resend } = await import('resend');
-  const resend = new Resend(apiKey);
-
   let emailTo: string | undefined;
   let cerro: string | undefined;
   let contacto: string | undefined;
@@ -74,9 +70,16 @@ async function sendAvisoEmail(avisoId: number, tipo: string, formData: Record<st
     actividad = d.basicInfo?.actividad;
   }
 
-  if (!emailTo) return;
+  if (!emailTo) {
+    // Expected for 'rapido' avisos — that form never collects a contact email.
+    // For 'largo' it means the field was left empty, which is worth knowing about.
+    if (tipo !== 'rapido') {
+      console.warn(`[aviso submit email] aviso #${avisoId}: no emailContacto set, skipping confirmation`);
+    }
+    return;
+  }
 
-  await resend.emails.send({
+  await sendEmail({
     from: AVISOS_FROM,
     to: [emailTo],
     subject: `Aviso de Salida CAU #${avisoId} — ${cerro ?? 'Sin sector'}`,

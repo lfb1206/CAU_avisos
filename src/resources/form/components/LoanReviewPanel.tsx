@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { LoanRequest } from '@/types';
-import LoanPhotoCapture from './LoanPhotoCapture';
 
 const statusLabel: Record<string, string> = {
   pendiente: 'Pendiente',
@@ -123,22 +122,11 @@ export default function LoanReviewPanel({ id }: { id: number }) {
         </div>
       )}
 
-      {(loan.pickup_photo_base64 || loan.return_photo_base64) && (
-        <div className="grid grid-cols-2 gap-3">
-          {loan.pickup_photo_base64 && (
-            <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Foto de retiro</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={loan.pickup_photo_base64} alt="Foto de retiro" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
-            </div>
-          )}
-          {loan.return_photo_base64 && (
-            <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Foto de devolución</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
-            </div>
-          )}
+      {loan.return_photo_base64 && (
+        <div>
+          <p className="text-xs font-medium text-gray-500 mb-1">Foto de devolución (último estado del equipo)</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full h-48 object-cover rounded-lg border border-gray-200" />
         </div>
       )}
 
@@ -164,11 +152,14 @@ export default function LoanReviewPanel({ id }: { id: number }) {
       {loan.status === 'aprobado' && (
         <div>
           <h2 className="text-sm font-semibold text-gray-900 mb-2">Entregar equipo</h2>
-          <p className="text-xs text-gray-500 mb-3">Toma una foto del equipo al momento del retiro.</p>
-          <LoanPhotoCapture
-            label="Tomar foto de retiro"
-            onCapture={(base64) => runAction('deliver', { pickup_photo_base64: base64 })}
-          />
+          <p className="text-xs text-gray-500 mb-3">Confirma cuando el socio haya retirado el equipo.</p>
+          <button
+            onClick={() => runAction('deliver')}
+            disabled={busy}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-md text-sm font-semibold disabled:opacity-50"
+          >
+            Marcar como entregado
+          </button>
         </div>
       )}
 

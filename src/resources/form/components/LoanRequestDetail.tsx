@@ -120,22 +120,11 @@ export default function LoanRequestDetail({ id }: { id: number }) {
         <p>Fecha de devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}</p>
       </div>
 
-      {(loan.pickup_photo_base64 || (loan.return_photo_base64 && loan.status !== 'entregado')) && (
-        <div className="grid grid-cols-2 gap-3">
-          {loan.pickup_photo_base64 && (
-            <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Foto de retiro</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={loan.pickup_photo_base64} alt="Foto de retiro" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
-            </div>
-          )}
-          {loan.return_photo_base64 && loan.status !== 'entregado' && (
-            <div>
-              <p className="text-xs font-medium text-gray-500 mb-1">Foto de devolución</p>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full h-40 object-cover rounded-lg border border-gray-200" />
-            </div>
-          )}
+      {loan.return_photo_base64 && loan.status !== 'entregado' && (
+        <div>
+          <p className="text-xs font-medium text-gray-500 mb-1">Foto de devolución (último estado del equipo)</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={loan.return_photo_base64} alt="Foto de devolución" className="w-full h-48 object-cover rounded-lg border border-gray-200" />
         </div>
       )}
 
