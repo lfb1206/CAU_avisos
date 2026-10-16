@@ -18,6 +18,12 @@ function todayPlusDays(days: number): string {
   return d.toISOString().split('T')[0];
 }
 
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
 interface LoanRequestFormProps {
   cartLines: LoanCartLine[];
   onChangeQuantity: (itemId: number, quantity: number) => void;
@@ -33,6 +39,7 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
   const [avisos, setAvisos] = useState<AvisoOption[]>([]);
   const [avisosLoading, setAvisosLoading] = useState(true);
   const [avisoId, setAvisoId] = useState<number | ''>('');
+  const [pickupDueDate, setPickupDueDate] = useState('');
   const [returnDueDate, setReturnDueDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -58,8 +65,16 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
       setError('Debes seleccionar un aviso de salida enviado para esta solicitud.');
       return;
     }
+    if (!pickupDueDate) {
+      setError('Indica la fecha de retiro.');
+      return;
+    }
     if (!returnDueDate) {
       setError('Indica la fecha de devolución.');
+      return;
+    }
+    if (returnDueDate < pickupDueDate) {
+      setError('La fecha de devolución no puede ser anterior a la fecha de retiro.');
       return;
     }
 
@@ -70,6 +85,7 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           aviso_id: avisoId,
+          pickup_due_date: new Date(pickupDueDate).toISOString(),
           return_due_date: new Date(returnDueDate).toISOString(),
           items: cartLines.map((line) => ({ inventory_item_id: line.inventory_item_id, quantity: line.quantity })),
         }),
@@ -170,17 +186,38 @@ export default function LoanRequestForm({ cartLines, onChangeQuantity, onRemove 
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de retiro *</label>
+          <input
+            type="date"
+            required
+            min={todayPlusDays(0)}
+            value={pickupDueDate}
+            onChange={(e) => {
+              const value = e.target.value;
+              setPickupDueDate(value);
+              // Keep return date valid relative to the new pickup date instead of
+              // silently submitting a stale, now-invalid combination.
+              if (returnDueDate && returnDueDate < value) setReturnDueDate(value);
+            }}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+          />
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de devolución *</label>
           <input
             type="date"
             required
-            min={todayPlusDays(1)}
-            max={todayPlusDays(MAX_LOAN_DURATION_DAYS)}
+            disabled={!pickupDueDate}
+            min={pickupDueDate || todayPlusDays(0)}
+            max={pickupDueDate ? addDays(pickupDueDate, MAX_LOAN_DURATION_DAYS) : undefined}
             value={returnDueDate}
             onChange={(e) => setReturnDueDate(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm disabled:bg-gray-50 disabled:text-gray-400"
           />
-          <p className="text-xs text-gray-400 mt-1">Máximo {MAX_LOAN_DURATION_DAYS} días desde hoy.</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {pickupDueDate ? 'Máximo' : 'Elige primero la fecha de retiro. Máximo'} {MAX_LOAN_DURATION_DAYS} días entre retiro y devolución.
+          </p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

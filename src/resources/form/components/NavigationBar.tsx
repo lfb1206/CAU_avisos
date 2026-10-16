@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 
 interface UserProfile {
   name: string;
-  role: 'admin' | 'coordinador' | 'member';
+  role: 'admin' | 'coordinador' | 'custodio' | 'member';
 }
 
 export default function NavigationBar() {
@@ -104,9 +104,13 @@ export default function NavigationBar() {
                 <Link href="/aviso/rapido" className={desktopLinkClass('/aviso/rapido')}>Aviso Rápido</Link>
                 <Link href="/avisos" className={desktopLinkClass('/avisos')}>Biblioteca</Link>
                 <Link href="/cursos" className={desktopLinkClass('/cursos')}>Cursos</Link>
+                <Link href="/prestamos" className={desktopLinkClass('/prestamos')}>Préstamos</Link>
                 <Link href="/dashboard" className={desktopLinkClass('/dashboard')}>Panel</Link>
-                {profile?.role === 'coordinador' && (
+                {(profile?.role === 'coordinador' || profile?.role === 'admin') && (
                   <Link href="/coordinador" className={desktopLinkClass('/coordinador')}>Coordinador</Link>
+                )}
+                {(profile?.role === 'custodio' || profile?.role === 'admin') && (
+                  <Link href="/custodio" className={desktopLinkClass('/custodio')}>Custodio</Link>
                 )}
                 {profile?.role === 'admin' && (
                   <Link href="/admin" className={desktopLinkClass('/admin')}>Admin</Link>
@@ -186,10 +190,20 @@ export default function NavigationBar() {
           <div className="px-3 py-3 space-y-1">
             <Link href="/aviso/rapido" className={mobileLinkClass('/aviso/rapido')}>Aviso Rápido</Link>
             <Link href="/cursos" className={mobileLinkClass('/cursos')}>Cursos</Link>
+            <Link href="/prestamos" className={mobileLinkClass('/prestamos')}>Préstamos</Link>
             <Link href="/avisos" className={mobileLinkClass('/avisos')}>Biblioteca</Link>
             <Link href="/aviso/largo" className={mobileLinkClass('/aviso/largo')}>Aviso Largo</Link>
             <Link href="/dashboard" className={mobileLinkClass('/dashboard')}>Panel</Link>
             <Link href="/perfil" className={mobileLinkClass('/perfil')}>Mi perfil</Link>
+            {(profile?.role === 'coordinador' || profile?.role === 'admin') && (
+              <Link href="/coordinador" className={mobileLinkClass('/coordinador')}>Coordinador</Link>
+            )}
+            {(profile?.role === 'custodio' || profile?.role === 'admin') && (
+              <Link href="/custodio" className={mobileLinkClass('/custodio')}>Custodio</Link>
+            )}
+            {profile?.role === 'admin' && (
+              <Link href="/admin" className={mobileLinkClass('/admin')}>Admin</Link>
+            )}
 
             <div className="pt-2 border-t border-gray-100">
               <button

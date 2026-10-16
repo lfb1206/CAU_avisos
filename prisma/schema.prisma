@@ -405,7 +405,12 @@ model LoanRequest {
   status        LoanStatus @default(pendiente)
   cancel_reason String? // replaces the old sheet's separate No Vigente/Fuera de Plazo/Suspendido/Cancelación flags
 
-  return_due_date DateTime // validated against MAX_LOAN_DURATION_DAYS at creation
+  // When the member intends to come get the gear, and by when they'll return it.
+  // (return_due_date - pickup_due_date) is what's validated against
+  // MAX_LOAN_DURATION_DAYS at creation — not time-since-request, which would wrongly
+  // count time spent waiting for a future pickup as part of the loan itself.
+  pickup_due_date DateTime
+  return_due_date DateTime
 
   // Pickup photo: captured by the custodio at the physical handoff (deliver action).
   pickup_photo_base64 String?

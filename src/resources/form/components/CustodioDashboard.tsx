@@ -128,7 +128,7 @@ export default function CustodioDashboard() {
                     <p className="text-sm font-medium text-gray-900">{loan.user?.name || loan.user?.email}</p>
                     <p className="text-xs text-gray-500 mt-0.5">{itemsSummary}</p>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      Devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}
+                      Retiro: {new Date(loan.pickup_due_date).toLocaleDateString('es-CL')} · Devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}
                       {overdue && <span className="ml-2 text-red-600 font-medium">Atrasado</span>}
                     </p>
                   </div>

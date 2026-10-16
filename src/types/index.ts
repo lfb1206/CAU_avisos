@@ -276,6 +276,7 @@ export interface LoanRequest {
   aviso_id?: number | null;
   status: LoanStatus;
   cancel_reason?: string | null;
+  pickup_due_date: string;
   return_due_date: string;
   pickup_photo_base64?: string | null;
   return_photo_base64?: string | null;

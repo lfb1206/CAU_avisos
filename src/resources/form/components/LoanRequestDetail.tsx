@@ -115,9 +115,10 @@ export default function LoanRequestDetail({ id }: { id: number }) {
         ))}
       </div>
 
-      <p className="text-sm text-gray-600">
-        Fecha de devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}
-      </p>
+      <div className="text-sm text-gray-600 space-y-0.5">
+        <p>Fecha de retiro: {new Date(loan.pickup_due_date).toLocaleDateString('es-CL')}</p>
+        <p>Fecha de devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}</p>
+      </div>
 
       {(loan.status === 'pendiente' || loan.status === 'aprobado') && (
         <button

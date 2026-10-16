@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireAuth, isMembershipActive } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { EQUIPO_CLUB_POOL_KEY, MAX_LOAN_DURATION_DAYS, RESERVED_LOAN_STATUSES, isReturnDueDateWithinCap } from '@/lib/inventory';
+import { EQUIPO_CLUB_POOL_KEY, MAX_LOAN_DURATION_DAYS, RESERVED_LOAN_STATUSES, isLoanDurationWithinCap } from '@/lib/inventory';
 import { sendEmail, PRESTAMOS_FROM } from '@/lib/email';
 
 const createSchema = z
   .object({
     aviso_id: z.number().int().positive(),
+    pickup_due_date: z.string().min(1),
     return_due_date: z.string().min(1),
     items: z
       .array(
@@ -63,13 +64,28 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
 
   const { aviso_id, items } = parsed.data;
+  const pickupDueDate = new Date(parsed.data.pickup_due_date);
   const returnDueDate = new Date(parsed.data.return_due_date);
+  if (Number.isNaN(pickupDueDate.getTime())) {
+    return NextResponse.json({ error: 'Fecha de retiro inválida' }, { status: 400 });
+  }
   if (Number.isNaN(returnDueDate.getTime())) {
     return NextResponse.json({ error: 'Fecha de devolución inválida' }, { status: 400 });
   }
-  if (!isReturnDueDateWithinCap(returnDueDate)) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (pickupDueDate < today) {
+    return NextResponse.json({ error: 'La fecha de retiro no puede ser en el pasado.' }, { status: 422 });
+  }
+  if (returnDueDate < pickupDueDate) {
     return NextResponse.json(
-      { error: `El préstamo no puede ser por más de ${MAX_LOAN_DURATION_DAYS} días.` },
+      { error: 'La fecha de devolución no puede ser anterior a la fecha de retiro.' },
+      { status: 422 }
+    );
+  }
+  if (!isLoanDurationWithinCap(pickupDueDate, returnDueDate)) {
+    return NextResponse.json(
+      { error: `El préstamo no puede ser por más de ${MAX_LOAN_DURATION_DAYS} días entre retiro y devolución.` },
       { status: 422 }
     );
   }
@@ -121,6 +137,7 @@ export async function POST(request: NextRequest) {
           pool_id: pool.id,
           user_id: auth.user.id,
           aviso_id,
+          pickup_due_date: pickupDueDate,
           return_due_date: returnDueDate,
           items: {
             create: items.map((item) => ({

@@ -125,14 +125,16 @@ export async function seedInventory(prisma: PrismaClient) {
       .filter((li): li is { id: number; quantity: number } => li.id !== undefined);
     if (lineItems.length === 0) continue;
 
+    const pickupDate = loan.pickup_date ? new Date(loan.pickup_date) : new Date();
     await prisma.loanRequest.create({
       data: {
         pool_id: pool.id,
         user_id: borrower.id,
         aviso_id: null, // historical loan, predates the aviso-linkage requirement
         status: 'entregado' satisfies LoanStatus,
+        pickup_due_date: pickupDate,
         return_due_date: new Date(loan.return_due_date),
-        delivered_at: loan.pickup_date ? new Date(loan.pickup_date) : new Date(),
+        delivered_at: pickupDate,
         items: { create: lineItems.map((li) => ({ inventory_item_id: li.id, quantity: li.quantity })) },
       },
     });

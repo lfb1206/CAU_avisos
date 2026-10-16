@@ -106,9 +106,10 @@ export default function LoanReviewPanel({ id }: { id: number }) {
         ))}
       </div>
 
-      <p className="text-sm text-gray-600">
-        Fecha de devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}
-      </p>
+      <div className="text-sm text-gray-600 space-y-0.5">
+        <p>Fecha de retiro: {new Date(loan.pickup_due_date).toLocaleDateString('es-CL')}</p>
+        <p>Fecha de devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}</p>
+      </div>
 
       {loan.cancel_reason && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">

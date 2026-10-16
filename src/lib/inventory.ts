@@ -19,9 +19,14 @@ export async function ensureEquipoClubPool() {
   });
 }
 
-export function isReturnDueDateWithinCap(returnDueDate: Date, from: Date = new Date()): boolean {
+/**
+ * Validates the actual loan duration (pickup → return), not time-since-request —
+ * a request made today for pickup in three weeks and return a week after that is a
+ * one-week loan, not a four-week one.
+ */
+export function isLoanDurationWithinCap(pickupDueDate: Date, returnDueDate: Date): boolean {
   const maxMs = MAX_LOAN_DURATION_DAYS * 24 * 60 * 60 * 1000;
-  return returnDueDate.getTime() - from.getTime() <= maxMs;
+  return returnDueDate.getTime() - pickupDueDate.getTime() <= maxMs;
 }
 
 /**

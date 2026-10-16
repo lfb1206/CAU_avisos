@@ -9,27 +9,35 @@ vi.mock('@/lib/prisma', () => ({
 }));
 
 import { prisma } from '@/lib/prisma';
-import { getAvailability, isReturnDueDateWithinCap, MAX_LOAN_DURATION_DAYS } from './inventory';
+import { getAvailability, isLoanDurationWithinCap, MAX_LOAN_DURATION_DAYS } from './inventory';
 
-describe('isReturnDueDateWithinCap', () => {
-  const from = new Date('2026-01-01T00:00:00Z');
+describe('isLoanDurationWithinCap', () => {
+  const pickup = new Date('2026-01-01T00:00:00Z');
 
-  it('allows exactly MAX_LOAN_DURATION_DAYS days out', () => {
-    const exact = new Date(from);
+  it('allows exactly MAX_LOAN_DURATION_DAYS days between pickup and return', () => {
+    const exact = new Date(pickup);
     exact.setDate(exact.getDate() + MAX_LOAN_DURATION_DAYS);
-    expect(isReturnDueDateWithinCap(exact, from)).toBe(true);
+    expect(isLoanDurationWithinCap(pickup, exact)).toBe(true);
   });
 
   it('rejects one day beyond the cap', () => {
-    const tooFar = new Date(from);
+    const tooFar = new Date(pickup);
     tooFar.setDate(tooFar.getDate() + MAX_LOAN_DURATION_DAYS + 1);
-    expect(isReturnDueDateWithinCap(tooFar, from)).toBe(false);
+    expect(isLoanDurationWithinCap(pickup, tooFar)).toBe(false);
   });
 
-  it('allows a date in the near future', () => {
-    const soon = new Date(from);
+  it('allows a short loan', () => {
+    const soon = new Date(pickup);
     soon.setDate(soon.getDate() + 1);
-    expect(isReturnDueDateWithinCap(soon, from)).toBe(true);
+    expect(isLoanDurationWithinCap(pickup, soon)).toBe(true);
+  });
+
+  it('is based on pickup-to-return, not request-time-to-return — a far-future pickup with a short loan after it is still valid', () => {
+    const farPickup = new Date(pickup);
+    farPickup.setDate(farPickup.getDate() + 60); // request made today, pickup in 2 months
+    const returnSoonAfter = new Date(farPickup);
+    returnSoonAfter.setDate(returnSoonAfter.getDate() + 3); // only a 3-day loan once picked up
+    expect(isLoanDurationWithinCap(farPickup, returnSoonAfter)).toBe(true);
   });
 });
 
