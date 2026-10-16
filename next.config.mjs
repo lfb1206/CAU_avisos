@@ -2,14 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['@prisma/client'],
-  typescript: {
-    // Type errors in legacy form components (JS→TS migration in progress)
-    // are caught by tsc --noEmit in CI; they don't block production builds.
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // The JS→TS migration these used to wait out is complete (no more @ts-nocheck
+  // anywhere in src/, and eslint.config.mjs now actually parses TypeScript) —
+  // type and lint errors now fail `next build` directly, so a plain `next build`
+  // (e.g. Vercel's default build command) can no longer silently ship one.
 };
 
 export default nextConfig;

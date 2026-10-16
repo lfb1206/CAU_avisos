@@ -12,7 +12,6 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setAll(cookiesToSet: any[]) {
           cookiesToSet.forEach(({ name, value }: { name: string; value: string }) => request.cookies.set(name, value));
           supabaseResponse = NextResponse.next({ request });
@@ -33,7 +32,16 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Redirect unauthenticated users away from protected routes
-  const protectedPrefixes = ['/aviso', '/dashboard', '/cursos', '/coordinador', '/perfil', '/avisos'];
+  const protectedPrefixes = [
+    '/aviso',
+    '/dashboard',
+    '/cursos',
+    '/coordinador',
+    '/perfil',
+    '/avisos',
+    '/prestamos',
+    '/custodio',
+  ];
   const isProtected = pathname === '/' || protectedPrefixes.some((p) => pathname.startsWith(p));
 
   if (!user && isProtected) {

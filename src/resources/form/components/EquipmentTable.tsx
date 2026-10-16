@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 import React, { useEffect, useState } from 'react';
 import type { EquipmentItem } from '@/types';
@@ -61,7 +60,7 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }:
       {equipment.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           <p>No hay equipo registrado</p>
-          <p className="text-sm">Haga clic en "Agregar Equipo" para comenzar</p>
+          <p className="text-sm">Haga clic en &ldquo;Agregar Equipo&rdquo; para comenzar</p>
         </div>
       ) : (
         <div>
@@ -138,7 +137,7 @@ export default function EquipmentTable({ equipment, onUpdate, onRemove, onAdd }:
                       value={item.observaciones || ''}
                       onChange={(e) => handleInputChange(index, 'observaciones', e.target.value)}
                       placeholder="Detalles adicionales..."
-                      rows="2"
+                      rows={2}
                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   </td>

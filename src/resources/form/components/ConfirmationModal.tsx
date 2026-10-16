@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -22,6 +22,31 @@ export default function ConfirmationModal({
   cancelText = 'Cancelar',
   type = 'danger'
 }: ConfirmationModalProps) {
+  // All hooks must run unconditionally before the `isOpen` early return below —
+  // this component used to call useEffect AFTER the guard, which breaks React's
+  // hook-call-order guarantee whenever a mounted instance toggles `isOpen` without
+  // unmounting.
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, handleKeyDown]);
+
   if (!isOpen) return null;
 
   const getTypeStyles = () => {
@@ -60,24 +85,6 @@ export default function ConfirmationModal({
       onClose();
     }
   };
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    }
-    
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
 
   return (
     <div 

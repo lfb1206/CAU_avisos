@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AutocompleteInput from '@/resources/form/components/AutocompleteInput';
+import type { Participant as Participante } from '@/types';
 
 const CATEGORIAS = [
   'Alta montaña',
@@ -13,14 +14,6 @@ const CATEGORIAS = [
   'Esquí / Snowboard',
   'Otro',
 ];
-
-interface Participante {
-  nombre: string;
-  rut: string;
-  telefono: string;
-  email: string;
-  vestimenta?: string;
-}
 
 interface Vehiculo {
   marca: string;

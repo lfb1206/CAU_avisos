@@ -1,11 +1,12 @@
 'use client';
 import React, { useState } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
+import { isTransportValid } from '../../contexts/formValidation';
 import PrintView from '../components/PrintView';
 import EmergencyContactsForm from '../components/EmergencyContactsForm';
 
 export default function Step7FinalReview() {
-  const { formData, checkFormCompletion, updateItem, addItem, removeItem, saveToApi, resetForm, isSaving } = useFormContext();
+  const { formData, updateItem, addItem, removeItem, saveToApi, resetForm, isSaving } = useFormContext();
   const [showPrintView, setShowPrintView] = useState(false);
   const [showEmergencyContactsEditor, setShowEmergencyContactsEditor] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -172,14 +173,17 @@ export default function Step7FinalReview() {
     
     // Transport validation - solo si hay transportes agregados
     if (transporte.length > 0) {
-      const validTransporte = transporte.filter(t => t.tipo && t.conductor);
+      const validTransporte = transporte.filter(isTransportValid);
       if (validTransporte.length === 0) {
-        errors.push('Todos los transportes agregados deben tener tipo y conductor');
+        errors.push('Todos los transportes agregados deben tener tipo y distancia (y conductor si es auto particular)');
       } else {
-        // Verificar campos específicos de cada transporte
+        // Verificar campos específicos de cada transporte — mismo criterio que isTransportValid
         transporte.forEach((item, index) => {
           if (!item.tipo) errors.push(`Tipo del transporte "${item.conductor || `#${index + 1}`}"`);
-          if (!item.conductor) errors.push(`Conductor del transporte "${item.tipo || `#${index + 1}`}"`);
+          if (!item.distancia) errors.push(`Distancia del transporte "${item.tipo || `#${index + 1}`}"`);
+          if (item.tipo?.toLowerCase() === 'auto particular' && !item.conductor) {
+            errors.push(`Conductor del transporte "${item.tipo || `#${index + 1}`}"`);
+          }
         });
       }
     }
@@ -386,7 +390,7 @@ export default function Step7FinalReview() {
               ))}
               {includedEmergencyContacts.length === 0 && (
                 <p className="text-red-600 italic">
-                  No hay cuerpos de rescate seleccionados. Haga clic en "Editar Contactos" para configurar.
+                  No hay cuerpos de rescate seleccionados. Haga clic en &ldquo;Editar Contactos&rdquo; para configurar.
                 </p>
               )}
             </div>

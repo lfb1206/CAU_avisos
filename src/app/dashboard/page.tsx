@@ -51,12 +51,44 @@ function Skeleton({ className }: { className?: string }) {
   return <div className={`animate-pulse bg-gray-200 rounded ${className}`} />;
 }
 
+const loanStatusLabel: Record<string, string> = {
+  pendiente: 'Pendiente',
+  aprobado: 'Aprobado',
+  entregado: 'Entregado',
+  devuelto: 'Devuelto',
+  rechazado: 'Rechazado',
+  cancelado: 'Cancelado',
+};
+
+const loanStatusColor: Record<string, string> = {
+  pendiente: 'bg-yellow-100 text-yellow-700',
+  aprobado: 'bg-blue-100 text-blue-700',
+  entregado: 'bg-green-100 text-green-800',
+  devuelto: 'bg-gray-100 text-gray-500',
+  rechazado: 'bg-red-100 text-red-700',
+  cancelado: 'bg-gray-100 text-gray-500',
+};
+
+interface LoanRequestSummary {
+  id: number;
+  status: string;
+  return_due_date: string;
+  items: { quantity: number; inventory_item: { descripcion: string } }[];
+}
+
+function loanStatusDisplay(loan: LoanRequestSummary): { label: string; color: string } {
+  const overdue = loan.status === 'entregado' && new Date(loan.return_due_date) < new Date();
+  if (overdue) return { label: 'Atrasado', color: 'bg-red-100 text-red-700' };
+  return { label: loanStatusLabel[loan.status] ?? loan.status, color: loanStatusColor[loan.status] ?? 'bg-gray-100 text-gray-500' };
+}
+
 export default function DashboardPage() {
   const { data, isLoading, mutate } = useSWR('/api/dashboard', fetcher);
 
   const profile = data?.profile;
   const avisos = data?.avisos ?? [];
   const inscripciones = data?.inscripciones ?? [];
+  const loanRequests: LoanRequestSummary[] = data?.loanRequests ?? [];
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -227,15 +259,62 @@ export default function DashboardPage() {
         </section>
       </div>
 
-      {!isLoading && (profile?.role === 'admin' || profile?.role === 'coordinador') && (
+      {/* Préstamos */}
+      <section className="mt-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold text-gray-900">Mis Préstamos</h2>
+          <Link href="/prestamos" className="text-sm text-blue-600 hover:text-blue-500 font-medium">
+            + Nueva solicitud
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="space-y-2">
+            {[1, 2].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+          </div>
+        ) : loanRequests.length === 0 ? (
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center text-gray-500">
+            <p className="text-sm">No tienes préstamos de equipo activos.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {loanRequests.map((loan) => {
+              const { label, color } = loanStatusDisplay(loan);
+              const summary = loan.items.map((item) => `${item.quantity}x ${item.inventory_item.descripcion}`).join(', ');
+              return (
+                <Link
+                  key={loan.id}
+                  href={`/prestamos/${loan.id}`}
+                  className="flex items-center justify-between gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">{summary || 'Sin ítems'}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Devolución: {new Date(loan.return_due_date).toLocaleDateString('es-CL')}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full flex-shrink-0 ${color}`}>{label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
+      {!isLoading && (profile?.role === 'admin' || profile?.role === 'coordinador' || profile?.role === 'custodio') && (
         <section className="mt-10 p-4 bg-amber-50 border border-amber-200 rounded-lg">
           <h3 className="text-sm font-semibold text-amber-900 mb-3">
-            {profile.role === 'admin' ? 'Panel de administrador' : 'Panel del coordinador'}
+            {profile.role === 'admin' ? 'Panel de administrador' : profile.role === 'coordinador' ? 'Panel del coordinador' : 'Panel del custodio'}
           </h3>
           <div className="flex flex-wrap gap-3">
             {profile.role === 'coordinador' && (
               <Link href="/coordinador" className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
                 Coordinador
+              </Link>
+            )}
+            {profile.role === 'custodio' && (
+              <Link href="/custodio" className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
+                Custodio de Equipo
               </Link>
             )}
             {profile.role === 'admin' &&
@@ -245,6 +324,7 @@ export default function DashboardPage() {
                 { href: '/admin/cursos', label: 'Talleres' },
                 { href: '/admin/forms', label: 'Formularios' },
                 { href: '/coordinador', label: 'Coordinador' },
+                { href: '/custodio', label: 'Custodio de Equipo' },
               ].map((link) => (
                 <Link key={link.href} href={link.href} className="text-xs px-3 py-1.5 bg-white border border-amber-200 rounded-md text-amber-800 hover:bg-amber-100 transition-colors font-medium">
                   {link.label}

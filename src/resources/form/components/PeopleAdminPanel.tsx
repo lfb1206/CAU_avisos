@@ -8,19 +8,34 @@ interface ProfileEntry {
   role: string;
   is_registered: boolean;
   created_at: string;
+  membership_expires_at: string | null;
+}
+
+interface Pool {
+  id: number;
+  key: string;
+  name: string;
+  custodian_id: string | null;
+  custodian: { id: string; name: string; email: string } | null;
 }
 
 const roleLabel: Record<string, string> = {
   admin: 'Admin',
   coordinador: 'Coordinador',
+  custodio: 'Custodio',
   member: 'Socio',
 };
 
 const roleColor: Record<string, string> = {
   admin: 'bg-red-100 text-red-700',
   coordinador: 'bg-blue-100 text-blue-700',
+  custodio: 'bg-teal-100 text-teal-700',
   member: 'bg-gray-100 text-gray-600',
 };
+
+function isMembershipActive(expiresAt: string | null): boolean {
+  return !!expiresAt && new Date(expiresAt) > new Date();
+}
 
 export default function PeopleAdminPanel() {
   const [profiles, setProfiles] = useState<ProfileEntry[]>([]);
@@ -80,6 +95,26 @@ export default function PeopleAdminPanel() {
     await load();
   };
 
+  const updateProfile = async (profile: ProfileEntry, data: { role?: string; membership_expires_at?: string | null }) => {
+    const res = await fetch(`/api/admin/people/${profile.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      alert(body.error ?? 'No se pudo actualizar.');
+      return;
+    }
+    await load();
+  };
+
+  const handleRenewMembership = (profile: ProfileEntry) => {
+    const oneYearFromNow = new Date();
+    oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+    updateProfile(profile, { membership_expires_at: oneYearFromNow.toISOString() });
+  };
+
   const pending = profiles.filter((p) => !p.is_registered && (!search || p.email.includes(search)));
   const registered = profiles.filter((p) => p.is_registered && (!search || p.email.includes(search) || p.name.toLowerCase().includes(search.toLowerCase())));
 
@@ -122,6 +157,8 @@ export default function PeopleAdminPanel() {
         </form>
         {addError && <p className="mt-2 text-sm text-red-600">{addError}</p>}
       </div>
+
+      <PoolCustodianSection registered={registered} />
 
       {/* Search */}
       <input
@@ -168,22 +205,117 @@ export default function PeopleAdminPanel() {
           <p className="text-sm text-gray-400 py-4">Sin socios registrados.</p>
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100">
-            {registered.map((p) => (
-              <div key={p.id} className="flex items-center justify-between px-4 py-3">
-                <div className="min-w-0">
-                  <span className="text-sm font-medium text-gray-900">
-                    {p.name || <span className="text-gray-400 italic">Sin nombre</span>}
-                  </span>
-                  <span className="ml-2 text-xs text-gray-400">{p.email}</span>
+            {registered.map((p) => {
+              const active = isMembershipActive(p.membership_expires_at);
+              return (
+                <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-gray-900">
+                      {p.name || <span className="text-gray-400 italic">Sin nombre</span>}
+                    </span>
+                    <span className="ml-2 text-xs text-gray-400">{p.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span
+                      className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                      }`}
+                      title={p.membership_expires_at ? new Date(p.membership_expires_at).toLocaleDateString('es-CL') : undefined}
+                    >
+                      {active
+                        ? `Vigente hasta ${new Date(p.membership_expires_at!).toLocaleDateString('es-CL')}`
+                        : 'Sin membresía vigente'}
+                    </span>
+                    <button
+                      onClick={() => handleRenewMembership(p)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Renovar 1 año
+                    </button>
+                    {active && (
+                      <button
+                        onClick={() => updateProfile(p, { membership_expires_at: null })}
+                        className="text-xs text-gray-400 hover:text-red-600"
+                      >
+                        Quitar
+                      </button>
+                    )}
+                    <select
+                      value={p.role}
+                      onChange={(e) => updateProfile(p, { role: e.target.value })}
+                      className={`text-xs font-medium px-2 py-1 rounded-full border-0 ${roleColor[p.role] ?? 'bg-gray-100 text-gray-500'}`}
+                    >
+                      {Object.entries(roleLabel).map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleColor[p.role] ?? 'bg-gray-100 text-gray-500'}`}>
-                  {roleLabel[p.role] ?? p.role}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
+    </div>
+  );
+}
+
+function PoolCustodianSection({ registered }: { registered: ProfileEntry[] }) {
+  const [pools, setPools] = useState<Pool[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/admin/pools');
+      if (!res.ok) { setError('Error al cargar los pools de equipo.'); return; }
+      setPools(await res.json());
+    } catch {
+      setError('Error de conexión.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleAssign = async (pool: Pool, custodianId: string) => {
+    const res = await fetch(`/api/admin/pools/${pool.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ custodian_id: custodianId || null }),
+    });
+    if (!res.ok) { alert('No se pudo asignar el custodio.'); return; }
+    await load();
+  };
+
+  if (loading || error || pools.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 className="text-base font-semibold text-gray-800 mb-1">Custodios de equipo</h2>
+      <p className="text-xs text-gray-500 mb-3">
+        Quien administra el catálogo y las solicitudes de préstamo de cada pool de equipo. Asignar un custodio también requiere darle el rol &quot;Custodio&quot; más abajo.
+      </p>
+      <div className="space-y-2">
+        {pools.map((pool) => (
+          <div key={pool.id} className="flex items-center justify-between gap-3">
+            <span className="text-sm text-gray-700">{pool.name}</span>
+            <select
+              value={pool.custodian_id ?? ''}
+              onChange={(e) => handleAssign(pool, e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+            >
+              <option value="">Sin asignar</option>
+              {registered.map((p) => (
+                <option key={p.id} value={p.id}>{p.name || p.email}</option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

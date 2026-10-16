@@ -1,6 +1,6 @@
-// @ts-nocheck
 'use client';
 import React, { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import type { FormState } from '@/types';
 
 interface PrintViewProps {
@@ -9,14 +9,14 @@ interface PrintViewProps {
 }
 
 export default function PrintView({ formData, onClose }: PrintViewProps) {
-  const printRef = useRef();
+  const printRef = useRef<HTMLDivElement>(null);
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
   const itinerario = Array.isArray(formData.itinerario) ? formData.itinerario : [];
-  
+
   // Estado para manejar tamaños de imágenes
-  const [imageSizes, setImageSizes] = React.useState({});
-  const [hoveredImage, setHoveredImage] = React.useState(null);
-  const [imageNaturalWidths, setImageNaturalWidths] = React.useState({});
+  const [imageSizes, setImageSizes] = React.useState<Record<number, number>>({});
+  const [hoveredImage, setHoveredImage] = React.useState<number | null>(null);
+  const [imageNaturalWidths, setImageNaturalWidths] = React.useState<Record<number, number>>({});
   
   // Función para obtener el tamaño de una imagen
   const getImageSize = (index: number) => {
@@ -30,67 +30,16 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
       [index]: Math.max(50, Math.min(680, newSize)) // Limitar entre 50px y 680px (ancho máximo del documento)
     }));
   };
-  // Obtener riesgos de los supuestos del itinerario que están incluidos
-  const riesgos = [];
-  formData.itinerario.forEach((day) => {
-    (day.supuestos || []).forEach((assumption) => {
-      if ((assumption.accion === 'gestionar' || assumption.accion === 'monitoreo_intenso') && assumption.incluir === true && assumption.causas) {
-        assumption.causas.forEach((causa) => {
-          // Procesar peligros (fuente del riesgo)
-          if (causa.peligros && causa.peligros.length > 0) {
-            causa.peligros.forEach((peligro) => {
-              if (peligro && peligro.trim()) {
-                riesgos.push({
-                  supuesto: assumption.supuesto,
-                  riesgo: 'Peligro presente',
-                  peligro: peligro,
-                  lugar: causa.lugar || '',
-                  accionProbabilidad: causa.accionProbabilidad || '',
-                  accionExposicion: causa.accionExposicion || '',
-                  accionConsecuencias: causa.accionConsecuencias || ''
-                });
-              }
-            });
-          }
-          
-          // Procesar riesgos (lo que nos puede pasar)
-          if (causa.riesgos && causa.riesgos.length > 0) {
-            causa.riesgos.forEach((riesgo) => {
-              if (riesgo && riesgo.trim()) {
-                riesgos.push({
-                  supuesto: assumption.supuesto,
-                  riesgo: riesgo,
-                  peligro: 'Consecuencia del peligro',
-                  lugar: causa.lugar || '',
-                  accionProbabilidad: causa.accionProbabilidad || '',
-                  accionExposicion: causa.accionExposicion || '',
-                  accionConsecuencias: causa.accionConsecuencias || ''
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-  });
   const equipo = Array.isArray(formData.equipo) ? formData.equipo : [];
   const transporte = Array.isArray(formData.transporte) ? formData.transporte : [];
   const weatherImages = formData.basicInfo.weatherImages || [];
   const cuerposRescate = Array.isArray(formData.cuerposRescate) ? formData.cuerposRescate : [];
 
-  // Función para formatear valores (quitar guiones bajos, capitalizar)
-  const formatValue = (value) => {
-    if (!value) return '';
-    return value
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
-  };
-
   // Función para agrupar equipo por categoría con rowspan
   const getGroupedEquipmentWithRowspan = () => {
-    const grouped = {};
+    const grouped: Record<string, string[]> = {};
     const checkedEquipment = equipo.filter(item => item.checked);
-    
+
     checkedEquipment.forEach(item => {
       if (item.categoria && item.item) {
         if (!grouped[item.categoria]) {
@@ -99,23 +48,32 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
         grouped[item.categoria].push(`${item.item} (${item.cantidad || 1})`);
       }
     });
-    
+
     // Convertir a array con categoría e items separados por coma
-    const result = [];
+    const result: { categoria: string; items: string }[] = [];
     Object.entries(grouped).forEach(([categoria, items]) => {
       result.push({
         categoria: categoria,
         items: items.join(', ')
       });
     });
-    
+
     return result;
   };
 
+  interface ItineraryRow {
+    fecha: string;
+    actividad: string;
+    horaInicio: string;
+    horaFin: string;
+    altitudInicio?: string;
+    altitudFin?: string;
+  }
+
   // Función para agrupar itinerario por tramo con rowspan
   const getGroupedItineraryWithRowspan = () => {
-    const grouped = {};
-    
+    const grouped: Record<string, ItineraryRow[]> = {};
+
     itinerario.forEach(day => {
       if (day.tramo) {
         if (!grouped[day.tramo]) {
@@ -131,9 +89,9 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
         });
       }
     });
-    
+
     // Convertir a array plano con información de rowspan
-    const result = [];
+    const result: (ItineraryRow & { tramo: string | null; tramoRowspan: number })[] = [];
     Object.entries(grouped).forEach(([tramo, items]) => {
       items.forEach((item, index) => {
         result.push({
@@ -143,131 +101,13 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
         });
       });
     });
-    
-    return result;
-  };
 
-  // Función para agrupar supuestos por tramo con rowspan
-  const getGroupedAssumptionsWithRowspan = () => {
-    const grouped = {};
-    
-    itinerario.forEach(day => {
-      if (day.supuestos) {
-        day.supuestos.forEach(assumption => {
-          // Incluir supuestos con acción 'gestionar' (automático) o marcados como incluir: true
-          if (assumption.accion === 'gestionar' || assumption.incluir) {
-            const key = day.tramo;
-            if (!grouped[key]) {
-              grouped[key] = [];
-            }
-            grouped[key].push({
-              supuesto: assumption.supuesto,
-              tipo: assumption.tipoSupuesto,
-              probabilidad: assumption.probabilidad,
-              impacto: assumption.impacto,
-              accion: assumption.accion
-            });
-          }
-        });
-      }
-    });
-    
-    // Convertir a array plano con información de rowspan
-    const result = [];
-    Object.entries(grouped).forEach(([tramo, items]) => {
-      items.forEach((item, index) => {
-        result.push({
-          tramo: index === 0 ? tramo : null,
-          tramoRowspan: index === 0 ? items.length : 0,
-          ...item
-        });
-      });
-    });
-    
-    return result;
-  };
-
-  // Función para agrupar riesgos por supuesto con rowspan
-  const getGroupedRisksWithRowspan = () => {
-    const grouped = {};
-    
-    // Procesar supuestos de gestión de riesgos
-    formData.itinerario.forEach((day, dayIndex) => {
-      (day.supuestos || []).forEach((assumption, assumptionIndex) => {
-        if ((assumption.accion === 'gestionar' || 
-             (assumption.accion === 'monitoreo_intenso' && assumption.incluir === true) ||
-             (assumption.accion === 'monitoreo_normal' && assumption.incluir === true)) && 
-            assumption.causas && assumption.causas.length > 0) {
-          
-          // Usar una clave única que incluya el índice del supuesto para evitar conflictos
-          const uniqueKey = `${assumption.supuesto}_${dayIndex}_${assumptionIndex}`;
-          const displayKey = assumption.supuesto; // Para mostrar en la tabla
-          
-          if (!grouped[uniqueKey]) {
-            grouped[uniqueKey] = {
-              displayKey: displayKey,
-              items: []
-            };
-          }
-          
-          // Procesar cada causa del supuesto
-          assumption.causas.forEach((causa) => {
-            // Combinar peligros y riesgos en formato "riesgo 1 / peligro 1, riesgo 2 / peligro 2"
-            const peligros = (causa.peligros || []).filter(p => p.trim());
-            const riesgos = (causa.riesgos || []).filter(r => r.trim());
-            
-            let riesgosRelevantes = '';
-            if (peligros.length > 0 && riesgos.length > 0) {
-              // Si hay ambos, combinar en pares
-              const maxLength = Math.max(peligros.length, riesgos.length);
-              const combinados = [];
-              for (let i = 0; i < maxLength; i++) {
-                const riesgo = riesgos[i] || '';
-                const peligro = peligros[i] || '';
-                if (riesgo || peligro) {
-                  combinados.push(`${riesgo} / ${peligro}`);
-                }
-              }
-              riesgosRelevantes = combinados.join(', ');
-            } else if (peligros.length > 0) {
-              // Solo peligros
-              riesgosRelevantes = peligros.join(', ');
-            } else if (riesgos.length > 0) {
-              // Solo riesgos
-              riesgosRelevantes = riesgos.join(', ');
-            }
-            
-            grouped[uniqueKey].items.push({
-              supuesto: displayKey,
-              riesgosRelevantes: riesgosRelevantes,
-              lugar: causa.lugar || '',
-              accionProbabilidad: causa.accionProbabilidad || '',
-              accionExposicion: causa.accionExposicion || '',
-              accionConsecuencias: causa.accionConsecuencias || ''
-            });
-          });
-        }
-      });
-    });
-    
-    // Convertir a array plano con información de rowspan
-    const result = [];
-    Object.entries(grouped).forEach(([uniqueKey, group]) => {
-      group.items.forEach((item, index) => {
-        result.push({
-          supuesto: index === 0 ? group.displayKey : null,
-          supuestoRowspan: index === 0 ? group.items.length : 0,
-          ...item
-        });
-      });
-    });
-    
     return result;
   };
 
   // En el componente PrintView, agrega un useEffect para cerrar con ESC
   useEffect(() => {
-    const handleEsc = (e) => {
+    const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleEsc);
@@ -275,14 +115,17 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
   }, [onClose]);
 
   const handlePrint = () => {
+    if (!printRef.current) return;
+
     // Create a new window/iframe for printing
     const printWindow = window.open('', '_blank', 'width=800,height=600');
-    
+    if (!printWindow) return;
+
     // Crear contenido de impresión con tamaños personalizados de imágenes
-    const printContent = printRef.current.cloneNode(true);
-    
+    const printContent = printRef.current.cloneNode(true) as HTMLElement;
+
     // Actualizar tamaños de imágenes en el contenido de impresión
-    const images = printContent.querySelectorAll('.weather-image-container img');
+    const images = printContent.querySelectorAll<HTMLImageElement>('.weather-image-container img');
     images.forEach((img, index) => {
       const size = getImageSize(index);
       img.style.width = `${size}px`;
@@ -523,37 +366,13 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
     };
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleString('es-CL', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatItineraryDate = (dateString) => {
+  const formatItineraryDate = (dateString: string) => {
     if (!dateString) return '';
     return new Date(dateString).toLocaleDateString('es-CL', {
       day: '2-digit',
       month: '2-digit'
     });
   };
-
-  const defaultEquipment = [
-    { item: 'Radio en frecuencia CAU 145.350', cantidad: '1', descripcion: 'Comunicación de emergencia' },
-    { item: 'GPS', cantidad: '1', descripcion: 'Navegación' },
-    { item: 'Teléfono', cantidad: '1', descripcion: 'Comunicación' },
-    { item: 'Linterna', cantidad: '1', descripcion: 'Iluminación' },
-    { item: 'Botiquín', cantidad: '1', descripcion: 'Primeros auxilios' },
-    { item: 'Ropa personal', cantidad: '1', descripcion: 'Vestuario técnico' }
-  ];
-
-  // Filter only checked equipment, or show default if no equipment is checked
-  const checkedEquipment = equipo.filter(item => item.checked);
-  const equipmentToShow = checkedEquipment.length > 0 ? checkedEquipment : 
-                         (equipo.length === 0 ? defaultEquipment : []);
 
   // Ensure we always have at least empty rows for transport and participants
   const participantesToShow = participantes.length > 0 ? participantes : [
@@ -596,7 +415,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
           {/* Header */}
           <div className="header">
             <div className="logo">
-              <img src="/Logo.png" alt="CAU Logo" className="h-16 w-auto" />
+              <Image src="/Logo.png" alt="CAU Logo" width={1151} height={520} className="h-16 w-auto" />
             </div>
             <div className="title">
               <h1>AVISO DE ACTIVIDAD DE MONTAÑA</h1>
@@ -755,8 +574,13 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                     onMouseLeave={() => setHoveredImage(null)}
                     style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}
                   >
-                    <img 
-                      src={image.base64 || image.url || image} 
+                    {/* Plain <img>, not next/image: source is a base64 data URL or
+                        blob URL set by the user, resized live via drag controls and
+                        baked into a printable/cloned DOM subtree in handlePrint —
+                        next/image's remote-optimization pipeline doesn't apply here. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={image.base64 || image.url || ''}
                       alt={`Pronóstico del tiempo ${index + 1}`}
                       style={{
                         width: `${getImageSize(index)}px`,
@@ -764,19 +588,18 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                         objectFit: 'contain',
                         border: '1px solid #ddd',
                         display: 'block',
-                        transition: 'all 0.2s ease',
-                        imageRendering: 'high-quality'
+                        transition: 'all 0.2s ease'
                       }}
-                      onLoad={(e) => {
+                      onLoad={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         // Store natural width to track upscaling
-                        const naturalWidth = e.target.naturalWidth;
+                        const naturalWidth = e.currentTarget.naturalWidth;
                         setImageNaturalWidths(prev => ({
                           ...prev,
                           [index]: naturalWidth
                         }));
                       }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
                     
@@ -990,7 +813,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                   let huellaDisplay = '';
                   if (t.huellaCarbono) {
                     const huellaTotal = parseFloat(t.huellaCarbono);
-                    const capacidad = parseInt(t.capacidad);
+                    const capacidad = t.capacidad ? parseInt(t.capacidad) : NaN;
                     const tipo = t.tipo?.toLowerCase();
                     
                     // Solo calcular por persona para auto particular y bus
@@ -1085,7 +908,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
             <ul className="responsibility-list">
               <li>Informarse de los detalles de la salida de la cordada a monitorear</li>
               <li>Tener conocimiento del protocolo de emergencia a activar en caso de emergencia</li>
-              <li>Estar disponible y "contactable" para verificar el retorno o no retorno de la cordada</li>
+              <li>Estar disponible y &ldquo;contactable&rdquo; para verificar el retorno o no retorno de la cordada</li>
               <li>Dar aviso del retorno o no retorno de la cordada según corresponda</li>
               <li>En caso de no retorno o accidente confirmado activar el protocolo de emergencia</li>
             </ul>
@@ -1106,7 +929,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                 <li>Preguntar a los cuerpos de rescate qué tipo de información, recursos humanos, técnicos o de equipo podría aportar el CAU en el procedimiento.</li>
                 <li>Avisar a los contactos de emergencia de la situación, explicándoles que lo más posible es que se trate de un retraso y no de un accidente. Informar que ya se le dio aviso a los cuerpos de rescate y que el CAU está organizándose un grupo de apoyo para lo que sea requerido por los cuerpos de rescate.</li>
                 <li>Dar aviso por email al e-group Montañismo UC de la situación y solicitar apoyo de señalada por los cuerpos de rescate.</li>
-                <li>El DT se encargará de convocar en primera instancia un grupo de búsqueda que pueda prepararse y permanecer "en espera" en caso de ser requerido.</li>
+                <li>El DT se encargará de convocar en primera instancia un grupo de búsqueda que pueda prepararse y permanecer &ldquo;en espera&rdquo; en caso de ser requerido.</li>
                 <li>Mantener al club informado a través del e-group de los acontecimientos importantes</li>
               </ul>
             </div>
@@ -1120,7 +943,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                 <li>Preguntar a los cuerpos de rescate qué tipo de información, recursos humanos, técnicos o de equipo podría aportar el CAU en el procedimiento.</li>
                 <li>Avisar a los contactos de emergencia de la situación. Informar que ya se le dio aviso a los cuerpos de rescate y que el CAU está organizándose un grupo de apoyo para lo que sea requerido por los cuerpos de rescate. Mantengán la calma</li>
                 <li>Dar aviso por email al e-group Montañismo UC de la situación y solicitar apoyo de señalada por los cuerpos de rescate.</li>
-                <li>El DT se encargará de convocar en primera instancia un grupo de rescate que pueda prepararse y permanecer "en espera" en caso de ser requerido.</li>
+                <li>El DT se encargará de convocar en primera instancia un grupo de rescate que pueda prepararse y permanecer &ldquo;en espera&rdquo; en caso de ser requerido.</li>
                 <li>Mantener al club informado a través del e-group de los acontecimientos importantes</li>
               </ul>
             </div>

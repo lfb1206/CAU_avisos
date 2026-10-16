@@ -29,6 +29,7 @@ yarn-error.log*
 
 # real member PII — never commit, seed locally only
 prisma/seed/data/people.local.json
+prisma/seed/data/inventory.local.json
 Socios CAU Vigentes*.csv
 *.csv
 

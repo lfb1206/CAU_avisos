@@ -272,13 +272,15 @@ export default async function TallerDetailPage({ params }: PageProps) {
                 const userStatus = edicion.inscripciones[0]?.status ?? null;
                 const isUserAyudante = edicion.ayudantias.length > 0;
                 const spotsLeft = edicion.capacity - edicion._count.inscripciones;
-                const ayudanteSpotsLeft = edicion.max_ayudantes - edicion._count.ayudantias;
                 const canPostular =
                   user &&
                   memberStatus !== 'bloqueado' &&
                   edicion.enrollment_open &&
                   edicion.status !== 'finalizada' &&
                   !userStatus;
+                // Not capped by max_ayudantes — that governs how many the
+                // coordinador selects, not who may apply. Applications stay open
+                // so there's a full pool to choose from.
                 const canBeAyudante =
                   user &&
                   memberStatus === 'completado' &&

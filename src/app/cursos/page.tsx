@@ -161,7 +161,10 @@ export default function CursosPage() {
   const { data, isLoading } = useSWR('/api/cursos', fetcher);
   const [selectedTaller, setSelectedTaller] = useState<TallerRow | null>(null);
 
-  const talleres: TallerRow[] = data?.talleres ?? [];
+  // Memoized so its reference is stable across renders when `data` hasn't changed —
+  // without this, the `?? []` fallback creates a new array every render, which was
+  // making the useMemo hooks below think their `talleres` dependency always changed.
+  const talleres: TallerRow[] = useMemo(() => data?.talleres ?? [], [data]);
   const userActivePoints: number = data?.userActivePoints ?? 0;
   const isLoggedIn = data !== undefined && !data?.error;
 

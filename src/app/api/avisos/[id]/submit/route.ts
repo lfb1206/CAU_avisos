@@ -1,42 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { AVISOS_FROM } from '@/lib/email';
+import { extractSearchFields } from '@/lib/avisoSearchFields';
 
 type RouteContext = { params: Promise<{ id: string }> };
-
-function extractSearchFields(tipo: string, formData: Record<string, unknown>) {
-  if (tipo === 'rapido') {
-    const d = formData as {
-      categoria?: string;
-      cerro?: string;
-      fechaInicio?: string;
-      participantes?: { nombre?: string }[];
-    };
-    return {
-      location:              d.cerro ?? null,
-      activity_type:         d.categoria ?? null,
-      activity_date:         d.fechaInicio ? new Date(d.fechaInicio) : null,
-      participant_names_text: (d.participantes ?? []).map((p) => p.nombre ?? '').join(' '),
-    };
-  }
-  // largo
-  const d = formData as {
-    basicInfo?: {
-      cerroOSector?: string;
-      actividad?: string;
-      fechaHoraReporteRegreso?: string;
-    };
-    participantes?: { nombre?: string }[];
-  };
-  return {
-    location:              d.basicInfo?.cerroOSector ?? null,
-    activity_type:         d.basicInfo?.actividad ?? null,
-    activity_date:         d.basicInfo?.fechaHoraReporteRegreso
-      ? new Date(d.basicInfo.fechaHoraReporteRegreso)
-      : null,
-    participant_names_text: (d.participantes ?? []).map((p) => p.nombre ?? '').join(' '),
-  };
-}
 
 export async function POST(_request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
@@ -109,7 +77,7 @@ async function sendAvisoEmail(avisoId: number, tipo: string, formData: Record<st
   if (!emailTo) return;
 
   await resend.emails.send({
-    from: 'CAU Avisos <avisos@cau.cl>',
+    from: AVISOS_FROM,
     to: [emailTo],
     subject: `Aviso de Salida CAU #${avisoId} — ${cerro ?? 'Sin sector'}`,
     html: `

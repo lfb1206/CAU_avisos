@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 import React, { useState, useEffect } from 'react';
 
@@ -23,9 +22,31 @@ interface MedicalOpts {
   medicalConditions: string[];
 }
 
+interface BasicOptions {
+  actividad: string[];
+  cerroSector: string[];
+  tramo: string[];
+  dificultad: string[];
+}
+
+interface AssumptionRecommendation {
+  supuesto: string;
+  tipoSupuesto: string;
+  probabilidad: string;
+  impacto: string;
+}
+
+type AssumptionRecsState = Record<string, AssumptionRecommendation[]>;
+
+interface EditingAssumption {
+  difficulty: string;
+  index: number;
+  data: AssumptionRecommendation;
+}
+
 export default function FormsAdminPanel() {
   const [activeTab, setActiveTab] = useState('basic');
-  const [basicOptions, setBasicOptions] = useState({ actividad: [], cerroSector: [], tramo: [], dificultad: [] });
+  const [basicOptions, setBasicOptions] = useState<BasicOptions>({ actividad: [], cerroSector: [], tramo: [], dificultad: [] });
 
   const [transportOpts, setTransportOpts] = useState<TransportOpts>({
     transportTypes: [],
@@ -36,7 +57,7 @@ export default function FormsAdminPanel() {
     allergies: [],
     medicalConditions: [],
   });
-  const [assumptionRecs, setAssumptionRecs] = useState({});
+  const [assumptionRecs, setAssumptionRecs] = useState<AssumptionRecsState>({});
 
   useEffect(() => {
     fetch('/api/basicOptions')
@@ -48,9 +69,9 @@ export default function FormsAdminPanel() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data?.supuestos)) {
-          const grouped = {};
-          data.supuestos.forEach((s) => {
-            (s.dificultades || []).forEach((d) => {
+          const grouped: AssumptionRecsState = {};
+          data.supuestos.forEach((s: { dificultades?: string[]; supuesto: string; categoria?: string }) => {
+            (s.dificultades || []).forEach((d: string) => {
               (grouped[d] = grouped[d] || []).push({
                 supuesto: s.supuesto,
                 tipoSupuesto: s.categoria || '',
@@ -93,149 +114,137 @@ export default function FormsAdminPanel() {
   }, []);
 
   const [showAddAssumption, setShowAddAssumption] = useState(false);
-  const [editingAssumption, setEditingAssumption] = useState(null);
+  const [editingAssumption, setEditingAssumption] = useState<EditingAssumption | null>(null);
   const [showAddDifficulty, setShowAddDifficulty] = useState(false);
   const [newDifficulty, setNewDifficulty] = useState('');
 
   // Estados para agregar datos básicos
   const [showAddBasic, setShowAddBasic] = useState(false);
-  const [basicType, setBasicType] = useState('');
+  const [basicType, setBasicType] = useState<keyof BasicOptions | ''>('');
   const [newBasicItem, setNewBasicItem] = useState('');
 
   // Estados para agregar datos de transporte
   const [showAddTransport, setShowAddTransport] = useState(false);
-  const [transportType, setTransportType] = useState('');
+  const [transportType, setTransportType] = useState<keyof TransportOpts | ''>('');
   const [newTransportItem, setNewTransportItem] = useState('');
 
   // Estados para agregar datos médicos
   const [showAddMedical, setShowAddMedical] = useState(false);
-  const [medicalType, setMedicalType] = useState('');
+  const [medicalType, setMedicalType] = useState<keyof MedicalOpts | ''>('');
   const [newMedicalItem, setNewMedicalItem] = useState('');
 
-  const handleSaveAssumption = (assumptionData) => {
-    const updatedRecs = { ...assumptionRecs };
-
-    if (editingAssumption) {
-      updatedRecs[editingAssumption.difficulty][editingAssumption.index] = {
+  const handleSaveAssumption = (assumptionData: AssumptionRecommendation & { difficulty: string }) => {
+    setAssumptionRecs((prev) => {
+      const updatedRecs = { ...prev };
+      const rec: AssumptionRecommendation = {
         supuesto: assumptionData.supuesto,
         tipoSupuesto: assumptionData.tipoSupuesto,
         probabilidad: assumptionData.probabilidad,
-        impacto: assumptionData.impacto
+        impacto: assumptionData.impacto,
       };
-    } else {
-      if (!updatedRecs[assumptionData.difficulty]) {
-        updatedRecs[assumptionData.difficulty] = [];
-      }
-      updatedRecs[assumptionData.difficulty].push({
-        supuesto: assumptionData.supuesto,
-        tipoSupuesto: assumptionData.tipoSupuesto,
-        probabilidad: assumptionData.probabilidad,
-        impacto: assumptionData.impacto
-      });
-    }
 
-    setAssumptionRecs(updatedRecs);
+      if (editingAssumption) {
+        updatedRecs[editingAssumption.difficulty] = [...updatedRecs[editingAssumption.difficulty]];
+        updatedRecs[editingAssumption.difficulty][editingAssumption.index] = rec;
+      } else {
+        updatedRecs[assumptionData.difficulty] = [...(updatedRecs[assumptionData.difficulty] || []), rec];
+      }
+      return updatedRecs;
+    });
     setShowAddAssumption(false);
     setEditingAssumption(null);
   };
 
-  const handleDeleteAssumption = (difficulty, index) => {
+  const handleDeleteAssumption = (difficulty: string, index: number) => {
     if (confirm('¿Eliminar este supuesto?')) {
-      const updatedRecs = { ...assumptionRecs };
-      updatedRecs[difficulty] = updatedRecs[difficulty].filter((_, i) => i !== index);
-      setAssumptionRecs(updatedRecs);
+      setAssumptionRecs((prev) => ({
+        ...prev,
+        [difficulty]: prev[difficulty].filter((_, i) => i !== index),
+      }));
     }
   };
 
   const handleAddDifficulty = () => {
     if (newDifficulty.trim()) {
-      const updatedRecs = { ...assumptionRecs };
-      updatedRecs[newDifficulty.trim()] = [];
-      setAssumptionRecs(updatedRecs);
+      setAssumptionRecs((prev) => ({ ...prev, [newDifficulty.trim()]: [] }));
       setNewDifficulty('');
       setShowAddDifficulty(false);
     }
   };
 
-  const handleDeleteDifficulty = (difficulty) => {
+  const handleDeleteDifficulty = (difficulty: string) => {
     if (confirm(`¿Eliminar la dificultad "${difficulty}" y todos sus supuestos?`)) {
-      const updatedRecs = { ...assumptionRecs };
-      delete updatedRecs[difficulty];
-      setAssumptionRecs(updatedRecs);
+      setAssumptionRecs((prev) => {
+        const updatedRecs = { ...prev };
+        delete updatedRecs[difficulty];
+        return updatedRecs;
+      });
     }
   };
 
   // Funciones para datos básicos
   const handleAddBasicItem = () => {
     if (newBasicItem.trim() && basicType) {
-      const updatedOptions = { ...basicOptions };
-      if (updatedOptions[basicType]) {
-        updatedOptions[basicType].push(newBasicItem.trim());
-        setBasicOptions(updatedOptions);
-        setNewBasicItem('');
-        setBasicType('');
-        setShowAddBasic(false);
-      }
+      setBasicOptions((prev) => ({ ...prev, [basicType]: [...prev[basicType], newBasicItem.trim()] }));
+      setNewBasicItem('');
+      setBasicType('');
+      setShowAddBasic(false);
     }
   };
 
-  const handleDeleteBasicItem = (type, index) => {
+  const handleDeleteBasicItem = (type: keyof BasicOptions, index: number) => {
     if (confirm('¿Eliminar este elemento?')) {
-      const updatedOptions = { ...basicOptions };
-      updatedOptions[type] = updatedOptions[type].filter((_, i) => i !== index);
-      setBasicOptions(updatedOptions);
+      setBasicOptions((prev) => ({ ...prev, [type]: prev[type].filter((_, i) => i !== index) }));
     }
   };
 
   // Funciones para datos de transporte (local display only — changes are not persisted back to DB here)
   const handleAddTransportItem = () => {
-    if (newTransportItem.trim() && transportType) {
-      const updatedOptions = { ...transportOpts };
-      if (updatedOptions[transportType]) {
-        if (transportType === 'transportTypes') {
-          updatedOptions[transportType].push({ value: newTransportItem.trim().toLowerCase().replace(/\s+/g, '_'), label: newTransportItem.trim() });
-        } else {
-          updatedOptions[transportType].push(newTransportItem.trim());
-        }
-        setTransportOpts(updatedOptions);
-        setNewTransportItem('');
-        setTransportType('');
-        setShowAddTransport(false);
-      }
+    if (!newTransportItem.trim() || !transportType) return;
+    if (transportType === 'transportTypes') {
+      const option = { value: newTransportItem.trim().toLowerCase().replace(/\s+/g, '_'), label: newTransportItem.trim() };
+      setTransportOpts((prev) => ({ ...prev, transportTypes: [...prev.transportTypes, option] }));
+    } else {
+      setTransportOpts((prev) => ({ ...prev, vehicleBrands: [...prev.vehicleBrands, newTransportItem.trim()] }));
     }
+    setNewTransportItem('');
+    setTransportType('');
+    setShowAddTransport(false);
   };
 
-  const handleDeleteTransportItem = (type, index) => {
-    if (confirm('¿Eliminar este elemento?')) {
-      const updatedOptions = { ...transportOpts };
-      updatedOptions[type] = updatedOptions[type].filter((_, i) => i !== index);
-      setTransportOpts(updatedOptions);
+  const handleDeleteTransportItem = (type: keyof TransportOpts, index: number) => {
+    if (!confirm('¿Eliminar este elemento?')) return;
+    if (type === 'transportTypes') {
+      setTransportOpts((prev) => ({ ...prev, transportTypes: prev.transportTypes.filter((_, i) => i !== index) }));
+    } else {
+      setTransportOpts((prev) => ({ ...prev, vehicleBrands: prev.vehicleBrands.filter((_, i) => i !== index) }));
     }
   };
 
   // Funciones para datos médicos (local display only)
   const handleAddMedicalItem = () => {
-    if (newMedicalItem.trim() && medicalType) {
-      const updatedOptions = { ...medicalOpts };
-      if (updatedOptions[medicalType]) {
-        if (medicalType === 'bloodTypes') {
-          updatedOptions[medicalType].push({ value: newMedicalItem.trim().toLowerCase().replace(/\s+/g, '_'), label: newMedicalItem.trim() });
-        } else {
-          updatedOptions[medicalType].push(newMedicalItem.trim());
-        }
-        setMedicalOpts(updatedOptions);
-        setNewMedicalItem('');
-        setMedicalType('');
-        setShowAddMedical(false);
-      }
+    if (!newMedicalItem.trim() || !medicalType) return;
+    if (medicalType === 'bloodTypes') {
+      const option = { value: newMedicalItem.trim().toLowerCase().replace(/\s+/g, '_'), label: newMedicalItem.trim() };
+      setMedicalOpts((prev) => ({ ...prev, bloodTypes: [...prev.bloodTypes, option] }));
+    } else if (medicalType === 'allergies') {
+      setMedicalOpts((prev) => ({ ...prev, allergies: [...prev.allergies, newMedicalItem.trim()] }));
+    } else {
+      setMedicalOpts((prev) => ({ ...prev, medicalConditions: [...prev.medicalConditions, newMedicalItem.trim()] }));
     }
+    setNewMedicalItem('');
+    setMedicalType('');
+    setShowAddMedical(false);
   };
 
-  const handleDeleteMedicalItem = (type, index) => {
-    if (confirm('¿Eliminar este elemento?')) {
-      const updatedOptions = { ...medicalOpts };
-      updatedOptions[type] = updatedOptions[type].filter((_, i) => i !== index);
-      setMedicalOpts(updatedOptions);
+  const handleDeleteMedicalItem = (type: keyof MedicalOpts, index: number) => {
+    if (!confirm('¿Eliminar este elemento?')) return;
+    if (type === 'bloodTypes') {
+      setMedicalOpts((prev) => ({ ...prev, bloodTypes: prev.bloodTypes.filter((_, i) => i !== index) }));
+    } else if (type === 'allergies') {
+      setMedicalOpts((prev) => ({ ...prev, allergies: prev.allergies.filter((_, i) => i !== index) }));
+    } else {
+      setMedicalOpts((prev) => ({ ...prev, medicalConditions: prev.medicalConditions.filter((_, i) => i !== index) }));
     }
   };
 
@@ -615,7 +624,7 @@ export default function FormsAdminPanel() {
                 <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
                 <select
                   value={basicType}
-                  onChange={(e) => setBasicType(e.target.value)}
+                  onChange={(e) => setBasicType(e.target.value as keyof BasicOptions)}
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   required
                 >
@@ -665,7 +674,7 @@ export default function FormsAdminPanel() {
                 <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
                 <select
                   value={transportType}
-                  onChange={(e) => setTransportType(e.target.value)}
+                  onChange={(e) => setTransportType(e.target.value as keyof TransportOpts)}
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   required
                 >
@@ -714,7 +723,7 @@ export default function FormsAdminPanel() {
                 <label className="block text-sm font-medium text-gray-700">Tipo de Elemento</label>
                 <select
                   value={medicalType}
-                  onChange={(e) => setMedicalType(e.target.value)}
+                  onChange={(e) => setMedicalType(e.target.value as keyof MedicalOpts)}
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
                   required
                 >
@@ -778,9 +787,17 @@ export default function FormsAdminPanel() {
   );
 }
 
+interface AssumptionFormProps {
+  assumption?: Partial<AssumptionRecommendation>;
+  difficulty?: string;
+  onSave: (data: AssumptionRecommendation & { difficulty: string }) => void;
+  onCancel: () => void;
+  difficulties?: string[];
+}
+
 // Componente para formulario de supuestos
-function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, difficulties = [] }) {
-  const [formData, setFormData] = useState({
+function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, difficulties = [] }: AssumptionFormProps) {
+  const [formData, setFormData] = useState<AssumptionRecommendation & { difficulty: string }>({
     difficulty: difficulty,
     supuesto: assumption.supuesto || '',
     tipoSupuesto: assumption.tipoSupuesto || '',
@@ -788,7 +805,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
     impacto: assumption.impacto || ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
   };
@@ -816,7 +833,7 @@ function AssumptionForm({ assumption = {}, difficulty = '', onSave, onCancel, di
           value={formData.supuesto}
           onChange={(e) => setFormData({ ...formData, supuesto: e.target.value })}
           className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-          rows="3"
+          rows={3}
           required
         />
       </div>

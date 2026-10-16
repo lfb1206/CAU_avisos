@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useFormContext } from '../../contexts/FormContext';
 import ParticipantForm from '../components/ParticipantForm';
 
@@ -49,7 +49,7 @@ export default function Step2Participants() {
   // Ensure participantes is always an array
   const participantes = Array.isArray(formData.participantes) ? formData.participantes : [];
 
-  const addParticipant = () => {
+  const addParticipant = useCallback(() => {
     const newParticipant = {
       nombre: '',
       rut: '',
@@ -64,7 +64,7 @@ export default function Step2Participants() {
       isDuplicate: false
     };
     addItem('participantes', newParticipant);
-  };
+  }, [addItem]);
 
   const updateParticipant = (index: number, field: string, value: unknown) => {
     const updatedParticipant = { ...participantes[index], [field]: value };
@@ -101,12 +101,15 @@ export default function Step2Participants() {
     return memberNames;
   };
 
-  // Auto-add first participant if none exists
+  // Auto-add first participant if none exists. Safe to list addParticipant/length
+  // now that addParticipant (via the now-memoized addItem) has a stable identity —
+  // the effect only re-fires when participantes.length actually changes, and
+  // adding one flips the length away from 0 so it won't loop.
   React.useEffect(() => {
     if (participantes.length === 0) {
       addParticipant();
     }
-  }, []);
+  }, [participantes.length, addParticipant]);
 
   return (
     <div className="space-y-6">

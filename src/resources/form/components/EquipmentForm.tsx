@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 import React, { useState, useCallback, useEffect } from 'react';
 import type { EquipmentItem } from '@/types';
@@ -153,7 +152,7 @@ export default function EquipmentForm({ equipment, index, onUpdate, onRemove }: 
                 value={equipment.observaciones || ''}
                 onChange={(e) => handleInputChange('observaciones', e.target.value)}
                 placeholder="Detalles adicionales sobre el equipo..."
-                rows="2"
+                rows={2}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
               />
             </div>

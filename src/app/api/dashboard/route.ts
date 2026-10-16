@@ -11,7 +11,7 @@ export async function GET() {
   const userId = user.id;
 
   try {
-    const [profile, avisos, inscripciones] = await Promise.all([
+    const [profile, avisos, inscripciones, loanRequests] = await Promise.all([
       prisma.profile.findUnique({
         where: { id: userId },
         select: { name: true, role: true },
@@ -42,9 +42,17 @@ export async function GET() {
         orderBy: { inscrito_at: 'desc' },
         take: 5,
       }),
+      prisma.loanRequest.findMany({
+        where: { user_id: userId, status: { not: 'devuelto' } },
+        include: {
+          items: { include: { inventory_item: { select: { descripcion: true } } } },
+        },
+        orderBy: { requested_at: 'desc' },
+        take: 5,
+      }),
     ]);
 
-    return NextResponse.json({ profile, avisos, inscripciones });
+    return NextResponse.json({ profile, avisos, inscripciones, loanRequests });
   } catch (error) {
     console.error('[dashboard GET]:', error);
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });

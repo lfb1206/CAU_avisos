@@ -35,8 +35,11 @@ export interface Participant {
   medicamentos?: string;
   enfermedades?: string;
   condicionesEspeciales?: string;
-  contactoEmergencia: string;
-  telefonoEmergencia: string;
+  // Optional on the type: aviso rápido's lighter flow never collects these.
+  // isParticipantValid (src/resources/contexts/formValidation.ts) still enforces
+  // them as required at runtime for the aviso largo flow.
+  contactoEmergencia?: string;
+  telefonoEmergencia?: string;
   vestimenta?: string;   // clothing description for terrain identification
   mochila?: string;      // backpack description for terrain identification
   isDuplicate?: boolean;
@@ -129,6 +132,7 @@ export type FormAction =
   | { type: 'SET_AVISO_ID'; avisoId: number }
   | { type: 'RESET_FORM' }
   | { type: 'UPDATE_WEATHER_IMAGES'; images: WeatherImage[] }
+  | { type: 'SET_CUERPOS_RESCATE'; cuerposRescate: RescueBody[] }
   | { type: 'LOAD_SAVED_DATA'; data: Partial<FormState> };
 
 // ── Context value ─────────────────────────────────────────────────────────────
@@ -178,7 +182,7 @@ export type InscripcionStatus =
   | 'reprobado'
   | 'retirado'
   | 'rezagado';
-export type UserRole = 'admin' | 'coordinador' | 'member';
+export type UserRole = 'admin' | 'coordinador' | 'custodio' | 'member';
 export type MemberCourseStatus = 'completado' | 'disponible' | 'bloqueado';
 
 export interface Taller {
@@ -227,4 +231,78 @@ export interface CoursePoints {
   description?: string | null;
   earned_at: string;
   expires_at: string;
+}
+
+// ── Equipo Club (lending) ──────────────────────────────────────────────────────
+
+export type ItemCondition = 'nuevo' | 'bueno' | 'con_uso' | 'gastado' | 'roto';
+export type LoanStatus = 'pendiente' | 'aprobado' | 'entregado' | 'devuelto' | 'rechazado' | 'cancelado';
+
+export interface InventoryPool {
+  id: number;
+  key: string;
+  name: string;
+  custodian_id?: string | null;
+  requisitos?: string | null;
+}
+
+export interface InventoryItem {
+  id: number;
+  pool_id: number;
+  uso: string;
+  descripcion: string;
+  cantidad: number;
+  estado: ItemCondition;
+  en_inspeccion: number;
+  fecha_compra?: string | null;
+  observaciones?: string | null;
+  active: boolean;
+  /** Present only on responses that compute it (browse/catalog list), never stored. */
+  disponible?: number;
+}
+
+export interface LoanItem {
+  id: number;
+  loan_request_id: number;
+  inventory_item_id: number;
+  quantity: number;
+  inventory_item?: Pick<InventoryItem, 'id' | 'descripcion' | 'uso'>;
+}
+
+export interface LoanRequest {
+  id: number;
+  pool_id: number;
+  user_id: string;
+  aviso_id?: number | null;
+  status: LoanStatus;
+  cancel_reason?: string | null;
+  return_due_date: string;
+  pickup_photo_base64?: string | null;
+  return_photo_base64?: string | null;
+  return_photo_uploaded_at?: string | null;
+  notas_custodio?: string | null;
+  requested_at: string;
+  decided_at?: string | null;
+  delivered_at?: string | null;
+  returned_at?: string | null;
+  items?: LoanItem[];
+  /** Present on custodio-facing responses only. */
+  user?: { id: string; name: string; email: string; phone?: string | null; rut?: string | null };
+  /** Privacy-safe aviso summary only — never the full form_data. */
+  aviso?: {
+    id: number;
+    location: string | null;
+    activity_date: string | null;
+    activity_type: string | null;
+    participant_names_text: string | null;
+  } | null;
+}
+
+/** Cart line used by the member-facing request form before a LoanRequest exists. */
+export interface LoanCartLine {
+  inventory_item_id: number;
+  descripcion: string;
+  uso: string;
+  disponible: number;
+  quantity: number;
 }

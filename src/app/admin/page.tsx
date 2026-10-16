@@ -47,6 +47,13 @@ export default async function AdminPage() {
       href: '/admin/cursos',
       icon: '🧗',
       color: 'bg-indigo-500 hover:bg-indigo-600'
+    },
+    {
+      title: 'Gestión de Préstamos',
+      description: 'Catálogo y solicitudes del Equipo Club',
+      href: '/custodio',
+      icon: '🪢',
+      color: 'bg-teal-600 hover:bg-teal-700'
     }
   ];
 

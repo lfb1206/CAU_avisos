@@ -24,7 +24,8 @@ If you're picking this up, treat the code as a working draft rather than a finis
 - **Coordinador panel** — manage course editions ("ediciones"), enrollments, ayudantías (assistant applications), and member points.
 - **Cursos / Talleres** — course catalog, enrollment flow, and printable "fichas" (course record sheets).
 - **Admin panel** — manage people, activities, equipment catalogs, checklists, and form option dictionaries backed by the database (no more hardcoded JS data files).
-- **Auth** — Supabase Auth (email/password) with a member email whitelist enforced at the database level.
+- **Equipo Club / Préstamos** — members browse live equipment availability, request gear tied to one of their own avisos, and a per-pool "custodio" role approves/rejects and tracks pickup/return (with borrower-uploaded return photos for traceability). Replaces a previous external Google Form + Sheet workflow.
+- **Auth** — Supabase Auth (email/password) with a member email whitelist enforced at the database level, plus a per-member active-membership date gating equipment loans and course enrollment.
 
 ## Architecture & stack
 
@@ -53,6 +54,8 @@ src/app/                 Next.js App Router: pages + API routes
   aviso/, avisos/        Aviso de salida creation & viewing
   coordinador/           Course edition / enrollment management
   cursos/                Course catalog & enrollment
+  prestamos/             Equipo Club browsing & loan requests (member-facing)
+  custodio/              Equipment catalog & loan review (custodio-facing)
   auth/                  Login, register, password reset
 src/resources/           Form steps, shared components, constants, contexts
 src/lib/                 Prisma client, Supabase clients, auth helpers
@@ -76,7 +79,9 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...          # server-only, used by admin operations
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-RESEND_API_KEY=...                     # optional, for aviso submission emails
+RESEND_API_KEY=...                     # optional, enables all transactional email below
+RESEND_FROM_AVISOS=...                 # optional, sender for aviso emails (defaults to a CAU address)
+RESEND_FROM_PRESTAMOS=...              # optional, sender for Equipo Club loan emails (defaults to a CAU address)
 ```
 
 ### Install & run
@@ -92,7 +97,10 @@ Also apply the SQL files under `supabase/migrations/` in your Supabase project's
 
 ### Seeding real data
 
-`npm run db:seed` populates most reference data (equipment, activities, talleres, risk options) automatically. The one exception is the **member email whitelist** (`prisma/seed/people.ts`): real CAU member data is intentionally not committed to this repo. To seed it locally, create `prisma/seed/data/people.local.json` (gitignored) as an array of `{ name, rut, phone, email }` objects — only `email` is actually used, to pre-populate the whitelist that lets members register.
+`npm run db:seed` populates most reference data (equipment, activities, talleres, risk options) automatically. Two exceptions, both intentionally excluded from this repo:
+
+- **Member email whitelist** (`prisma/seed/people.ts`): create `prisma/seed/data/people.local.json` (gitignored) as an array of `{ name, rut, phone, email }` objects — only `email` is used, to pre-populate the whitelist that lets members register.
+- **Equipo Club inventory** (`prisma/seed/inventory.ts`): create `prisma/seed/data/inventory.local.json` (gitignored) transcribed from the live spreadsheet — see the type shapes at the top of that file. Run this after seeding people, since it resolves custodian/borrower emails against already-seeded profiles; it's also where currently-outstanding loans need to be seeded so computed availability starts accurate instead of double-booking already-lent gear.
 
 ### Other scripts
 

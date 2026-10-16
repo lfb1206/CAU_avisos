@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -88,7 +89,7 @@ export default function NavigationBar() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <img src="/Logo.png" alt="CAU Logo" className="h-8 w-auto" />
+              <Image src="/Logo.png" alt="CAU Logo" width={1151} height={520} className="h-8 w-auto" priority />
               <span className="text-xl font-semibold text-gray-900 hidden sm:block">
                 Portal CAU
               </span>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { isMembershipActive } from '@/lib/auth';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -16,6 +17,14 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
   try {
+    const profile = await prisma.profile.findUnique({
+      where: { id: user.id },
+      select: { membership_expires_at: true },
+    });
+    if (!profile || !isMembershipActive(profile)) {
+      return NextResponse.json({ error: 'Tu membresía no está vigente.' }, { status: 403 });
+    }
+
     const edicion = await prisma.edicionTaller.findUnique({
       where: { id: edicionId },
       include: { taller: true },

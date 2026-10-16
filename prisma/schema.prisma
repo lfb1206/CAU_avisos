@@ -34,11 +34,17 @@ model Profile {
   emergency_contact  String?
   emergency_phone    String?
 
+  // Membership status — null or a past date means not an active member.
+  // Computed on read (profile.membership_expires_at > now()), never a stored boolean.
+  membership_expires_at DateTime?
+
   avisos          Aviso[]
   inscripciones   Inscripcion[]
   ayudantias      Ayudantia[]
   received_points CoursePoints[] @relation("recipient")
   awarded_points  CoursePoints[] @relation("awarder")
+  custodio_pools  InventoryPool[] @relation("custodian")
+  loan_requests   LoanRequest[]
 
   @@map("profiles")
 }
@@ -46,6 +52,7 @@ model Profile {
 enum UserRole {
   admin
   coordinador
+  custodio
   member
 }
 
@@ -66,7 +73,8 @@ model Aviso {
   created_at             DateTime    @default(now())
   updated_at             DateTime    @updatedAt
 
-  profile Profile @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  profile       Profile       @relation(fields: [created_by], references: [id], onDelete: Cascade)
+  loan_requests LoanRequest[]
 
   @@map("avisos")
 }
@@ -102,6 +110,18 @@ model EquipmentItem {
   active   Boolean @default(true)
 
   @@map("equipment_items")
+}
+
+// ── Rescue bodies (default contact list for the aviso's emergency section) ────
+
+model RescueBody {
+  id              Int     @id @default(autoincrement())
+  nombre          String
+  telefono        String
+  default_incluir Boolean @default(false)
+  order_index     Int     @default(0)
+
+  @@map("rescue_bodies")
 }
 
 // ── Basic form autocomplete options ──────────────────────────────────────────
@@ -320,5 +340,118 @@ model CoursePoints {
   edicion   EdicionTaller? @relation(fields: [edicion_id], references: [id])
 
   @@map("course_points")
+}
+
+// ── Equipo Club (lending) ──────────────────────────────────────────────────────
+// Replaces an external Google Form + Sheet + Apps Script system. "Disponible" and
+// "Prestados" are deliberately NOT stored columns — they're always computed from
+// InventoryItem quantities + active LoanItem reservations (see src/lib/inventory.ts),
+// which is the core fix for the old sheet's manually-edited, frequently-stale counts.
+
+model InventoryPool {
+  id           Int      @id @default(autoincrement())
+  key          String   @unique // stable code, e.g. "equipo_club" — not the display name
+  name         String
+  custodian_id String?  @db.Uuid
+  requisitos   String? // free text, e.g. "Adjuntar aviso de salida"
+  created_at   DateTime @default(now())
+
+  custodian Profile?        @relation("custodian", fields: [custodian_id], references: [id])
+  items     InventoryItem[]
+  loans     LoanRequest[]
+
+  @@map("inventory_pools")
+}
+
+model InventoryItem {
+  id            Int           @id @default(autoincrement())
+  pool_id       Int
+  uso           String // category: "Nieve", "Hielo", "Cuerdas", etc. — free text, custodio-managed
+  descripcion   String
+  cantidad      Int // total units owned
+  estado        ItemCondition @default(bueno)
+  en_inspeccion Int           @default(0) // units out for repair/inspection
+  fecha_compra  DateTime?
+  observaciones String?
+  active        Boolean       @default(true) // soft-delete only — never hard-deleted if it has loan history
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+
+  pool       InventoryPool @relation(fields: [pool_id], references: [id])
+  loan_items LoanItem[]
+
+  @@index([pool_id])
+  @@map("inventory_items")
+}
+
+enum ItemCondition {
+  nuevo
+  bueno
+  con_uso
+  gastado
+  roto
+}
+
+model LoanRequest {
+  id      Int    @id @default(autoincrement())
+  pool_id Int
+  user_id String @db.Uuid // borrower
+
+  // Required at the application layer for new member-created requests; nullable at
+  // the DB level only so historical/seeded loans (which predate this system and have
+  // no real aviso) can exist without one.
+  aviso_id Int?
+
+  status        LoanStatus @default(pendiente)
+  cancel_reason String? // replaces the old sheet's separate No Vigente/Fuera de Plazo/Suspendido/Cancelación flags
+
+  return_due_date DateTime // validated against MAX_LOAN_DURATION_DAYS at creation
+
+  // Pickup photo: captured by the custodio at the physical handoff (deliver action).
+  pickup_photo_base64 String?
+
+  // Return photo: captured by the BORROWER before physically returning the item
+  // (self-service "foto-devolucion" action) — the custodio's return action requires
+  // this to already be set rather than supplying it themselves.
+  return_photo_base64     String?
+  return_photo_uploaded_at DateTime?
+
+  notas_custodio String?
+
+  requested_at DateTime  @default(now())
+  decided_at   DateTime?
+  delivered_at DateTime?
+  returned_at  DateTime?
+
+  pool  InventoryPool @relation(fields: [pool_id], references: [id])
+  user  Profile       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  aviso Aviso?         @relation(fields: [aviso_id], references: [id])
+  items LoanItem[]
+
+  @@index([pool_id, status])
+  @@index([user_id])
+  @@map("loan_requests")
+}
+
+enum LoanStatus {
+  pendiente
+  aprobado
+  entregado
+  devuelto
+  rechazado
+  cancelado
+}
+
+model LoanItem {
+  id                Int @id @default(autoincrement())
+  loan_request_id   Int
+  inventory_item_id Int
+  quantity          Int
+
+  loan_request   LoanRequest   @relation(fields: [loan_request_id], references: [id], onDelete: Cascade)
+  inventory_item InventoryItem @relation(fields: [inventory_item_id], references: [id])
+
+  @@unique([loan_request_id, inventory_item_id])
+  @@map("loan_items")
 }
 

@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
         role: true,
         is_registered: true,
         created_at: true,
+        membership_expires_at: true,
       },
       orderBy: [{ is_registered: 'asc' }, { email: 'asc' }],
     });

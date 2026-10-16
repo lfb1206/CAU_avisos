@@ -51,9 +51,32 @@ export async function requireCoordinador(): Promise<User> {
   return user;
 }
 
+/** Asserts the user has the `custodio` or `admin` role; redirects to /dashboard otherwise. */
+export async function requireCustodio(): Promise<User> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/auth/login');
+
+  const profile = await prisma.profile.findUnique({
+    where: { id: user.id },
+    select: { role: true },
+  });
+  if (!profile || (profile.role !== 'custodio' && profile.role !== 'admin')) {
+    redirect('/dashboard');
+  }
+  return user;
+}
+
 // ── API route guards (return NextResponse on failure) ──────────────────────────
 
 type AuthResult = { user: User; profile: Profile };
+
+/** True when the profile's membership hasn't lapsed. Computed on read — never stored. */
+export function isMembershipActive(profile: { membership_expires_at: Date | null }): boolean {
+  return !!profile.membership_expires_at && profile.membership_expires_at > new Date();
+}
 
 /**
  * Verifies the caller is authenticated.
@@ -95,6 +118,20 @@ export async function apiRequireCoordinador(request: Request): Promise<AuthResul
   if (result instanceof NextResponse) return result;
 
   if (result.profile.role !== 'coordinador' && result.profile.role !== 'admin') {
+    return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
+  }
+  return result;
+}
+
+/**
+ * Verifies the caller is a custodio or admin.
+ * Returns `{ user, profile }` on success, 401 if unauthenticated, 403 if insufficient role.
+ */
+export async function apiRequireCustodio(request: Request): Promise<AuthResult | NextResponse> {
+  const result = await apiRequireAuth(request);
+  if (result instanceof NextResponse) return result;
+
+  if (result.profile.role !== 'custodio' && result.profile.role !== 'admin') {
     return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 });
   }
   return result;

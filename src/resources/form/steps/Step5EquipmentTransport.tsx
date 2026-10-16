@@ -311,7 +311,7 @@ export default function Step5EquipmentTransport() {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mb-4">
             <h4 className="text-sm font-semibold text-blue-900 mb-2">Importante - Checklist de Equipo</h4>
             <p className="text-xs sm:text-sm text-blue-800">
-              <strong>Solo el equipo marcado como "Se está portando" aparecerá en el aviso de salida.</strong>
+              <strong>Solo el equipo marcado como &ldquo;Se está portando&rdquo; aparecerá en el aviso de salida.</strong>
               Use los checkboxes para indicar qué equipo realmente se lleva en la expedición.
             </p>
           </div>

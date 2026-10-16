@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 import React, { useRef } from 'react';
 import type { WeatherImage } from '@/types';
@@ -11,38 +10,43 @@ interface WeatherImageUploadProps {
 }
 
 // Función para comprimir imagen (mejorada para mantener calidad)
-const compressImage = (file, maxWidth = 2000, quality = 0.95) => {
+const compressImage = (file: File, maxWidth = 2000, quality = 0.95): Promise<string> => {
   return new Promise((resolve) => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
-    
+
     img.onload = () => {
       // Calcular nuevas dimensiones manteniendo aspect ratio
       let { width, height } = img;
-      
+
       // Solo redimensionar si es muy grande (más de 2000px)
       if (width > maxWidth) {
         height = (height * maxWidth) / width;
         width = maxWidth;
       }
-      
+
       canvas.width = width;
       canvas.height = height;
-      
+
+      if (!ctx) {
+        resolve('');
+        return;
+      }
+
       // Configurar contexto para mejor calidad
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
-      
+
       // Dibujar imagen con alta calidad
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       // Usar PNG para mejor calidad (sin pérdida) o JPEG con alta calidad
       const format = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
       const compressedBase64 = canvas.toDataURL(format, quality);
       resolve(compressedBase64);
     };
-    
+
     img.src = URL.createObjectURL(file);
   });
 };
@@ -53,18 +57,18 @@ export default function WeatherImageUpload({
   onImageRemove,
   onImageDateUpdate
 }: WeatherImageUploadProps) {
-  const fileInputRef = useRef(null);
-  const dropZoneRef = useRef(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
-  const processFiles = async (files) => {
+  const processFiles = async (files: FileList) => {
     const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-    
+
     for (const file of validFiles) {
       try {
         // Comprimir imagen antes de procesar
         const compressedBase64 = await compressImage(file);
-        
-        const newImage = {
+
+        const newImage: WeatherImage = {
           id: Date.now() + Math.random(),
           file: file,
           name: file.name,
@@ -78,12 +82,12 @@ export default function WeatherImageUpload({
         // Fallback: usar el método original si la compresión falla
         const reader = new FileReader();
         reader.onload = (e) => {
-          const newImage = {
+          const newImage: WeatherImage = {
             id: Date.now() + Math.random(),
             file: file,
             name: file.name,
             url: URL.createObjectURL(file),
-            base64: e.target?.result as string ?? '',
+            base64: (e.target?.result as string) ?? '',
             fechaObtencion: new Date().toISOString().split('T')[0]
           };
           onImageUpload(newImage);
@@ -93,30 +97,30 @@ export default function WeatherImageUpload({
     }
   };
 
-  const handleImageUpload = (event) => {
-    processFiles(event.target.files);
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) processFiles(event.target.files);
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    dropZoneRef.current.classList.add('border-blue-500', 'bg-blue-50');
+    dropZoneRef.current?.classList.add('border-blue-500', 'bg-blue-50');
   };
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    dropZoneRef.current.classList.remove('border-blue-500', 'bg-blue-50');
+    dropZoneRef.current?.classList.remove('border-blue-500', 'bg-blue-50');
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    dropZoneRef.current.classList.remove('border-blue-500', 'bg-blue-50');
+    dropZoneRef.current?.classList.remove('border-blue-500', 'bg-blue-50');
     processFiles(e.dataTransfer.files);
   };
 
-  const removeImage = (imageId) => {
+  const removeImage = (imageId: number) => {
     const removed = weatherImages.find(img => img.id === imageId);
     if (removed && removed.url && !removed.url.startsWith('data:')) {
       // Solo revocar URL si no es base64 (data:)
@@ -166,6 +170,9 @@ export default function WeatherImageUpload({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {weatherImages.map((image) => (
             <div key={image.id} className="relative border border-gray-200 rounded-lg p-3">
+              {/* Plain <img>, not next/image: src is a local blob: object URL from
+                  the just-picked file (see processFiles), not a static/remote asset. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.url}
                 alt={image.name}
@@ -193,4 +200,4 @@ export default function WeatherImageUpload({
       )}
     </div>
   );
-} 
+}

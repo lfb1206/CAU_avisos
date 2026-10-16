@@ -124,7 +124,10 @@ export default function Step4RiskManagement() {
     updateItem('itinerario', dayIndex, updatedItinerario[dayIndex]);
   };
 
-  const removeCausa = (supKey: string, causaIndex: number) => {
+  // Not currently wired to any UI control in this step (dead per the orphaned-file
+  // note above) — kept as the symmetric counterpart to addCausa for whenever this
+  // file is reintegrated. Underscore-prefixed only to satisfy the unused-vars rule.
+  const _removeCausa = (supKey: string, causaIndex: number) => {
     const resolved = resolveSupuesto(supKey);
     if (!resolved) return;
     const { dayIndex, sup, updatedItinerario } = resolved;
@@ -155,9 +158,9 @@ export default function Step4RiskManagement() {
             <div className="text-sm text-gray-400">
               Los supuestos aparecerán aquí solo si:
               <ul className="list-disc list-inside mt-1 space-y-1">
-                <li>Su acción requerida es "Gestionar" (inclusión automática)</li>
-                <li>Su acción es "Monitoreo Intenso" Y están marcados como "Incluir en aviso"</li>
-                <li>Su acción es "Monitoreo Normal" Y están marcados como "Incluir en aviso"</li>
+                <li>Su acción requerida es &ldquo;Gestionar&rdquo; (inclusión automática)</li>
+                <li>Su acción es &ldquo;Monitoreo Intenso&rdquo; Y están marcados como &ldquo;Incluir en aviso&rdquo;</li>
+                <li>Su acción es &ldquo;Monitoreo Normal&rdquo; Y están marcados como &ldquo;Incluir en aviso&rdquo;</li>
               </ul>
             </div>
           </div>
@@ -423,7 +426,7 @@ export default function Step4RiskManagement() {
         <h3 className="text-lg font-semibold text-blue-900 mb-3">Instrucciones para la Gestión de Supuestos</h3>
         <div className="text-sm text-blue-800 space-y-2">
           <p><strong>¿Qué es la Gestión de Supuestos?</strong> Es el proceso de identificar y controlar los peligros que pueden surgir cuando los supuestos del itinerario no se cumplen.</p>
-          <p><strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos marcados como "Gestionar" o "Monitoreo Intenso" que están incluidos en el aviso de salida.</p>
+          <p><strong>¿Qué supuestos aparecen aquí?</strong> Solo los supuestos marcados como &ldquo;Gestionar&rdquo; o &ldquo;Monitoreo Intenso&rdquo; que están incluidos en el aviso de salida.</p>
           <p><strong>¿Cómo gestionar cada supuesto crítico?</strong> Complete para cada uno:</p>
           <ul className="list-disc list-inside ml-4 space-y-1">
             <li><strong>Identificación del Peligro:</strong> ¿Qué puede salir mal si no se cumple el supuesto?</li>

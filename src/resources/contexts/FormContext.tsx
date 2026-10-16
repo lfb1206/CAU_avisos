@@ -1,14 +1,8 @@
 'use client';
 import React, { createContext, useContext, useReducer, useEffect, useState, useCallback } from 'react';
-import { LOCALSTORAGE_KEY, ASSUMPTION_ACTIONS } from '@/resources/constants/formConstants';
-import type {
-  FormState,
-  FormAction,
-  FormContextValue,
-  Participant,
-  ItineraryDay,
-  WeatherImage,
-} from '@/types';
+import { LOCALSTORAGE_KEY } from '@/resources/constants/formConstants';
+import { isStepValid as isStepValidPure, checkFormCompletion as checkFormCompletionPure } from './formValidation';
+import type { FormState, FormAction, FormContextValue, WeatherImage, RescueBody } from '@/types';
 
 const initialFormState: FormState = {
   currentStep: 1,
@@ -29,20 +23,9 @@ const initialFormState: FormState = {
   itinerario: [],
   equipo: [],
   transporte: [],
-  cuerposRescate: [
-    { nombre: 'Socorro Andino Santiago', telefono: '226994764 - 226989094', incluir: true },
-    { nombre: 'Carabineros', telefono: '133', incluir: true },
-    { nombre: 'Bomberos', telefono: '132', incluir: true },
-    { nombre: 'FACH (Fuerza Aérea - Rescate Aéreo)', telefono: '+56 2 2690 1000', incluir: true },
-    { nombre: 'Socorro Andino Magallanes', telefono: '+56 9 6594 4314', incluir: false },
-    { nombre: 'SAMU (Servicio de Atención Médica de Urgencia)', telefono: '131', incluir: false },
-    { nombre: 'PDI (Policía de Investigaciones)', telefono: '134', incluir: false },
-    { nombre: 'Socorro Andino Los Andes', telefono: '+56 9 9442 4294', incluir: false },
-    { nombre: 'Socorro Andino Valparaíso', telefono: '+56 9 8225 7085', incluir: false },
-    { nombre: 'Cuerpo de Socorro Andino Aconcagua', telefono: '+56 9 9164 5890', incluir: false },
-    { nombre: 'CONAF (Emergencias en Parques Nacionales)', telefono: '+56 2 2663 0000', incluir: false },
-    { nombre: 'Armada de Chile (Rescate Marítimo)', telefono: '+56 32 220 8888', incluir: false },
-  ],
+  // Populated from /api/rescueBodyOptions on mount (see FormContextProvider) rather
+  // than hardcoded here, unless a saved draft already has its own values.
+  cuerposRescate: [],
 };
 
 const formReducer = (state: FormState, action: FormAction): FormState => {
@@ -96,6 +79,9 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
     case 'UPDATE_WEATHER_IMAGES':
       return { ...state, basicInfo: { ...state.basicInfo, weatherImages: action.images } };
 
+    case 'SET_CUERPOS_RESCATE':
+      return { ...state, cuerposRescate: action.cuerposRescate };
+
     case 'LOAD_SAVED_DATA': {
       const d = action.data;
       return {
@@ -118,54 +104,6 @@ const formReducer = (state: FormState, action: FormAction): FormState => {
   }
 };
 
-// ── Shared validation helpers ─────────────────────────────────────────────────
-
-const isParticipantValid = (p: Participant): boolean =>
-  Boolean(p.nombre && p.rut && p.telefono && p.contactoEmergencia && p.telefonoEmergencia);
-
-const isItineraryDayValid = (day: ItineraryDay, reporteDate: Date | null): boolean => {
-  if (!day.tramo || !day.actividades || day.actividades.length === 0 || !day.horaInicio || !day.horaFin) {
-    return false;
-  }
-  if (day.fecha) {
-    const today = new Date(new Date().toISOString().split('T')[0]);
-    const tramoDate = new Date(day.fecha);
-    if (tramoDate < today) return false;
-    if (reporteDate && tramoDate > reporteDate) return false;
-  }
-  return true;
-};
-
-const getRisksCompletionStatus = (itinerario: ItineraryDay[]): boolean => {
-  let managed = 0;
-  let incomplete = 0;
-
-  itinerario.forEach((day) => {
-    (day.supuestos ?? []).forEach((assumption) => {
-      if (
-        assumption.accion === ASSUMPTION_ACTIONS.GESTIONAR ||
-        (assumption.accion === ASSUMPTION_ACTIONS.MONITOREO_INTENSO && assumption.incluir === true)
-      ) {
-        managed++;
-        if (!assumption.causas || assumption.causas.length === 0) {
-          incomplete++;
-        } else {
-          const hasIncompleteCausas = assumption.causas.some(
-            (c) =>
-              !c.peligros || c.peligros.length === 0 ||
-              !c.riesgos || c.riesgos.length === 0 ||
-              c.peligros.some((p) => !p.trim()) ||
-              c.riesgos.some((r) => !r.trim())
-          );
-          if (hasIncompleteCausas) incomplete++;
-        }
-      }
-    });
-  });
-
-  return managed === 0 || incomplete === 0;
-};
-
 // ── Context ───────────────────────────────────────────────────────────────────
 
 const FormContext = createContext<FormContextValue | null>(null);
@@ -176,6 +114,7 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    let draftHasCuerposRescate = false;
     const savedData = localStorage.getItem(LOCALSTORAGE_KEY);
     if (savedData) {
       try {
@@ -186,12 +125,26 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
             url: img.base64 || '',
           }));
         }
+        draftHasCuerposRescate = Array.isArray(parsed.cuerposRescate) && parsed.cuerposRescate.length > 0;
         dispatch({ type: 'LOAD_SAVED_DATA', data: parsed });
       } catch (error) {
         console.error('Error loading form data from localStorage:', error);
       }
     }
     setIsInitialized(true);
+
+    // Only fetch defaults when no saved draft already brought its own list —
+    // never clobber what the user (or a restored draft) already has.
+    if (!draftHasCuerposRescate) {
+      fetch('/api/rescueBodyOptions')
+        .then((r) => r.json())
+        .then((data: RescueBody[]) => {
+          if (Array.isArray(data) && data.length > 0) {
+            dispatch({ type: 'SET_CUERPOS_RESCATE', cuerposRescate: data });
+          }
+        })
+        .catch(() => {});
+    }
   }, []);
 
   useEffect(() => {
@@ -205,33 +158,48 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
     );
   }, [formData, isInitialized]);
 
-  const updateFormField = (section: string, field: string, value: unknown) =>
-    dispatch({ type: 'UPDATE_FORM_FIELD', section, field, value });
+  // Memoized so components depending on these in effect/callback dependency
+  // arrays (e.g. Step2Participants' auto-add-first-row effect) get a stable
+  // reference instead of a new function identity on every render.
+  const updateFormField = useCallback(
+    (section: string, field: string, value: unknown) =>
+      dispatch({ type: 'UPDATE_FORM_FIELD', section, field, value }),
+    []
+  );
 
-  const addItem = (section: string, item: unknown) =>
-    dispatch({ type: 'ADD_ITEM', section, item });
+  const addItem = useCallback(
+    (section: string, item: unknown) => dispatch({ type: 'ADD_ITEM', section, item }),
+    []
+  );
 
-  const removeItem = (section: string, index: number) =>
-    dispatch({ type: 'REMOVE_ITEM', section, index });
+  const removeItem = useCallback(
+    (section: string, index: number) => dispatch({ type: 'REMOVE_ITEM', section, index }),
+    []
+  );
 
-  const updateItem = (section: string, index: number, updatedItem: Record<string, unknown>) => {
-    const keys = Object.keys(updatedItem);
-    if (keys.length === 1) {
-      dispatch({ type: 'UPDATE_ITEM', section, index, field: keys[0], value: updatedItem[keys[0]] });
-    } else {
-      dispatch({ type: 'UPDATE_ITEM', section, index, updates: updatedItem });
-    }
-  };
+  const updateItem = useCallback(
+    (section: string, index: number, updatedItem: Record<string, unknown>) => {
+      const keys = Object.keys(updatedItem);
+      if (keys.length === 1) {
+        dispatch({ type: 'UPDATE_ITEM', section, index, field: keys[0], value: updatedItem[keys[0]] });
+      } else {
+        dispatch({ type: 'UPDATE_ITEM', section, index, updates: updatedItem });
+      }
+    },
+    []
+  );
 
-  const goToStep = (step: number) => dispatch({ type: 'SET_STEP', step });
+  const goToStep = useCallback((step: number) => dispatch({ type: 'SET_STEP', step }), []);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     dispatch({ type: 'RESET_FORM' });
     localStorage.removeItem(LOCALSTORAGE_KEY);
-  };
+  }, []);
 
-  const updateWeatherImages = (images: WeatherImage[]) =>
-    dispatch({ type: 'UPDATE_WEATHER_IMAGES', images });
+  const updateWeatherImages = useCallback(
+    (images: WeatherImage[]) => dispatch({ type: 'UPDATE_WEATHER_IMAGES', images }),
+    []
+  );
 
   const saveToApi = useCallback(async (): Promise<{ success: boolean; avisoId?: number; error?: string }> => {
     setIsSaving(true);
@@ -269,94 +237,15 @@ export const FormContextProvider = ({ children }: { children: React.ReactNode })
     }
   }, [formData]);
 
-  const isStepValid = (step: number): boolean => {
-    const participantes = formData.participantes ?? [];
-    const equipo = formData.equipo ?? [];
-    const transporte = formData.transporte ?? [];
-    const itinerario = formData.itinerario ?? [];
-    const reporteDate = formData.basicInfo.fechaHoraReporteRegreso
-      ? new Date(formData.basicInfo.fechaHoraReporteRegreso)
-      : null;
+  // Thin wrappers over the pure, independently-testable predicates in
+  // formValidation.ts — keeps the public FormContextValue API unchanged.
+  const isStepValid = useCallback((step: number) => isStepValidPure(step, formData), [formData]);
 
-    switch (step) {
-      case 1: {
-        const basicValid =
-          formData.basicInfo.contactoCAU &&
-          formData.basicInfo.telefonoContacto &&
-          formData.basicInfo.emailContacto &&
-          formData.basicInfo.fechaHoraReporteRegreso &&
-          formData.basicInfo.actividad &&
-          formData.basicInfo.cerroOSector;
-        const inReachValid =
-          !formData.basicInfo.llevaInreach ||
-          (formData.basicInfo.numeroInreach && formData.basicInfo.codigoInreach);
-        return Boolean(basicValid && inReachValid);
-      }
-      case 2:
-        return participantes.length > 0 && participantes.every(isParticipantValid);
-      case 3:
-        return itinerario.length > 0 && itinerario.every((day) => isItineraryDayValid(day, reporteDate));
-      case 4:
-        return getRisksCompletionStatus(itinerario);
-      case 5: {
-        if (equipo.length === 0 && transporte.length === 0) return true;
-        const validEquipo = equipo.filter((e) => e.categoria && e.item && e.cantidad);
-        const validTransporte = transporte.filter((t) => {
-          if (!t.tipo || !t.distancia) return false;
-          if (t.tipo.toLowerCase() === 'auto particular') return Boolean(t.conductor);
-          return true;
-        });
-        if (equipo.length > 0 && validEquipo.length !== equipo.length) return false;
-        if (transporte.length > 0 && validTransporte.length !== transporte.length) return false;
-        return true;
-      }
-      case 6:
-        return checkFormCompletion();
-      default:
-        return false;
-    }
-  };
+  const checkFormCompletion = useCallback(() => checkFormCompletionPure(formData), [formData]);
 
-  const loadData = (data: Partial<FormState>) => {
+  const loadData = useCallback((data: Partial<FormState>) => {
     dispatch({ type: 'LOAD_SAVED_DATA', data });
-  };
-
-  const checkFormCompletion = (): boolean => {
-    const participantes = formData.participantes ?? [];
-    const equipo = formData.equipo ?? [];
-    const transporte = formData.transporte ?? [];
-    const itinerario = formData.itinerario ?? [];
-    const reporteDate = formData.basicInfo.fechaHoraReporteRegreso
-      ? new Date(formData.basicInfo.fechaHoraReporteRegreso)
-      : null;
-
-    const basicInfoComplete =
-      formData.basicInfo.contactoCAU &&
-      formData.basicInfo.telefonoContacto &&
-      formData.basicInfo.emailContacto &&
-      formData.basicInfo.fechaHoraReporteRegreso &&
-      formData.basicInfo.actividad &&
-      formData.basicInfo.cerroOSector;
-
-    const inReachComplete =
-      !formData.basicInfo.llevaInreach ||
-      (formData.basicInfo.numeroInreach && formData.basicInfo.codigoInreach);
-
-    const validEquipo = equipo.filter((e) => e.categoria && e.item && e.cantidad);
-    const validTransporte = transporte.filter((t) => t.tipo && t.conductor);
-
-    return Boolean(
-      basicInfoComplete &&
-        inReachComplete &&
-        participantes.length > 0 &&
-        participantes.every(isParticipantValid) &&
-        itinerario.length > 0 &&
-        itinerario.every((day) => isItineraryDayValid(day, reporteDate)) &&
-        getRisksCompletionStatus(itinerario) &&
-        (equipo.length === 0 || validEquipo.length === equipo.length) &&
-        (transporte.length === 0 || validTransporte.length === transporte.length)
-    );
-  };
+  }, []);
 
   const value: FormContextValue = {
     formData,

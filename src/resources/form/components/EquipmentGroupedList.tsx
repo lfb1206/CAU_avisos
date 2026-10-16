@@ -1,4 +1,3 @@
-// @ts-nocheck
 'use client';
 import React, { useState, useMemo, useRef } from 'react';
 import type { EquipmentItem } from '@/types';
@@ -10,13 +9,15 @@ interface EquipmentGroupedListProps {
   onRemove: (index: number) => void;
 }
 
+type GroupedEquipmentItem = EquipmentItem & { originalIndex: number };
+
 export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }: EquipmentGroupedListProps) {
-  const [expandedCategories, setExpandedCategories] = useState(new Set());
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const isInitialized = useRef(false);
 
   // Agrupar equipo por categoría usando useMemo para evitar re-renders
   const groupedEquipment = useMemo(() => {
-    return equipment.reduce((groups, item, index) => {
+    return equipment.reduce<Record<string, GroupedEquipmentItem[]>>((groups, item, index) => {
       const category = item.categoria || 'Sin categoría';
       if (!groups[category]) {
         groups[category] = [];
@@ -47,8 +48,8 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }: 
     });
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
+  const getCategoryIcon = (category: string) => {
+    const icons: Record<string, string> = {
       'Equipo de Escalada': '🧗',
       'Equipo Básico': '🎒',
       'Ropa': '👕',
@@ -67,8 +68,8 @@ export default function EquipmentGroupedList({ equipment, onUpdate, onRemove }: 
     return icons[category] || '📦';
   };
 
-  const getCategoryColor = (category) => {
-    const colors = {
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
       'Equipo de Escalada': 'bg-red-100 text-red-800',
       'Equipo Básico': 'bg-blue-100 text-blue-800',
       'Ropa': 'bg-green-100 text-green-800',

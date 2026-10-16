@@ -32,7 +32,7 @@ export default function DynamicFormField({
   const fieldConfig = docFields.find(field => field.name === fieldName);
   
   if (!fieldConfig) {
-    console.warn(`Field configuration not found for: ${fieldName}`);
+    console.error(`Field configuration not found for: ${fieldName}`);
     return null;
   }
 
