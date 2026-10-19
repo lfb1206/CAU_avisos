@@ -13,6 +13,7 @@ const updateSchema = z.object({
   en_inspeccion: z.number().int().min(0).optional(),
   fecha_compra: z.string().optional().nullable(),
   observaciones: z.string().optional().nullable(),
+  instrucciones_uso: z.string().optional().nullable(),
   active: z.boolean().optional(),
 });
 

@@ -58,6 +58,12 @@ describe('/api/coordinador/ediciones/[id]/ayudantias', () => {
       expect(res.status).toBe(400);
     });
 
+    it('rejects a non-boolean asistio value', async () => {
+      const res = await PATCH(mockRequest({ user_id: 'u1', asistio: 'yes' }), routeParams(10));
+      expect(res.status).toBe(400);
+      expect(prismaMock.ayudantia.update).not.toHaveBeenCalled();
+    });
+
     it('updates seleccionado/asistio without touching points when puntos_otorgados is not set', async () => {
       await PATCH(mockRequest({ user_id: 'u1', seleccionado: true, asistio: true }), routeParams(10));
 

@@ -92,6 +92,12 @@ describe('/api/coordinador/ediciones/[id]/inscripciones', () => {
       expect(prismaMock.inscripcion.update).not.toHaveBeenCalled();
     });
 
+    it('rejects a status value that is not a real InscripcionStatus (e.g. a typo)', async () => {
+      const res = await PATCH(mockRequest({ user_id: 'u1', status: 'acceptado' }), routeParams(10));
+      expect(res.status).toBe(400);
+      expect(prismaMock.inscripcion.update).not.toHaveBeenCalled();
+    });
+
     it('accepting an applicant stamps aprobado_at and sets aprobado true', async () => {
       prismaMock.inscripcion.update.mockImplementation(({ data }) => Promise.resolve({ id: 1, ...data }));
 

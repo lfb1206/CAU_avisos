@@ -68,6 +68,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
     horaFin: string;
     altitudInicio?: string;
     altitudFin?: string;
+    altitudMax?: string;
   }
 
   // Función para agrupar itinerario por tramo con rowspan
@@ -85,7 +86,8 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
           horaInicio: day.horaInicio,
           horaFin: day.horaFin,
           altitudInicio: day.altitudInicio,
-          altitudFin: day.altitudFin
+          altitudFin: day.altitudFin,
+          altitudMax: day.altitudMax
         });
       }
     });
@@ -395,7 +397,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            Imprimir Documento
+            Descargar documento
           </button>
           <button
             onClick={onClose}
@@ -536,6 +538,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                     <th>Hora Fin</th>
                     <th>Altitud Inicio (msnm)</th>
                     <th>Altitud Fin (msnm)</th>
+                    <th>Altitud Máxima (msnm)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -550,6 +553,7 @@ export default function PrintView({ formData, onClose }: PrintViewProps) {
                       <td>{item.horaFin}</td>
                       <td>{item.altitudInicio || ''}</td>
                       <td>{item.altitudFin || ''}</td>
+                      <td>{item.altitudMax || ''}</td>
                     </tr>
                   ))}
                 </tbody>

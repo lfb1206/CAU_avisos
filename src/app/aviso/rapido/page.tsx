@@ -2,6 +2,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AutocompleteInput from '@/resources/form/components/AutocompleteInput';
+import PrintViewRapido from '@/resources/form/components/PrintViewRapido';
 import type { Participant as Participante } from '@/types';
 
 const CATEGORIAS = [
@@ -22,7 +23,7 @@ interface Vehiculo {
   color: string;
 }
 
-interface FormData {
+export interface RapidoFormData {
   // Step 1
   categoria: string;
   cerro: string;
@@ -30,6 +31,7 @@ interface FormData {
   fechaInicio: string;
   fechaMaxRegreso: string;
   contactoCau: string;
+  destinatariosAdicionales: string[];
   comentarios: string;
   // Step 2
   participantes: Participante[];
@@ -37,6 +39,8 @@ interface FormData {
   lugarEstacionamiento: string;
   otroTransporte: string;
 }
+
+type FormData = RapidoFormData;
 
 const emptyParticipante = (): Participante => ({ nombre: '', rut: '', telefono: '', email: '' });
 const emptyVehiculo = (): Vehiculo => ({ marca: '', modelo: '', patente: '', color: '' });
@@ -48,6 +52,7 @@ const initialForm: FormData = {
   fechaInicio: '',
   fechaMaxRegreso: '',
   contactoCau: '',
+  destinatariosAdicionales: [],
   comentarios: '',
   participantes: [emptyParticipante()],
   vehiculos: [],
@@ -66,6 +71,8 @@ function AvisoRapidoContent() {
   const [form, setForm] = useState<FormData>(initialForm);
   const [submitting, setSubmitting] = useState(false);
   const [people, setPeople] = useState<{ name: string; email: string }[]>([]);
+  const [showPrintView, setShowPrintView] = useState(false);
+  const [newRecipient, setNewRecipient] = useState('');
 
   // Load draft from localStorage or from existing aviso (clone case)
   useEffect(() => {
@@ -110,6 +117,16 @@ function AvisoRapidoContent() {
       arr[idx] = { ...arr[idx], [field]: value };
       return { ...prev, vehiculos: arr };
     });
+
+  const addRecipient = () => {
+    const email = newRecipient.trim().toLowerCase();
+    if (!email || !/\S+@\S+\.\S+/.test(email) || form.destinatariosAdicionales.includes(email)) return;
+    set('destinatariosAdicionales', [...form.destinatariosAdicionales, email]);
+    setNewRecipient('');
+  };
+
+  const removeRecipient = (email: string) =>
+    set('destinatariosAdicionales', form.destinatariosAdicionales.filter((r) => r !== email));
 
   const fillFromPerson = (idx: number, personName: string) => {
     const p = people.find((p) => p.name === personName);
@@ -268,6 +285,40 @@ function AvisoRapidoContent() {
               placeholder="Nombre del socio de guardia"
               required
             />
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Destinatarios adicionales (opcional)</label>
+            <p className="text-xs text-gray-500">
+              Este aviso no recolecta un correo de contacto propio — si no agregas al menos uno aquí, no se enviará ningún correo de confirmación ni de alerta.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={newRecipient}
+                onChange={(e) => setNewRecipient(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRecipient(); } }}
+                placeholder="correo@ejemplo.cl"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={addRecipient}
+                className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+              >
+                + Agregar
+              </button>
+            </div>
+            {form.destinatariosAdicionales.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {form.destinatariosAdicionales.map((email) => (
+                  <span key={email} className="flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                    {email}
+                    <button type="button" onClick={() => removeRecipient(email)} className="text-gray-400 hover:text-red-600">✕</button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -431,6 +482,13 @@ function AvisoRapidoContent() {
               ← Volver
             </button>
             <button
+              onClick={() => setShowPrintView(true)}
+              disabled={!step2Valid}
+              className="px-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              Previsualizar aviso para descargar
+            </button>
+            <button
               onClick={handleSubmit}
               disabled={!step2Valid || submitting}
               className="flex-1 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors disabled:opacity-50"
@@ -444,6 +502,8 @@ function AvisoRapidoContent() {
       <datalist id="people-list">
         {people.map((p) => <option key={p.name} value={p.name} />)}
       </datalist>
+
+      {showPrintView && <PrintViewRapido formData={form} onClose={() => setShowPrintView(false)} />}
     </div>
   );
 }

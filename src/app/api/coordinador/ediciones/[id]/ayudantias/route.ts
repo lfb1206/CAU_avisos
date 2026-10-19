@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireCoordinador } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const patchAyudantiaSchema = z.object({
+  user_id: z.string().min(1),
+  seleccionado: z.boolean().nullable().optional(),
+  asistio: z.boolean().nullable().optional(),
+  puntos_otorgados: z.boolean().optional(),
+});
 
 // GET /api/coordinador/ediciones/[id]/ayudantias — list ayudantias
 export async function GET(request: NextRequest, { params }: RouteContext) {
@@ -45,25 +53,19 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const edicionId = Number(id);
 
-  const body = (await request.json()) as {
-    user_id: string;
-    seleccionado?: boolean | null;
-    asistio?: boolean | null;
-    puntos_otorgados?: boolean;
-  };
-
-  if (!body.user_id) {
-    return NextResponse.json({ error: 'user_id es requerido' }, { status: 400 });
-  }
+  const body = await request.json().catch(() => ({}));
+  const parsed = patchAyudantiaSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  const { user_id, seleccionado, asistio, puntos_otorgados } = parsed.data;
 
   const updateData: { seleccionado?: boolean | null; asistio?: boolean | null; puntos_otorgados?: boolean } = {};
-  if (body.seleccionado !== undefined) updateData.seleccionado = body.seleccionado;
-  if (body.asistio !== undefined) updateData.asistio = body.asistio;
-  if (body.puntos_otorgados !== undefined) updateData.puntos_otorgados = body.puntos_otorgados;
+  if (seleccionado !== undefined) updateData.seleccionado = seleccionado;
+  if (asistio !== undefined) updateData.asistio = asistio;
+  if (puntos_otorgados !== undefined) updateData.puntos_otorgados = puntos_otorgados;
 
   try {
     const updated = await prisma.ayudantia.update({
-      where: { edicion_id_user_id: { edicion_id: edicionId, user_id: body.user_id } },
+      where: { edicion_id_user_id: { edicion_id: edicionId, user_id } },
       data: updateData,
       select: { id: true, user_id: true, seleccionado: true, asistio: true, puntos_otorgados: true },
     });
@@ -71,9 +73,9 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
     // If awarding points, check for an existing entry before creating to avoid duplicates.
     // We cannot rely on updated.puntos_otorgados being false here because the update has
     // already set it to true, so we do a separate existence check instead.
-    if (body.puntos_otorgados) {
+    if (puntos_otorgados) {
       const existingPoints = await prisma.coursePoints.findFirst({
-        where: { user_id: body.user_id, edicion_id: edicionId },
+        where: { user_id, edicion_id: edicionId },
       });
 
       if (!existingPoints) {
@@ -87,7 +89,7 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
 
         await prisma.coursePoints.create({
           data: {
-            user_id: body.user_id,
+            user_id,
             edicion_id: edicionId,
             points: 1,
             awarded_by: auth.user.id,

@@ -24,8 +24,10 @@ export default async function BibliotecaPage({
   const sp = await searchParams;
   const { q, activity, from, to } = sp;
 
+  // Archived avisos (regreso ya notificado) stay visible here too — they're exactly
+  // the kind of completed-trip reference someone would want to reuse as a template.
   const where: Prisma.AvisoWhereInput = {
-    status: 'submitted',
+    status: { in: ['submitted', 'archived'] },
   };
 
   if (q) {
@@ -47,7 +49,7 @@ export default async function BibliotecaPage({
   });
 
   const activityTypes = await prisma.aviso.findMany({
-    where: { status: 'submitted', activity_type: { not: null } },
+    where: { status: { in: ['submitted', 'archived'] }, activity_type: { not: null } },
     select: { activity_type: true },
     distinct: ['activity_type'],
     orderBy: { activity_type: 'asc' },
@@ -152,6 +154,11 @@ export default async function BibliotecaPage({
                   </span>
                   {aviso.activity_type && (
                     <span className="text-xs text-gray-500">{aviso.activity_type}</span>
+                  )}
+                  {aviso.status === 'archived' && (
+                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                      Regreso notificado
+                    </span>
                   )}
                 </div>
 

@@ -20,6 +20,11 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       NEXT_TELEMETRY_DISABLED: 1
+      # Lets the Sentry webpack plugin upload source maps for this build's release.
+      # Optional: if unset, the plugin just skips the upload with a warning rather
+      # than failing — but note this is NOT what makes Vercel's actual deploy upload
+      # source maps; that build needs SENTRY_AUTH_TOKEN set in Vercel's own env vars.
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - name: Checkout

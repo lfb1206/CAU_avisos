@@ -43,13 +43,16 @@ describe('POST /api/avisos/[id]/submit', () => {
   });
 
   it('submits a draft aviso and derives its search fields from form_data', async () => {
-    prismaMock.aviso.findFirst.mockResolvedValue({
+    const original = {
       id: 1,
       status: 'draft',
       tipo: 'rapido',
       form_data: { categoria: 'Trekking', cerro: 'Cerro Provincia', fechaInicio: '2026-03-01', participantes: [] },
-    });
-    prismaMock.aviso.update.mockImplementation(({ data }) => Promise.resolve({ id: 1, ...data }));
+    };
+    prismaMock.aviso.findFirst.mockResolvedValue(original);
+    // Mirrors Prisma's real behavior: update() returns the full resulting row
+    // (every column, untouched ones included), not just the fields in `data`.
+    prismaMock.aviso.update.mockImplementation(({ data }) => Promise.resolve({ ...original, ...data }));
 
     const res = await POST(mockRequest(), routeParams(1));
     expect(res.status).toBe(200);

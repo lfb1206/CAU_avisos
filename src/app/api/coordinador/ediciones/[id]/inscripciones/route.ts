@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireCoordinador } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
 
 type RouteContext = { params: Promise<{ id: string }> };
+
+const patchInscripcionSchema = z.object({
+  user_id: z.string().min(1),
+  status: z.enum([
+    'postulando',
+    'aceptado',
+    'en_lista',
+    'rechazado',
+    'no_asiste',
+    'completado',
+    'reprobado',
+    'retirado',
+    'rezagado',
+  ]),
+  notas_coordinador: z.string().nullable().optional(),
+  aprobado: z.boolean().nullable().optional(),
+});
 
 // GET /api/coordinador/ediciones/[id]/inscripciones
 // Returns inscripciones for the edicion, sorted by active points descending.
@@ -123,25 +141,19 @@ export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const { id } = await params;
   const edicionId = Number(id);
 
-  const body = (await request.json()) as {
-    user_id: string;
-    status: string;
-    notas_coordinador?: string | null;
-    aprobado?: boolean | null;
-  };
-
-  if (!body.user_id || !body.status) {
-    return NextResponse.json({ error: 'user_id y status son requeridos' }, { status: 400 });
-  }
+  const body = await request.json().catch(() => ({}));
+  const parsed = patchInscripcionSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  const { user_id, status, notas_coordinador, aprobado } = parsed.data;
 
   try {
     const updated = await prisma.inscripcion.update({
-      where: { edicion_id_user_id: { edicion_id: edicionId, user_id: body.user_id } },
+      where: { edicion_id_user_id: { edicion_id: edicionId, user_id } },
       data: {
-        status: body.status as 'aceptado',
-        ...(body.notas_coordinador !== undefined ? { notas_coordinador: body.notas_coordinador } : {}),
-        ...(body.aprobado !== undefined ? { aprobado: body.aprobado } : {}),
-        ...(body.status === 'aceptado' ? { aprobado_at: new Date(), aprobado: true } : {}),
+        status,
+        ...(notas_coordinador !== undefined ? { notas_coordinador } : {}),
+        ...(aprobado !== undefined ? { aprobado } : {}),
+        ...(status === 'aceptado' ? { aprobado_at: new Date(), aprobado: true } : {}),
       },
       select: { id: true, user_id: true, status: true, aprobado: true, notas_coordinador: true },
     });

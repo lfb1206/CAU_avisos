@@ -156,6 +156,7 @@ const docFields: DocField[] = [
       { name: 'horaFin', label: 'Hora Fin', placeholder: 'HH:mm', type: 'time', required: false },
       { name: 'altitudInicio', label: 'Altitud Inicio (msnm)', placeholder: '0', type: 'number', required: false },
       { name: 'altitudFin', label: 'Altitud Fin (msnm)', placeholder: '0', type: 'number', required: false },
+      { name: 'altitudMax', label: 'Altitud Máxima (msnm)', placeholder: '0', type: 'number', required: false },
     ],
   },
 

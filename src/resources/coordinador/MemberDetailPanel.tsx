@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -77,22 +77,27 @@ const statusColor: Record<string, string> = {
 export default function MemberDetailPanel({ userId, onClose }: MemberDetailPanelProps) {
   const [data, setData] = useState<MemberDetail | null>(null);
   const [loading, setLoading] = useState(false);
+  const [backfillModal, setBackfillModal] = useState(false);
 
-  useEffect(() => {
-    if (!userId) {
-      setData(null);
-      return;
-    }
+  const fetchMemberDetail = useCallback((id: string) => {
     setLoading(true);
     setData(null);
-    fetch(`/api/coordinador/members/${userId}`)
+    fetch(`/api/coordinador/members/${id}`)
       .then((r) => r.json())
       .then((d: MemberDetail) => {
         setData(d);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [userId]);
+  }, []);
+
+  useEffect(() => {
+    if (!userId) {
+      setData(null);
+      return;
+    }
+    fetchMemberDetail(userId);
+  }, [userId, fetchMemberDetail]);
 
   if (!userId) return null;
 
@@ -198,11 +203,19 @@ export default function MemberDetailPanel({ userId, onClose }: MemberDetailPanel
             )}
 
             {/* Course history */}
-            {data.inscripciones.length > 0 && (
-              <div>
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide">
                   Historial de talleres
                 </h3>
+                <button
+                  onClick={() => setBackfillModal(true)}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-800"
+                >
+                  + Agregar histórico
+                </button>
+              </div>
+              {data.inscripciones.length > 0 ? (
                 <ul className="space-y-1.5">
                   {data.inscripciones.map((insc, idx) => (
                     <li key={idx} className="flex items-start gap-2">
@@ -222,8 +235,10 @@ export default function MemberDetailPanel({ userId, onClose }: MemberDetailPanel
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
+              ) : (
+                <p className="text-xs text-gray-400">Sin talleres registrados.</p>
+              )}
+            </div>
 
             {/* Ayudantías */}
             {data.ayudantias.length > 0 && (
@@ -290,6 +305,132 @@ export default function MemberDetailPanel({ userId, onClose }: MemberDetailPanel
           </div>
         )}
       </div>
+
+      {backfillModal && userId && (
+        <BackfillModal
+          userId={userId}
+          onClose={() => setBackfillModal(false)}
+          onSaved={() => fetchMemberDetail(userId)}
+        />
+      )}
     </>
+  );
+}
+
+interface Taller {
+  id: number;
+  name: string;
+  branch: string;
+}
+
+const branchLabel: Record<string, string> = {
+  base: 'Base',
+  nieve_hielo: 'Nieve y Hielo',
+  roca: 'Roca',
+};
+
+function BackfillModal({
+  userId,
+  onClose,
+  onSaved,
+}: {
+  userId: string;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [talleres, setTalleres] = useState<Taller[]>([]);
+  const [tallerId, setTallerId] = useState<number | ''>('');
+  const [completedAt, setCompletedAt] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/coordinador/talleres')
+      .then((r) => r.json())
+      .then((data: Taller[]) => setTalleres(Array.isArray(data) ? data : []))
+      .catch(() => setTalleres([]));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!tallerId) { setError('Selecciona un taller.'); return; }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/coordinador/members/${userId}/inscripciones`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taller_id: tallerId,
+          completed_at: completedAt ? new Date(completedAt).toISOString() : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(typeof data.error === 'string' ? data.error : 'No se pudo guardar.');
+        return;
+      }
+      onSaved();
+      onClose();
+    } catch {
+      setError('Error de conexión.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+      <div className="bg-white rounded-xl max-w-sm w-full shadow-xl">
+        <div className="px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold">Agregar taller histórico</h3>
+          <p className="text-xs text-gray-500 mt-1">
+            Para cursos completados antes de esta plataforma. Se marca directamente como completado.
+          </p>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Taller *</label>
+            <select
+              value={tallerId}
+              onChange={(e) => setTallerId(e.target.value ? Number(e.target.value) : '')}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              required
+            >
+              <option value="">Seleccionar taller...</option>
+              {talleres.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {branchLabel[t.branch] ?? t.branch} — {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de finalización (opcional)</label>
+            <input
+              type="date"
+              value={completedAt}
+              onChange={(e) => setCompletedAt(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+            <p className="text-xs text-gray-400 mt-1">Si se deja vacío, se usa la fecha de hoy.</p>
+          </div>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <div className="flex justify-end gap-3 pt-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 disabled:opacity-60"
+            >
+              {submitting ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

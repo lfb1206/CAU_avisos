@@ -11,6 +11,7 @@ export default function Step1BasicInfo() {
   const [memberNames, setMemberNames] = useState<string[]>([]);
   const [membersByName, setMembersByName] = useState<Record<string, { email: string; phone?: string }>>({});
   const [basicOptions, setBasicOptions] = useState<Record<string, string[]>>({});
+  const [newRecipient, setNewRecipient] = useState('');
 
   useEffect(() => {
     fetch('/api/members')
@@ -42,6 +43,19 @@ export default function Step1BasicInfo() {
     const member = membersByName[value];
     if (member?.email) handleFieldChange('emailContacto', member.email);
     if (member?.phone) handleFieldChange('telefonoContacto', member.phone);
+  };
+
+  const destinatariosAdicionales = formData.basicInfo.destinatariosAdicionales ?? [];
+
+  const addRecipient = () => {
+    const email = newRecipient.trim().toLowerCase();
+    if (!email || !/\S+@\S+\.\S+/.test(email) || destinatariosAdicionales.includes(email)) return;
+    handleFieldChange('destinatariosAdicionales', [...destinatariosAdicionales, email]);
+    setNewRecipient('');
+  };
+
+  const removeRecipient = (email: string) => {
+    handleFieldChange('destinatariosAdicionales', destinatariosAdicionales.filter((r) => r !== email));
   };
 
   const handleImageUpload = (newImage: import('@/types').WeatherImage) => {
@@ -107,6 +121,48 @@ export default function Step1BasicInfo() {
             value={formData.basicInfo.emailContacto || ''}
             onChange={(value) => handleFieldChange('emailContacto', value)}
           />
+        </div>
+
+        <div className="md:col-span-2 space-y-1">
+          <label className="block text-sm font-medium text-gray-700">
+            Destinatarios adicionales (opcional)
+          </label>
+          <p className="text-xs text-gray-500">
+            Reciben una copia (CC) del correo de confirmación del aviso, junto al correo de contacto.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={newRecipient}
+              onChange={(e) => setNewRecipient(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRecipient(); } }}
+              placeholder="correo@ejemplo.cl"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onClick={addRecipient}
+              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
+            >
+              + Agregar
+            </button>
+          </div>
+          {destinatariosAdicionales.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {destinatariosAdicionales.map((email) => (
+                <span key={email} className="flex items-center gap-1.5 bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                  {email}
+                  <button
+                    type="button"
+                    onClick={() => removeRecipient(email)}
+                    className="text-gray-400 hover:text-red-600"
+                  >
+                    ✕
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>

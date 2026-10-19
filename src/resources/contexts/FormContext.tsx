@@ -11,6 +11,7 @@ const initialFormState: FormState = {
     contactoCAU: '',
     telefonoContacto: '',
     emailContacto: '',
+    destinatariosAdicionales: [],
     fechaHoraReporteRegreso: '',
     actividad: '',
     cerroOSector: '',

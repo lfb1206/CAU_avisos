@@ -97,8 +97,6 @@ function AvisoLargoInner() {
     }
   };
 
-  const canGoNext = isStepValid(currentCtxStep);
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
@@ -148,12 +146,11 @@ function AvisoLargoInner() {
               />
             )}
             <button
-              onClick={() => idx < effectiveIdx && goToStep(step.ctx)}
-              disabled={idx > effectiveIdx}
+              onClick={() => goToStep(step.ctx)}
               className="flex flex-col items-center gap-1 flex-shrink-0"
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+                className={`relative w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                   idx < effectiveIdx
                     ? 'bg-blue-600 text-white'
                     : idx === effectiveIdx
@@ -162,6 +159,14 @@ function AvisoLargoInner() {
                 }`}
               >
                 {idx < effectiveIdx ? '✓' : idx + 1}
+                {idx !== effectiveIdx && !isStepValid(step.ctx) && (
+                  <span
+                    className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 text-white text-[9px] flex items-center justify-center"
+                    title="Faltan datos en este paso"
+                  >
+                    !
+                  </span>
+                )}
               </div>
               <span
                 className={`text-[10px] font-medium whitespace-nowrap hidden sm:block ${
@@ -197,8 +202,7 @@ function AvisoLargoInner() {
           )}
           <button
             onClick={handleNext}
-            disabled={!canGoNext}
-            className="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
           >
             Siguiente: {STEPS[effectiveIdx + 1]?.label} →
           </button>

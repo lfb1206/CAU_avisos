@@ -70,6 +70,11 @@ model Aviso {
   activity_type          String?
   participant_names_text String?
   submitted_at           DateTime?
+  // QStash message id for the scheduled overdue-return alert — stored so DELETE can
+  // cancel it. overdue_alert_sent_at guards against double-sending on a QStash retry
+  // (the webhook firing doesn't itself change `status`, so status alone isn't enough).
+  overdue_alert_message_id String?
+  overdue_alert_sent_at    DateTime?
   created_at             DateTime    @default(now())
   updated_at             DateTime    @updatedAt
 
@@ -373,6 +378,9 @@ model InventoryItem {
   en_inspeccion Int           @default(0) // units out for repair/inspection
   fecha_compra  DateTime?
   observaciones String?
+  // Custodio-set usage restriction/instructions shown to members, e.g.
+  // "cuerdas gemelas son solo para uso de escalada en hielo".
+  instrucciones_uso String?
   active        Boolean       @default(true) // soft-delete only — never hard-deleted if it has loan history
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt

@@ -82,18 +82,36 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 RESEND_API_KEY=...                     # optional, enables all transactional email below
 RESEND_FROM_AVISOS=...                 # optional, sender for aviso emails (defaults to a CAU address)
 RESEND_FROM_PRESTAMOS=...              # optional, sender for Equipo Club loan emails (defaults to a CAU address)
+QSTASH_TOKEN=...                       # optional, enables the overdue-return alert email (Upstash QStash)
+QSTASH_CURRENT_SIGNING_KEY=...         # optional, verifies the overdue-alert webhook actually came from QStash
+QSTASH_NEXT_SIGNING_KEY=...            # optional, QStash's signing-key rotation companion to the above
 ```
 
 ### Install & run
 
 ```bash
 npm install
-npx prisma db push        # or `npm run db:migrate` if you prefer tracked migrations
-npm run db:seed           # seeds equipment, courses, options, etc. (see below)
+npm run db:migrate:deploy   # applies tracked migrations — see "Database migrations" below
+npm run db:seed             # seeds equipment, courses, options, etc. (see below)
 npm run dev
 ```
 
 Also apply the SQL files under `supabase/migrations/` in your Supabase project's SQL editor — they set up the auth trigger and RLS policies that Prisma migrations don't manage.
+
+### Database migrations
+
+Schema changes are tracked under `prisma/migrations/` instead of applied ad hoc:
+
+- **Local development**: after editing `prisma/schema.prisma`, run `npm run db:migrate` (`prisma migrate dev`) — it generates a new migration file from the diff and applies it to your dev database.
+- **Production**: run `npm run db:migrate:deploy` (`prisma migrate deploy`) — applies any migrations not yet recorded in the target database's `_prisma_migrations` table. This is what CI/deploy should run instead of `prisma db push`.
+
+`prisma/migrations/00000000000000_baseline/` is a baseline migration generated from the schema as it stood when tracked migrations were introduced — it represents everything that existed before, not a new change. **If you're pointing this at a database that was previously managed with `prisma db push`** (schema already matches, just no migration history), mark that baseline as already applied instead of re-running it, once, per database:
+
+```bash
+npx prisma migrate resolve --applied 00000000000000_baseline
+```
+
+`npm run db:push` (`prisma db push`) still exists for quick local prototyping, but avoid it against any database with real data — unlike `migrate deploy`, it applies whatever diff is needed to match the schema file directly, including destructive changes (dropped/renamed columns), with no migration file to review beforehand.
 
 ### Seeding real data
 

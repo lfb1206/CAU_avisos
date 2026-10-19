@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { InventoryItem, ItemCondition } from '@/types';
 import ManualLoanModal from './ManualLoanModal';
 
-type ItemDraft = Omit<InventoryItem, 'id' | 'pool_id' | 'disponible'>;
+type ItemDraft = Omit<InventoryItem, 'id' | 'pool_id' | 'disponible' | 'tiene_foto_reciente'>;
 
 const emptyDraft = (): ItemDraft => ({
   uso: '',
@@ -13,6 +13,7 @@ const emptyDraft = (): ItemDraft => ({
   en_inspeccion: 0,
   fecha_compra: null,
   observaciones: null,
+  instrucciones_uso: null,
   active: true,
 });
 
@@ -43,6 +44,7 @@ export default function InventoryCatalogPanel() {
   const [searchQuery, setSearchQuery] = useState('');
   const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
   const [showManualLoan, setShowManualLoan] = useState(false);
+  const [photoItem, setPhotoItem] = useState<InventoryItem | null>(null);
 
   const toggleCategory = (category: string) => {
     setCollapsedCategories((prev) => {
@@ -173,8 +175,14 @@ export default function InventoryCatalogPanel() {
                     {item.observaciones && (
                       <p className="text-xs text-gray-500 mt-1 italic">{item.observaciones}</p>
                     )}
+                    {item.instrucciones_uso && (
+                      <p className="text-xs text-amber-700 mt-1 font-medium">{item.instrucciones_uso}</p>
+                    )}
                   </div>
                   <div className="flex gap-3 flex-shrink-0 text-xs">
+                    {item.tiene_foto_reciente && (
+                      <button onClick={() => setPhotoItem(item)} className="text-gray-500 hover:text-gray-700">Ver foto</button>
+                    )}
                     <button onClick={() => setHistoryItem(item)} className="text-gray-500 hover:text-gray-700">Historial</button>
                     <button onClick={() => setEditingItem(item)} className="text-blue-600 hover:text-blue-800">Editar</button>
                     {item.active && (
@@ -210,6 +218,41 @@ export default function InventoryCatalogPanel() {
       )}
 
       {historyItem && <ItemHistoryModal item={historyItem} onClose={() => setHistoryItem(null)} />}
+
+      {photoItem && <ItemPhotoModal item={photoItem} onClose={() => setPhotoItem(null)} />}
+    </div>
+  );
+}
+
+function ItemPhotoModal({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
+  const [foto, setFoto] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/prestamos/items/${item.id}/foto`)
+      .then((res) => res.json())
+      .then((data: { foto?: string | null }) => setFoto(data.foto ?? null))
+      .finally(() => setLoading(false));
+  }, [item.id]);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-md w-full shadow-xl">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Última foto: {item.descripcion}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <div className="p-4">
+          {loading ? (
+            <p className="text-sm text-gray-400 text-center py-6">Cargando...</p>
+          ) : foto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={foto} alt={item.descripcion} className="w-full rounded-lg border border-gray-200" />
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6">Sin foto registrada.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -237,6 +280,7 @@ function ItemModal({
           en_inspeccion: item.en_inspeccion,
           fecha_compra: item.fecha_compra ? item.fecha_compra.split('T')[0] : null,
           observaciones: item.observaciones,
+          instrucciones_uso: item.instrucciones_uso,
           active: item.active,
         }
       : emptyDraft()
@@ -317,6 +361,12 @@ function ItemModal({
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
             <textarea value={draft.observaciones ?? ''} onChange={(e) => set('observaciones', e.target.value || null)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" rows={2} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Instrucciones de uso</label>
+            <p className="text-xs text-gray-400 mb-1">Visible para los socios al elegir equipo. Ej: &quot;Cuerdas gemelas solo para uso en escalada en hielo&quot;.</p>
+            <textarea value={draft.instrucciones_uso ?? ''} onChange={(e) => set('instrucciones_uso', e.target.value || null)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" rows={2} />
           </div>
           {item && (

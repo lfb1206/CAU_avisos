@@ -13,6 +13,8 @@ export interface BasicInfo {
   contactoCAU: string;
   telefonoContacto: string;
   emailContacto: string;
+  /** Extra addresses CC'd on the submission confirmation (and overdue-alert) email. */
+  destinatariosAdicionales?: string[];
   fechaHoraReporteRegreso: string;
   actividad: string;
   cerroOSector: string;
@@ -74,6 +76,7 @@ export interface ItineraryDay {
   horaFin: string;
   altitudInicio?: string;
   altitudFin?: string;
+  altitudMax?: string;
   supuestos: Assumption[];
   dificultadesPrincipales?: string[];
   [key: string]: unknown;
@@ -256,9 +259,12 @@ export interface InventoryItem {
   en_inspeccion: number;
   fecha_compra?: string | null;
   observaciones?: string | null;
+  instrucciones_uso?: string | null;
   active: boolean;
   /** Present only on responses that compute it (browse/catalog list), never stored. */
   disponible?: number;
+  /** Present only on responses that compute it — cheap existence check, no image payload. */
+  tiene_foto_reciente?: boolean;
 }
 
 export interface LoanItem {

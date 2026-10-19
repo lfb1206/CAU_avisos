@@ -17,6 +17,7 @@ export default function PrestamosCatalog() {
   const [error, setError] = useState('');
   const [cart, setCart] = useState<Record<number, number>>({});
   const [activeTab, setActiveTab] = useState<string>('');
+  const [photoItem, setPhotoItem] = useState<InventoryItem | null>(null);
 
   const [avisos, setAvisos] = useState<AvisoOption[]>([]);
   const [avisosLoading, setAvisosLoading] = useState(true);
@@ -155,10 +156,24 @@ export default function PrestamosCatalog() {
               return (
                 <div key={item.id} className="bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.descripcion}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-gray-900 truncate">{item.descripcion}</p>
+                      {item.tiene_foto_reciente && (
+                        <button
+                          type="button"
+                          onClick={() => setPhotoItem(item)}
+                          className="text-xs text-blue-600 hover:text-blue-800 flex-shrink-0"
+                        >
+                          Ver foto
+                        </button>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-400 mt-0.5">
                       {disponible > 0 ? `${disponible} disponible${disponible === 1 ? '' : 's'}` : 'Sin disponibilidad'}
                     </p>
+                    {item.instrucciones_uso && (
+                      <p className="text-xs text-amber-700 mt-0.5 font-medium">{item.instrucciones_uso}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
@@ -197,6 +212,41 @@ export default function PrestamosCatalog() {
           {cartCount} ítem{cartCount === 1 ? '' : 's'} seleccionado{cartCount === 1 ? '' : 's'} · Ir al resumen
         </button>
       )}
+
+      {photoItem && <ItemPhotoPreview item={photoItem} onClose={() => setPhotoItem(null)} />}
+    </div>
+  );
+}
+
+function ItemPhotoPreview({ item, onClose }: { item: InventoryItem; onClose: () => void }) {
+  const [foto, setFoto] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/prestamos/items/${item.id}/foto`)
+      .then((res) => res.json())
+      .then((data: { foto?: string | null }) => setFoto(data.foto ?? null))
+      .finally(() => setLoading(false));
+  }, [item.id]);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-md w-full shadow-xl">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <h3 className="text-lg font-semibold">{item.descripcion}</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <div className="p-4">
+          {loading ? (
+            <p className="text-sm text-gray-400 text-center py-6">Cargando...</p>
+          ) : foto ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={foto} alt={item.descripcion} className="w-full rounded-lg border border-gray-200" />
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6">Sin foto registrada.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

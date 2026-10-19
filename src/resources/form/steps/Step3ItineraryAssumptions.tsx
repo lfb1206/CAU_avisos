@@ -19,7 +19,7 @@ export default function Step3ItineraryAssumptions() {
   const addItineraryDay = () => {
     addItem('itinerario', {
       tramo: '', fecha: '', horaInicio: '', horaFin: '',
-      altitudInicio: '', altitudFin: '', actividades: [],
+      altitudInicio: '', altitudFin: '', altitudMax: '', actividades: [],
     });
   };
 

@@ -46,6 +46,12 @@ describe('POST /api/coordinador/points', () => {
     expect(prismaMock.coursePoints.create).not.toHaveBeenCalled();
   });
 
+  it('rejects a non-integer points value', async () => {
+    const res = await POST(mockRequest({ user_id: 'u1', points: 1.5 }));
+    expect(res.status).toBe(400);
+    expect(prismaMock.coursePoints.create).not.toHaveBeenCalled();
+  });
+
   it('awards points with a one-year expiry and records who awarded them', async () => {
     const res = await POST(mockRequest({ user_id: 'u1', points: 2, description: 'Manual bonus' }));
     expect(res.status).toBe(201);

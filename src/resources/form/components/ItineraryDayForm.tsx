@@ -186,6 +186,16 @@ export default function ItineraryDayForm({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-gray-700">Altitud Máxima (msnm)</label>
+            <input
+              type="number"
+              value={day.altitudMax || ''}
+              onChange={(e) => onUpdate(dayIndex, 'altitudMax', e.target.value)}
+              placeholder="0"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
         </div>
       </div>
     </details>

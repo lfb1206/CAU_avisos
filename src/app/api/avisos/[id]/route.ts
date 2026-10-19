@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { cancelOverdueAlert } from '@/lib/qstash';
 
 const updateAvisoSchema = z.object({
   title: z.string().optional(),
@@ -94,6 +95,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   try {
     const existing = await getAvisoForUser(Number(id), user.id);
     if (!existing) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+
+    if (existing.overdue_alert_message_id) {
+      await cancelOverdueAlert(existing.overdue_alert_message_id);
+    }
 
     await prisma.aviso.delete({ where: { id: Number(id) } });
     return new NextResponse(null, { status: 204 });

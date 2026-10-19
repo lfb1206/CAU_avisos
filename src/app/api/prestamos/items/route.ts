@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { EQUIPO_CLUB_POOL_KEY, getAvailability } from '@/lib/inventory';
+import { EQUIPO_CLUB_POOL_KEY, getAvailability, getLatestReturnPhotoIds } from '@/lib/inventory';
 
 // GET /api/prestamos/items — active Equipo Club catalog with live availability
 export async function GET(request: NextRequest) {
@@ -17,10 +17,17 @@ export async function GET(request: NextRequest) {
       orderBy: [{ uso: 'asc' }, { descripcion: 'asc' }],
     });
 
-    const availability = await getAvailability(items);
+    const [availability, photoIds] = await Promise.all([
+      getAvailability(items),
+      getLatestReturnPhotoIds(items.map((item) => item.id)),
+    ]);
 
     return NextResponse.json(
-      items.map((item) => ({ ...item, disponible: availability.get(item.id) ?? 0 }))
+      items.map((item) => ({
+        ...item,
+        disponible: availability.get(item.id) ?? 0,
+        tiene_foto_reciente: photoIds.has(item.id),
+      }))
     );
   } catch (error) {
     console.error('[prestamos items GET]:', error);
