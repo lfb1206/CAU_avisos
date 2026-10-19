@@ -14,6 +14,7 @@ const updateSchema = z.object({
   fecha_compra: z.string().optional().nullable(),
   observaciones: z.string().optional().nullable(),
   instrucciones_uso: z.string().optional().nullable(),
+  foto_base64: z.string().optional().nullable(),
   active: z.boolean().optional(),
 });
 

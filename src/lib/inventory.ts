@@ -55,24 +55,3 @@ export async function getAvailability(
     items.map((item) => [item.id, item.cantidad - item.en_inspeccion - (reservedByItem.get(item.id) ?? 0)])
   );
 }
-
-/**
- * Which of the given items have at least one returned loan with a return photo on
- * file. Deliberately cheap — only existence, never the base64 payload itself — so
- * catalog-list responses stay light regardless of how many items have photos. The
- * actual photo is fetched separately, on demand, only when someone wants to view it.
- */
-export async function getLatestReturnPhotoIds(itemIds: number[]): Promise<Set<number>> {
-  if (itemIds.length === 0) return new Set();
-
-  const rows = await prisma.loanItem.findMany({
-    where: {
-      inventory_item_id: { in: itemIds },
-      loan_request: { status: 'devuelto', return_photo_base64: { not: null } },
-    },
-    select: { inventory_item_id: true },
-    distinct: ['inventory_item_id'],
-  });
-
-  return new Set(rows.map((row) => row.inventory_item_id));
-}

@@ -381,6 +381,12 @@ model InventoryItem {
   // Custodio-set usage restriction/instructions shown to members, e.g.
   // "cuerdas gemelas son solo para uso de escalada en hielo".
   instrucciones_uso String?
+  // Custodio-set representative photo of the item itself. Deliberately not derived
+  // from loan return photos: a LoanRequest's return_photo_base64 documents an
+  // entire return transaction (possibly several different items at once), not
+  // any single item, so deriving "the item's photo" from it produced the same
+  // photo for every item returned together in one request.
+  foto_base64   String?
   active        Boolean       @default(true) // soft-delete only — never hard-deleted if it has loan history
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt

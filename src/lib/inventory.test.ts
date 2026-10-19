@@ -4,13 +4,12 @@ vi.mock('@/lib/prisma', () => ({
   prisma: {
     loanItem: {
       groupBy: vi.fn(),
-      findMany: vi.fn(),
     },
   },
 }));
 
 import { prisma } from '@/lib/prisma';
-import { getAvailability, getLatestReturnPhotoIds, isLoanDurationWithinCap, MAX_LOAN_DURATION_DAYS } from './inventory';
+import { getAvailability, isLoanDurationWithinCap, MAX_LOAN_DURATION_DAYS } from './inventory';
 
 describe('isLoanDurationWithinCap', () => {
   const pickup = new Date('2026-01-01T00:00:00Z');
@@ -83,40 +82,5 @@ describe('getAvailability', () => {
 
     expect(result.size).toBe(0);
     expect(groupBySpy).not.toHaveBeenCalled();
-  });
-});
-
-describe('getLatestReturnPhotoIds', () => {
-  it('returns the ids of items that have at least one returned loan with a photo', async () => {
-    vi.mocked(prisma.loanItem.findMany).mockResolvedValue([
-      { inventory_item_id: 1 },
-      { inventory_item_id: 3 },
-    ] as never);
-
-    const result = await getLatestReturnPhotoIds([1, 2, 3]);
-
-    expect(result.has(1)).toBe(true);
-    expect(result.has(2)).toBe(false);
-    expect(result.has(3)).toBe(true);
-  });
-
-  it('filters by devuelto status and a non-null return photo', async () => {
-    const findManySpy = vi.mocked(prisma.loanItem.findMany);
-    findManySpy.mockResolvedValue([] as never);
-
-    await getLatestReturnPhotoIds([1]);
-
-    const [[args]] = findManySpy.mock.calls as [{ where: { loan_request: unknown } }][];
-    expect(args.where.loan_request).toEqual({ status: 'devuelto', return_photo_base64: { not: null } });
-  });
-
-  it('returns an empty set for an empty item list without querying the database', async () => {
-    const findManySpy = vi.mocked(prisma.loanItem.findMany);
-    findManySpy.mockClear();
-
-    const result = await getLatestReturnPhotoIds([]);
-
-    expect(result.size).toBe(0);
-    expect(findManySpy).not.toHaveBeenCalled();
   });
 });

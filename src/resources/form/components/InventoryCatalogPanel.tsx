@@ -2,8 +2,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { InventoryItem, ItemCondition } from '@/types';
 import ManualLoanModal from './ManualLoanModal';
+import LoanPhotoCapture from './LoanPhotoCapture';
 
-type ItemDraft = Omit<InventoryItem, 'id' | 'pool_id' | 'disponible' | 'tiene_foto_reciente'>;
+type ItemDraft = Omit<InventoryItem, 'id' | 'pool_id' | 'disponible' | 'tiene_foto'>;
 
 const emptyDraft = (): ItemDraft => ({
   uso: '',
@@ -180,7 +181,7 @@ export default function InventoryCatalogPanel() {
                     )}
                   </div>
                   <div className="flex gap-3 flex-shrink-0 text-xs">
-                    {item.tiene_foto_reciente && (
+                    {item.tiene_foto && (
                       <button onClick={() => setPhotoItem(item)} className="text-gray-500 hover:text-gray-700">Ver foto</button>
                     )}
                     <button onClick={() => setHistoryItem(item)} className="text-gray-500 hover:text-gray-700">Historial</button>
@@ -239,7 +240,7 @@ function ItemPhotoModal({ item, onClose }: { item: InventoryItem; onClose: () =>
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl max-w-md w-full shadow-xl">
         <div className="px-6 py-4 border-b flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Última foto: {item.descripcion}</h3>
+          <h3 className="text-lg font-semibold">Foto: {item.descripcion}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
         </div>
         <div className="p-4">
@@ -249,7 +250,7 @@ function ItemPhotoModal({ item, onClose }: { item: InventoryItem; onClose: () =>
             // eslint-disable-next-line @next/next/no-img-element
             <img src={foto} alt={item.descripcion} className="w-full rounded-lg border border-gray-200" />
           ) : (
-            <p className="text-sm text-gray-400 text-center py-6">Sin foto registrada.</p>
+            <p className="text-sm text-gray-400 text-center py-6">Foto no disponible.</p>
           )}
         </div>
       </div>
@@ -287,6 +288,21 @@ function ItemModal({
   );
   const [newCategory, setNewCategory] = useState('');
   const useNewCategory = draft.uso === '__new__';
+
+  // The catalog list never includes the actual photo payload (only `tiene_foto`), so
+  // fetch it on demand when opening the edit form for an existing item. Deliberately
+  // left absent from `draft` (not set to null) until this resolves or the custodio
+  // captures a new one — if PATCH sent an explicit `null` before the fetch finished,
+  // saving quickly would silently wipe out an existing photo.
+  useEffect(() => {
+    if (!item?.tiene_foto) return;
+    fetch(`/api/prestamos/items/${item.id}/foto`)
+      .then((res) => res.json())
+      .then((data: { foto?: string | null }) => {
+        if (data.foto) setDraft((prev) => ({ ...prev, foto_base64: data.foto }));
+      })
+      .catch(() => {});
+  }, [item]);
 
   const set = <K extends keyof ItemDraft>(field: K, value: ItemDraft[K]) =>
     setDraft((prev) => ({ ...prev, [field]: value }));
@@ -368,6 +384,17 @@ function ItemModal({
             <p className="text-xs text-gray-400 mb-1">Visible para los socios al elegir equipo. Ej: &quot;Cuerdas gemelas solo para uso en escalada en hielo&quot;.</p>
             <textarea value={draft.instrucciones_uso ?? ''} onChange={(e) => set('instrucciones_uso', e.target.value || null)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" rows={2} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Foto del ítem</label>
+            {/* Keyed on the loaded photo so the capture control remounts once the
+                async fetch resolves — it only reads `initialPreview` at mount. */}
+            <LoanPhotoCapture
+              key={draft.foto_base64 ?? 'none'}
+              label="Agregar foto"
+              initialPreview={draft.foto_base64}
+              onCapture={(base64) => set('foto_base64', base64)}
+            />
           </div>
           {item && (
             <label className="flex items-center gap-2 cursor-pointer">

@@ -80,12 +80,15 @@ function AvisoRapidoContent() {
       fetch(`/api/avisos/${avisoId}`)
         .then((r) => r.json())
         .then((data) => {
-          if (data.form_data) setForm(data.form_data as FormData);
+          // Merge over initialForm instead of replacing it outright — an aviso
+          // created before a field like destinatariosAdicionales existed would
+          // otherwise load with that field missing entirely and crash on render.
+          if (data.form_data) setForm({ ...initialForm, ...(data.form_data as Partial<FormData>) });
         })
         .catch(() => {});
     } else {
       const saved = localStorage.getItem(LS_KEY);
-      if (saved) setForm(JSON.parse(saved) as FormData);
+      if (saved) setForm({ ...initialForm, ...(JSON.parse(saved) as Partial<FormData>) });
     }
 
     fetch('/api/members')

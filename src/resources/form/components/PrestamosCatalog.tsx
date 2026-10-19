@@ -158,7 +158,7 @@ export default function PrestamosCatalog() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-gray-900 truncate">{item.descripcion}</p>
-                      {item.tiene_foto_reciente && (
+                      {item.tiene_foto && (
                         <button
                           type="button"
                           onClick={() => setPhotoItem(item)}
@@ -243,7 +243,7 @@ function ItemPhotoPreview({ item, onClose }: { item: InventoryItem; onClose: () 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={foto} alt={item.descripcion} className="w-full rounded-lg border border-gray-200" />
           ) : (
-            <p className="text-sm text-gray-400 text-center py-6">Sin foto registrada.</p>
+            <p className="text-sm text-gray-400 text-center py-6">Foto no disponible.</p>
           )}
         </div>
       </div>

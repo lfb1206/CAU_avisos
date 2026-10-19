@@ -260,11 +260,15 @@ export interface InventoryItem {
   fecha_compra?: string | null;
   observaciones?: string | null;
   instrucciones_uso?: string | null;
+  /** Custodio-set photo of the item. Omitted from catalog-list responses (see
+   *  `tiene_foto` below) — fetched separately, on demand, via GET
+   *  /api/prestamos/items/[id]/foto. Present when editing a single item. */
+  foto_base64?: string | null;
   active: boolean;
   /** Present only on responses that compute it (browse/catalog list), never stored. */
   disponible?: number;
   /** Present only on responses that compute it — cheap existence check, no image payload. */
-  tiene_foto_reciente?: boolean;
+  tiene_foto?: boolean;
 }
 
 export interface LoanItem {

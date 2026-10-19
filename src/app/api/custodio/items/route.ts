@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { apiRequireCustodio } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
-import { EQUIPO_CLUB_POOL_KEY, ensureEquipoClubPool, getAvailability, getLatestReturnPhotoIds } from '@/lib/inventory';
+import { EQUIPO_CLUB_POOL_KEY, ensureEquipoClubPool, getAvailability } from '@/lib/inventory';
 
 const itemSchema = z.object({
   uso: z.string().min(1),
@@ -13,6 +13,7 @@ const itemSchema = z.object({
   fecha_compra: z.string().optional().nullable(),
   observaciones: z.string().optional().nullable(),
   instrucciones_uso: z.string().optional().nullable(),
+  foto_base64: z.string().optional().nullable(),
 });
 
 // GET /api/custodio/items — full Equipo Club catalog (incl. inactive) with live availability
@@ -28,16 +29,17 @@ export async function GET(request: NextRequest) {
       where: { pool_id: pool.id },
       orderBy: [{ uso: 'asc' }, { descripcion: 'asc' }],
     });
-    const [availability, photoIds] = await Promise.all([
-      getAvailability(items),
-      getLatestReturnPhotoIds(items.map((item) => item.id)),
-    ]);
+    const availability = await getAvailability(items);
 
+    // Strip the actual photo payload from the list response — it's fetched
+    // separately, on demand, only when someone wants to view it (see GET
+    // /api/prestamos/items/[id]/foto) — so the catalog list stays light
+    // regardless of how many items have one.
     return NextResponse.json(
-      items.map((item) => ({
+      items.map(({ foto_base64, ...item }) => ({
         ...item,
         disponible: availability.get(item.id) ?? 0,
-        tiene_foto_reciente: photoIds.has(item.id),
+        tiene_foto: !!foto_base64,
       }))
     );
   } catch (error) {
