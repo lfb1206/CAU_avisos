@@ -120,6 +120,7 @@ export default function NavigationBar() {
                 <Link href="/cursos" className={desktopLinkClass('/cursos')}>Cursos</Link>
                 <Link href="/prestamos" className={desktopLinkClass('/prestamos')}>Préstamos</Link>
                 <Link href="/dashboard" className={desktopLinkClass('/dashboard')}>Panel</Link>
+                <Link href="/ayuda" className={desktopLinkClass('/ayuda')}>Ayuda</Link>
                 {(profile?.role === 'coordinador' || profile?.role === 'admin') && (
                   <Link href="/coordinador" className={desktopLinkClass('/coordinador')}>Coordinador</Link>
                 )}
@@ -211,6 +212,7 @@ export default function NavigationBar() {
             <Link href="/aviso/largo" className={mobileLinkClass('/aviso/largo')}>Aviso Largo</Link>
             <Link href="/dashboard" className={mobileLinkClass('/dashboard')}>Panel</Link>
             <Link href="/perfil" className={mobileLinkClass('/perfil')}>Mi perfil</Link>
+            <Link href="/ayuda" className={mobileLinkClass('/ayuda')}>Ayuda</Link>
             {(profile?.role === 'coordinador' || profile?.role === 'admin') && (
               <Link href="/coordinador" className={mobileLinkClass('/coordinador')}>Coordinador</Link>
             )}
